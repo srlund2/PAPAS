@@ -1,0 +1,53 @@
+# Macro file for JZCaPA beam test 2018
+#
+# To be run preferably in batch, without graphics:
+#
+# 31 TeV Pb ion
+
+# Initialize kernel
+/run/initialize
+
+
+/control/verbose 2
+/run/verbose 2
+/tracking/verbose 1
+/run/particle/verbose 1
+
+/gps/particle opticalphoton
+
+# the beam energy is in gaussian profile
+#/gps/ene/type Gauss
+#/gps/ene/mono 150 GeV
+#/gps/ene/sigma 1 MeV
+
+# General particle source
+/gps/pos/type Beam
+/gps/pos/shape Circle
+/gps/pos/centre 0. 0. 0. mm
+/gps/pos/radius 1.5 mm
+/gps/pos/sigma_r 2. mm
+
+#
+# the incident surface is in the x-y plane
+/gps/pos/rot1 1 0 0
+/gps/pos/rot2 0 1 0
+#
+#
+# the beam is travelling along the z-axis
+/gps/ang/rot1 0 1 0
+/gps/ang/rot2 1 0 0
+/gps/ang/type beam1d
+# the beam angular dispersion
+/gps/ang/sigma_r 30.00 deg
+# 1.0milliradians  = 0.057 deg
+#
+
+#if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
+/vis/ogl/set/displayListLimit 1000000
+
+##############################################################
+##############################################################
+# number of events
+/run/beamOn 2
+##############################################################
+##############################################################
