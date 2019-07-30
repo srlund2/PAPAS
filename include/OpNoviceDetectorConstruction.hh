@@ -28,9 +28,7 @@
 //
 //
 //
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//
 #ifndef OpNoviceDetectorConstruction_h
 #define OpNoviceDetectorConstruction_h 1
 
@@ -41,7 +39,6 @@
 #include "G4VUserDetectorConstruction.hh"
 #include "Materials.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class OpNoviceDetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -59,7 +56,5 @@ class OpNoviceDetectorConstruction : public G4VUserDetectorConstruction
 
     Materials* materials;
 };
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif /*OpNoviceDetectorConstruction_h*/
