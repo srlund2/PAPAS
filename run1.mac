@@ -16,16 +16,16 @@
 /gps/particle opticalphoton
 
 # the beam energy is in gaussian profile
-#/gps/ene/type Gauss
-#/gps/ene/mono 150 GeV
-#/gps/ene/sigma 1 MeV
+/gps/ene/type Gauss
+/gps/ene/mono 3.4 eV
+/gps/ene/sigma 1 eV
 
 # General particle source
 /gps/pos/type Beam
 /gps/pos/shape Circle
-/gps/pos/centre 0. 0. 0. mm
+/gps/pos/centre {x} {y} 0. cm
 /gps/pos/radius 1.5 mm
-/gps/pos/sigma_r 2. mm
+/gps/pos/sigma_r 0.002 mm
 
 #
 # the incident surface is in the x-y plane
@@ -38,7 +38,8 @@
 /gps/ang/rot2 1 0 0
 /gps/ang/type beam1d
 # the beam angular dispersion
-/gps/ang/sigma_r 30.00 deg
+# N.A. is 0.22 so acceptance cone is ~25.4 degrees
+/gps/ang/sigma_r 25.40 deg
 # 1.0milliradians  = 0.057 deg
 #
 
@@ -48,6 +49,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 2
+/run/beamOn 5
 ##############################################################
 ##############################################################
