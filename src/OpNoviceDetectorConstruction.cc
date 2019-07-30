@@ -161,7 +161,34 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
 
 
   //----------------- Define PMT  -----------------// This will need a sensitive detector
+  double PMTradius = 65.0/2*mm;
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  AirSD* PMT = new AirSD("MyPMT");
+  SDman->AddNewDetector( PMT );
 
+  G4Tubs* solidPMT =
+    new G4Tubs("PMT",     //name
+              0.0*mm,     //Inner radius
+              PMTradius,  //Outter radius
+              0.5*mm,     //Height
+              0.0*deg,    //Rotation start
+              360.0*deg); //Sweep
+
+  G4LogicalVolume* logicPMT =
+    new G4LogicalVolume(solidPMT,   //solid
+                        Air,        //material
+                        "PMT");     //name
+
+  G4VPhysicalVolume*  physPMT =
+    new G4PVPlacement(0,
+                      G4ThreeVector(0, 0, 2*HeightZ),
+                      logicPMT,
+                      "PMT",
+                      m_logicWorld,
+                      false,
+                      0);
+
+  logicPMT->SetSensitiveDetector( PMT );
 
   return m_physWorld;
 }

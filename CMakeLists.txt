@@ -14,11 +14,16 @@ if(WITH_GEANT4_UIVIS)
 else()
   find_package(Geant4 REQUIRED)
 endif()
+#----------------------------------------------------------------------------
+# Find ROOT
+list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
+find_package (ROOT REQUIRED)
+include(${ROOT_USE_FILE})
 
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 #
-include(${Geant4_USE_FILE})
+include(${Geant4_USE_FILE} )
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -32,7 +37,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(OpNovice OpNovice.cc ${sources} ${headers})
-target_link_libraries(OpNovice ${Geant4_LIBRARIES} )
+target_link_libraries(OpNovice ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} )
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we

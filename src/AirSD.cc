@@ -25,6 +25,7 @@
 // @Author Chad Lantz
 
 #include "AirSD.hh"
+#include "AirHit.hh"
 
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
@@ -45,8 +46,8 @@
 /*
  *
  */
-FiberSD::FiberSD(G4String sdName, G4int modNum)
-  :G4VSensitiveDetector(sdName) m_modNum(modNum) {
+AirSD::AirSD(G4String sdName)
+  :G4VSensitiveDetector(sdName){
   collectionName.insert(sdName);
   HCID = -1;
 
@@ -56,23 +57,17 @@ FiberSD::FiberSD(G4String sdName, G4int modNum)
 /*
  *
  */
-FiberSD::~FiberSD(){ }
+AirSD::~AirSD(){
 
-
-/*
- *
- */
-void FiberSD::HistInitialize(){
-  std::string name = GetName();
 }
 
 
-/*
+/* Mandatory method
  *
  */
-void FiberSD::Initialize(G4HCofThisEvent* HCE){
+void AirSD::Initialize(G4HCofThisEvent* HCE){
 
-  fiberCollection = new FiberHitsCollection(SensitiveDetectorName,
+  hitCollection = new HitsCollection(SensitiveDetectorName,
 					      m_modNum);
 
   std::string name = collectionName[0];
@@ -80,15 +75,15 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
 
-  HCE->AddHitsCollection( HCID, fiberCollection );
+  HCE->AddHitsCollection( HCID, hitCollection );
   G4cout << " HCID " << HCID << " name " << name << G4endl;
 }
 
 
-/*
+/* Mandatory method
  *
  */
-G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
+G4bool AirSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   G4Track* theTrack = aStep->GetTrack();
 
@@ -97,23 +92,22 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
   G4double charge = aStep->GetPreStepPoint()->GetCharge();
 
-  FiberHit* newHit = new FiberHit();
+  AirHit* newHit = new AirHit();
 
   newHit->setTrackID       (aStep->GetTrack()->GetTrackID() );
   newHit->setPos           (aStep->GetTrack()->GetVertexPosition() );
   newHit->setEnergy        (energy);
   newHit->setMomentum      (momentum);
 
-  fiberCollection->insert (newHit );
-
+  hitCollection->insert( newHit );
 
   return true;
 }
 
-/*
+/* Mandatory method
  *
  */
-void FiberSD::EndOfEvent(G4HCofThisEvent*){
+void AirSD::EndOfEvent(G4HCofThisEvent*){
 
 
 }

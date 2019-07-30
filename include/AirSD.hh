@@ -29,8 +29,7 @@
 #define AirSD_h 1
 
 #include "G4VSensitiveDetector.hh"
-#include "RpdHit.hh"
-#include "FiberHit.hh"
+#include "AirHit.hh"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -43,10 +42,8 @@ class G4HCofThisEvent;
 class AirSD : public G4VSensitiveDetector
 {
 public:
-  AirSD(G4String, G4int);
+  AirSD(G4String);
   ~AirSD();
-
-  void HistInitialize();
 
   void Initialize(G4HCofThisEvent*);
   G4bool ProcessHits(G4Step*, G4TouchableHistory*);
