@@ -24,8 +24,8 @@
 # General particle source
 /gps/pos/type Beam
 /gps/pos/shape Circle
-/gps/pos/centre {x} {y} 0. cm
-/gps/pos/radius 1.5 mm
+/gps/pos/centre 0. 0. 0. mm
+/gps/pos/radius 0.75 mm
 /gps/pos/sigma_r 0.002 mm
 
 #
@@ -50,6 +50,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 5
+/run/beamOn 500
 ##############################################################
 ##############################################################
