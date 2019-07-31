@@ -31,10 +31,6 @@
 #include "G4VSensitiveDetector.hh"
 #include "AirHit.hh"
 
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TH3D.h"
-
 class G4Step;
 class G4HCofThisEvent;
 
@@ -51,10 +47,7 @@ public:
 
 private:
   int HCID;
-  G4double m_modCoreIndexRefraction;
   HitsCollection* hitCollection;
-  G4int m_modNum;
-  TH2D* h2_rodNum_eDep;
 };
 
 #endif

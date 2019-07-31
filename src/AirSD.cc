@@ -70,7 +70,7 @@ void AirSD::Initialize(G4HCofThisEvent* HCE){
   hitCollection = new HitsCollection(SensitiveDetectorName,
 					      m_modNum);
 
-  std::string name = collectionName[0];
+  std::string name = GetName();
 
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
@@ -89,8 +89,6 @@ G4bool AirSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
   G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
-  G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
-  G4double charge = aStep->GetPreStepPoint()->GetCharge();
 
   AirHit* newHit = new AirHit();
 
