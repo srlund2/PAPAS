@@ -29,36 +29,63 @@
 
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
+#include "G4SDManager.hh"
+#include "G4Event.hh"
 #include "G4Track.hh"
 #include "G4ios.hh"
 
+#include "AirHit.hh"
+#include "lgAnalysis.hh"
 
-OpNoviceEventgAction::OpNoviceStackingAction()
+/*
+ *
+ */
+OpNoviceEventAction::OpNoviceEventAction()
   : G4UserEventAction(),
     hitsCollID(0){
 
 }
 
-
-OpNoviceEventAction::~OpNoviceStackingAction(){
+/*
+ *
+ */
+OpNoviceEventAction::~OpNoviceEventAction(){
 
 }
 
-
+/*
+ *
+ */
 void OpNoviceEventAction::BeginOfEventAction(const G4Event* event){
-  fEventNo = evt->GetEventID();
-  //  G4SDManager * SDman = G4SDManager::GetSDMpointer();
+  fEventNo = event->GetEventID();
   hitsCollID = 0;
 }
 
-
+/*
+ *
+ */
 void OpNoviceEventAction::EndOfEventAction(const G4Event* event){
 
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-  // fill ntuple  //
-  analysisManager->FillNtupleDColumn(0, absoEdep);
-  analysisManager->FillNtupleDColumn(1, gapEdep);
-  analysisManager->FillNtupleDColumn(2, absoTrackLength);
-  analysisManager->FillNtupleDColumn(3, gapTrackLength);
-  analysisManager->AddNtupleRow();
+  hitsCollID = G4SDManager::GetSDMpointer()->GetCollectionID("MyPMT");
+  G4HCofThisEvent* HCE = event->GetHCofThisEvent();
+  if(HCE){
+    HitsCollection* HC = (HitsCollection*)(HCE->GetHC(hitsCollID));
+    if( HC->entries() ){
+      AirHit* aHit = (*HC)[0];
+      // fill ntuple  //
+      G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+      analysisManager->FillNtupleDColumn(0,  aHit->getTrackID()      );
+      analysisManager->FillNtupleDColumn(1,  aHit->getPos().x()      );
+      analysisManager->FillNtupleDColumn(2,  aHit->getPos().y()      );
+      analysisManager->FillNtupleDColumn(3,  aHit->getPos().z()      );
+      analysisManager->FillNtupleDColumn(4,  aHit->getHit().x()      );
+      analysisManager->FillNtupleDColumn(5,  aHit->getHit().y()      );
+      analysisManager->FillNtupleDColumn(6,  aHit->getHit().z()      );
+      analysisManager->FillNtupleDColumn(7,  aHit->getEnergy()       );
+      analysisManager->FillNtupleDColumn(8,  aHit->getMomentum().x() );
+      analysisManager->FillNtupleDColumn(9,  aHit->getMomentum().y() );
+      analysisManager->FillNtupleDColumn(10, aHit->getMomentum().z() );
+      analysisManager->AddNtupleRow();
+    }
+  }
 }

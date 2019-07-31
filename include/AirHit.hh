@@ -51,19 +51,21 @@ public:
 public:
   void          setTrackID    (G4int track)       { trackID = track; }
   void          setPos        (G4ThreeVector xyz) { pos = xyz; }
+  void          setHit        (G4ThreeVector xyz) { hit = xyz; }
   void          setMomentum   (G4ThreeVector mom) { momentum = mom; }
   void          setEnergy     (G4double e)        { energy = e; }
   G4int         getTrackID    ( )                 { return trackID; }
   G4ThreeVector getPos        ( )                 { return pos; }
+  G4ThreeVector getHit        ( )                 { return hit; }
   G4double      getEnergy     ( )                 { return energy; }
   G4ThreeVector getMomentum   ( )                 { return momentum; }
 
 private:
   G4int         trackID;
   G4ThreeVector pos;
-  G4ThreeVector momentum;
+  G4ThreeVector hit;
   G4double      energy;
-  G4double      charge;
+  G4ThreeVector momentum;
 };
 
 

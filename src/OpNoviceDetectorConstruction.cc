@@ -29,6 +29,7 @@
 #include "OpNoviceDetectorConstruction.hh"
 
 #include "G4Element.hh"
+#include "G4SDManager.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4LogicalSkinSurface.hh"
 #include "G4OpticalSurface.hh"
@@ -42,7 +43,9 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 #include <math.h>
+
 #include "Materials.hh"
+#include "AirSD.hh"
 
 /*
  *
@@ -72,6 +75,7 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
   G4Material* Al = materials->Al;
   G4Material* Silica = materials->pQuartz;
 
+  G4double lgHeight = 339.*mm/2;
 
   bool checkOverlaps = false;
 
@@ -110,10 +114,10 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
   }else{
     //Create a trapezoidal air light guide made of aluminum sheet
     G4double thickness = 1.0*mm;
-    G4double PMTwindow = 45.969*mm/2;
     G4double LengthX = 89.75*mm/2;
     G4double LengthY = 164.*mm/2;
-    G4double HeightZ = 339.*mm/2;
+    G4double PMTwindow = 45.969*mm/2;
+    G4double HeightZ = lgHeight;
 
     //Aluminum outter
     G4Trd* outter =
@@ -181,7 +185,7 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
 
   G4VPhysicalVolume*  physPMT =
     new G4PVPlacement(0,
-                      G4ThreeVector(0, 0, 2*HeightZ),
+                      G4ThreeVector(0, 0, 2*lgHeight + 1.5*mm),
                       logicPMT,
                       "PMT",
                       m_logicWorld,

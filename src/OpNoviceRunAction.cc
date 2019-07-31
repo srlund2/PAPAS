@@ -32,29 +32,47 @@
 // Make this appear first!
 #include "G4Timer.hh"
 
-#include "OpNoviceRunAction.hh"
-#include "lgAnalysis.hh"
-
+#include "G4RunManager.hh"
 #include "G4Run.hh"
+
+#include "OpNoviceRunAction.hh"
+#include "G4VAnalysisManager.hh"
+#include "lgAnalysis.hh"
 
 
 /*
  *
  */
-OpNoviceRunAction::OpNoviceRunAction()
- : G4UserRunAction(),
+OpNoviceRunAction::OpNoviceRunAction(G4String fileName)
+ : G4UserRunAction(),ffileName(fileName),
    fTimer(0){
-
   fTimer = new G4Timer;
+
   G4RunManager::GetRunManager()->SetPrintProgress(1);
+
+  // Create analysis manager. The choice of analysis
+  // technology is done via selectin of a namespace
+  // in B4Analysis.hh
   auto analysisManager = G4AnalysisManager::Instance();
   G4cout << "Using " << analysisManager->GetType() << G4endl;
 
+  // Create directories
+  analysisManager->SetVerboseLevel(1);
+  analysisManager->SetNtupleMerging(true);
+
+  // Creating ntuple
   analysisManager->CreateNtuple("lightGuide", "pos and momentum");
   analysisManager->CreateNtupleDColumn("trackID");
-  analysisManager->CreateNtupleDColumn("pos");
-  analysisManager->CreateNtupleDColumn("momentum");
+  analysisManager->CreateNtupleDColumn("X");
+  analysisManager->CreateNtupleDColumn("Y");
+  analysisManager->CreateNtupleDColumn("Z");
+  analysisManager->CreateNtupleDColumn("hitX");
+  analysisManager->CreateNtupleDColumn("hitY");
+  analysisManager->CreateNtupleDColumn("hitZ");
   analysisManager->CreateNtupleDColumn("energy");
+  analysisManager->CreateNtupleDColumn("pX");
+  analysisManager->CreateNtupleDColumn("pY");
+  analysisManager->CreateNtupleDColumn("pZ");
   analysisManager->FinishNtuple();
 }
 
@@ -63,6 +81,7 @@ OpNoviceRunAction::OpNoviceRunAction()
  */
 OpNoviceRunAction::~OpNoviceRunAction(){
   delete fTimer;
+  delete G4AnalysisManager::Instance();
 }
 
 /*
@@ -76,9 +95,8 @@ void OpNoviceRunAction::BeginOfRunAction(const G4Run* aRun){
   auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
-  //
-  G4String fileName = "B4";
-  analysisManager->OpenFile(fileName);
+  if(ffileName == "") ffileName = "output";
+  analysisManager->OpenFile(ffileName);
 }
 
 /*
@@ -89,8 +107,9 @@ void OpNoviceRunAction::EndOfRunAction(const G4Run* aRun){
   G4cout << "number of event = " << aRun->GetNumberOfEvent()
          << " " << *fTimer << G4endl;
 
+  // Get analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
   // save histograms & ntuple
-  //
   analysisManager->Write();
   analysisManager->CloseFile();
 }

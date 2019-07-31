@@ -27,7 +27,7 @@
 /// \brief Definition of the OpNoviceRunAction class
 //
 //
-// 
+//
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -45,7 +45,7 @@ class G4Run;
 class OpNoviceRunAction : public G4UserRunAction
 {
   public:
-    OpNoviceRunAction();
+    OpNoviceRunAction(G4String fileName);
     virtual ~OpNoviceRunAction();
 
   public:
@@ -54,6 +54,7 @@ class OpNoviceRunAction : public G4UserRunAction
 
   private:
     G4Timer* fTimer;
+    G4String ffileName = "";
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

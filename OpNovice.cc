@@ -66,7 +66,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " OpNovice [-m macro ] [-u UIsession] [-t nThreads] [-r seed] "
+    G4cerr << " OpNovice [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
@@ -86,6 +86,7 @@ int main(int argc,char** argv)
 
   G4String macro;
   G4String session;
+  G4String output;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -94,6 +95,7 @@ int main(int argc,char** argv)
   for ( G4int i=1; i<argc; i=i+2 ) {
      if      ( G4String(argv[i]) == "-m" ) macro   = argv[i+1];
      else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
+     else if ( G4String(argv[i]) == "-o" ) output  = argv[i+1];
      else if ( G4String(argv[i]) == "-r" ) myseed  = atoi(argv[i+1]);
 #ifdef G4MULTITHREADED
      else if ( G4String(argv[i]) == "-t" ) {
@@ -135,7 +137,7 @@ int main(int argc,char** argv)
   // Physics list
   runManager-> SetUserInitialization(new OpNovicePhysicsList());
   // User action initialization
-  runManager->SetUserInitialization(new OpNoviceActionInitialization());
+  runManager->SetUserInitialization(new OpNoviceActionInitialization(output));
 
   // Initialize G4 kernel
   //

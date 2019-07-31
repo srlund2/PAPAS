@@ -67,8 +67,7 @@ AirSD::~AirSD(){
  */
 void AirSD::Initialize(G4HCofThisEvent* HCE){
 
-  hitCollection = new HitsCollection(SensitiveDetectorName,
-					      m_modNum);
+  hitCollection = new HitsCollection(GetName(), collectionName[0]);
 
   std::string name = GetName();
 
@@ -86,16 +85,13 @@ void AirSD::Initialize(G4HCofThisEvent* HCE){
 G4bool AirSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   G4Track* theTrack = aStep->GetTrack();
-
-  G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
-  G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
-
   AirHit* newHit = new AirHit();
 
-  newHit->setTrackID       (aStep->GetTrack()->GetTrackID() );
-  newHit->setPos           (aStep->GetTrack()->GetVertexPosition() );
-  newHit->setEnergy        (energy);
-  newHit->setMomentum      (momentum);
+  newHit->setTrackID  (aStep->GetTrack()->GetTrackID() );
+  newHit->setPos      (aStep->GetTrack()->GetVertexPosition() );
+  newHit->setHit      (aStep->GetTrack()->GetPosition() );
+  newHit->setEnergy   (aStep->GetPreStepPoint()->GetTotalEnergy());
+  newHit->setMomentum (aStep->GetPreStepPoint()->GetMomentum());
 
   hitCollection->insert( newHit );
 

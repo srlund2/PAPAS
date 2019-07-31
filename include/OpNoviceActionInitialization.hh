@@ -31,6 +31,7 @@
 #define OpNoviceActionInitialization_h 1
 
 #include "G4VUserActionInitialization.hh"
+#include "G4String.hh"
 
 class B4DetectorConstruction;
 
@@ -40,13 +41,14 @@ class B4DetectorConstruction;
 class OpNoviceActionInitialization : public G4VUserActionInitialization
 {
   public:
-    OpNoviceActionInitialization();
+    OpNoviceActionInitialization(G4String);
     virtual ~OpNoviceActionInitialization();
 
     virtual void BuildForMaster() const;
     virtual void Build() const;
 
     virtual G4VSteppingVerbose* InitializeSteppingVerbose() const;
+    G4String ffileName;
 };
 
 #endif

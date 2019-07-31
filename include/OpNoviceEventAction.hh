@@ -39,12 +39,8 @@ class OpNoviceEventAction : public G4UserEventAction{
     virtual void    EndOfEventAction( const G4Event* event );
 
   private:
-
-    G4THitsMap<G4double>* GetHitsCollection   ( G4int hcID, const G4Event* event ) const;
-    G4double              GetSum              ( G4THitsMap<G4double>* hitsMap ) const;
-    void                  PrintEventStatistics( G4double absoEdep, G4double absoTrackLength, G4double gapEdep, G4double gapTrackLength ) const;
-
     G4int hitsCollID;
+    G4int fEventNo;
 };
 
 #endif

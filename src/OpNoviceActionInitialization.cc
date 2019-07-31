@@ -31,14 +31,15 @@
 #include "OpNovicePrimaryGeneratorAction.hh"
 #include "OpNoviceRunAction.hh"
 #include "OpNoviceSteppingAction.hh"
-#include "OpNoviceStackingAction.hh"
+#include "OpNoviceEventAction.hh"
 #include "OpNoviceSteppingVerbose.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-OpNoviceActionInitialization::OpNoviceActionInitialization()
- : G4VUserActionInitialization()
-{}
+OpNoviceActionInitialization::OpNoviceActionInitialization(G4String fileName)
+ : G4VUserActionInitialization(){
+   ffileName = fileName;
+ }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -49,7 +50,7 @@ OpNoviceActionInitialization::~OpNoviceActionInitialization()
 
 void OpNoviceActionInitialization::BuildForMaster() const
 {
-  SetUserAction(new OpNoviceRunAction());
+  SetUserAction(new OpNoviceRunAction(ffileName));
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -57,9 +58,9 @@ void OpNoviceActionInitialization::BuildForMaster() const
 void OpNoviceActionInitialization::Build() const
 {
   SetUserAction(new OpNovicePrimaryGeneratorAction());
-  SetUserAction(new OpNoviceRunAction());
+  SetUserAction(new OpNoviceRunAction(ffileName));
   SetUserAction(new OpNoviceSteppingAction());
-  SetUserAction(new OpNoviceStackingAction());
+  SetUserAction(new OpNoviceEventAction());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -68,6 +69,6 @@ G4VSteppingVerbose*
                OpNoviceActionInitialization::InitializeSteppingVerbose() const
 {
   return new OpNoviceSteppingVerbose();
-}  
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
