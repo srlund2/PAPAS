@@ -51,6 +51,7 @@ AirHit::AirHit(const AirHit& right)
 {
   trackID   = right.trackID;
   pos       = right.pos;
+  hit       = right.hit;
   energy    = right.energy;
   momentum  = right.momentum;
 }
@@ -62,6 +63,7 @@ const AirHit& AirHit::operator=(const AirHit& right)
 {
   trackID   = right.trackID;
   pos       = right.pos;
+  hit       = right.hit;
   energy    = right.energy;
   momentum  = right.momentum;
   return *this;
