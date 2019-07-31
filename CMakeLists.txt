@@ -51,8 +51,6 @@ set(OpNovice_SCRIPTS
     gui.mac
     vis.mac
     run1.mac
-    loopX.mac
-    loopY.mac
   )
 
 foreach(_script ${OpNovice_SCRIPTS})
