@@ -52,7 +52,7 @@ OpNoviceSteppingVerbose::~OpNoviceSteppingVerbose()
 void OpNoviceSteppingVerbose::StepInfo()
 {
   CopyState();
-
+/*
   G4int prec = G4cout.precision(3);
 
   if( verboseLevel >= 1 ){
@@ -138,7 +138,7 @@ void OpNoviceSteppingVerbose::StepInfo()
     }
 
   }
-  G4cout.precision(prec);
+  G4cout.precision(prec);*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -146,7 +146,7 @@ void OpNoviceSteppingVerbose::StepInfo()
 void OpNoviceSteppingVerbose::TrackingStarted()
 {
 
-  CopyState();
+  CopyState();/*
   G4int prec = G4cout.precision(3);
   //if( verboseLevel > 0 ){
   if( 0 ){
@@ -179,7 +179,7 @@ void OpNoviceSteppingVerbose::TrackingStarted()
     }
     G4cout << "    initStep" << G4endl;
   }
-  G4cout.precision(prec);
+  G4cout.precision(prec);*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -58,6 +58,7 @@ OpNoviceEventAction::~OpNoviceEventAction(){
  */
 void OpNoviceEventAction::BeginOfEventAction(const G4Event* event){
   fEventNo = event->GetEventID();
+  if(fEventNo%100000 == 0) G4cout << "Begin Event " << fEventNo << G4endl;
   hitsCollID = 0;
 }
 

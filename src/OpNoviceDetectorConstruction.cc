@@ -26,8 +26,15 @@
 /// \brief Implementation of the OpNoviceDetectorConstruction class
 //
 //
-#include "OpNoviceDetectorConstruction.hh"
 
+// USER //
+#include "OpNoviceDetectorConstruction.hh"
+#include "Materials.hh"
+#include "AirSD.hh"
+
+#include <math.h>
+
+// GEANT4 //
 #include "G4Element.hh"
 #include "G4SDManager.hh"
 #include "G4LogicalBorderSurface.hh"
@@ -42,10 +49,13 @@
 #include "G4NistManager.hh"
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
-#include <math.h>
 
-#include "Materials.hh"
-#include "AirSD.hh"
+//#ifdef G4LIB_USE_GDML
+#include "G4GDMLParser.hh"
+//#endif
+
+// CADMESH //
+#include "CADMesh.hh"
 
 /*
  *
@@ -101,23 +111,79 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
                       0,                  //copy number
                       checkOverlaps);     //overlaps checking
 
-  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4Colour(0.5,0.5,0.5));
+  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4VisAttributes::Invisible);
 
 	m_logicWorld ->SetVisAttributes(boxVisAtt_world);
 
 
   //----------------- Make the light guide -----------------//
-  bool useSTL = false;
+  materials->AlSurface->SetSigmaAlpha(fRoughness);
 
-  if(useSTL){
-    //STL support to be added later
+  //If we have defined a CAD file, use it
+  if(filename != ""){
+
+    // CAD model rotation.
+    G4RotationMatrix * rot = new G4RotationMatrix();
+    rot->rotateZ(90*deg);
+    rot->rotateY(-90*deg);
+
+    CADMesh* mesh = new CADMesh((char*) filename.c_str());
+    mesh->SetScale(mm);
+    mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
+    mesh->SetReverse(false);
+
+    G4VSolid* cad_solid = mesh->TessellatedMesh();
+
+    G4LogicalVolume* cad_logical =
+      new G4LogicalVolume(cad_solid,     //solid
+                          Al,            //material
+                          "LightGuide"); //name
+
+    G4VPhysicalVolume* cad_physical =
+      new G4PVPlacement(rot,
+                        G4ThreeVector(0,0,lgHeight-(3*cm)),
+                        cad_logical,
+                        "cad_physical",
+                        m_logicWorld,
+                        false,
+                        0);
+
+    //#ifdef G4LIB_USE_GDML
+      if(GDMLoutput != ""){
+        G4GDMLParser* gdml = new G4GDMLParser();
+        gdml->Write("GDMLoutput",cad_physical);
+      }
+    //#endif
+
+    G4LogicalSkinSurface* alumLSS =
+      new G4LogicalSkinSurface("AlSkinSurface",
+                               cad_logical,
+                               materials->AlSurface );
+
+/*
+    if (filetype != "") {
+     // Load CAD file as tetrahedral mesh //
+     CADMesh * tet_mesh = new CADMesh((char*) filename.c_str(),
+                                      (char*) filetype.c_str());
+     tet_mesh->SetScale(1.5);
+     tet_mesh->SetMaterial(Al); // We have to do this before making the G4AssemblyVolume.
+
+     G4AssemblyVolume * cad_assembly = tet_mesh->TetrahedralMesh();
+
+     G4Translate3D translation(20*cm, 0., 0.);
+     G4Transform3D rotation = G4Rotate3D(*rot);
+     G4Transform3D transform = translation*rotation;
+
+     cad_assembly->MakeImprint(m_logicWorld, transform, 0, 0);
+   }*/
+
   }else{
     //Create a trapezoidal air light guide made of aluminum sheet
     G4double thickness = 1.0*mm;
-    G4double LengthX = 89.75*mm/2;
-    G4double LengthY = 164.*mm/2;
+    G4double LengthX   = 89.75*mm/2;
+    G4double LengthY   = 164.*mm/2;
     G4double PMTwindow = 45.969*mm/2;
-    G4double HeightZ = lgHeight;
+    G4double HeightZ   = lgHeight;
 
     //Aluminum outter
     G4Trd* outter =
@@ -156,7 +222,10 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
                         false,
                         0);
 
-    G4LogicalSkinSurface* alumLSS = new G4LogicalSkinSurface("quartzSkinSurface", logicLightGuide, materials->AlSurface );
+    G4LogicalSkinSurface* alumLSS =
+      new G4LogicalSkinSurface("AlSkinSurface",
+                               logicLightGuide,
+                               materials->AlSurface );
 
   }
 
@@ -164,7 +233,7 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
 
 
 
-  //----------------- Define PMT  -----------------// This will need a sensitive detector
+  //----------------- Define PMT window -----------------//
   double PMTradius = 65.0/2*mm;
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   AirSD* PMT = new AirSD("MyPMT");

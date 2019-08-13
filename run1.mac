@@ -8,11 +8,12 @@
 /run/initialize
 
 
-/control/verbose 2
-/run/verbose 2
-/tracking/verbose 1
-/run/particle/verbose 1
-/hits/verbose 1
+/control/verbose 0
+/run/verbose 0
+/run/printProgress 0
+/tracking/verbose 0
+/run/particle/verbose 0
+/hits/verbose 0
 
 /gps/particle opticalphoton
 
@@ -20,13 +21,21 @@
 /gps/ene/type Gauss
 /gps/ene/mono 3.4 eV
 /gps/ene/sigma 1 eV
+/gps/polarization 0 0 0
 
-# General particle source
-/gps/pos/type Beam
-/gps/pos/shape Circle
+# General particle source, beam
+#/gps/pos/type Beam
+#/gps/pos/shape Circle
+#/gps/pos/centre 0. 0. 0. mm
+#/gps/pos/radius 0.75 mm
+#/gps/pos/sigma_r 0.002 mm
+
+# General particle source, rectangular plane
+/gps/pos/type Plane
+/gps/pos/shape Rectangle
 /gps/pos/centre 0. 0. 0. mm
-/gps/pos/radius 0.75 mm
-/gps/pos/sigma_r 0.002 mm
+/gps/pos/halfx 44.875 mm
+/gps/pos/halfy 82 mm
 
 #
 # the incident surface is in the x-y plane
@@ -50,6 +59,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 500
+/run/beamOn 1
 ##############################################################
 ##############################################################

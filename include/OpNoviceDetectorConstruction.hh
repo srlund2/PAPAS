@@ -48,6 +48,10 @@ class OpNoviceDetectorConstruction : public G4VUserDetectorConstruction
 
   public:
     virtual G4VPhysicalVolume* Construct();
+    void SetCADFilename     (std::string name){filename   = name;}
+    void SetCADFiletype     (std::string type){filetype   = type;}
+    void SetGDMLoutName     (std::string name){GDMLoutput = name;}
+    void SetSurfaceRoughness(G4double ruff)   {fRoughness = ruff;}
 
   private:
     G4Box*               m_solidWorld;
@@ -55,6 +59,11 @@ class OpNoviceDetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume*   m_physWorld;
 
     Materials* materials;
+
+    std::string filename = "";
+    std::string filetype = "";
+    std::string GDMLoutput;
+    G4double    fRoughness = 0;
 };
 
 #endif /*OpNoviceDetectorConstruction_h*/

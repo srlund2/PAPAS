@@ -6,6 +6,8 @@ name := OpNovice
 G4TARGET := $(name)
 G4EXLIB := true
 
+include ../../cadmesh.gmk
+
 ifndef G4INSTALL
   G4INSTALL = ../../..
 endif

@@ -75,7 +75,6 @@ void AirSD::Initialize(G4HCofThisEvent* HCE){
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
 
   HCE->AddHitsCollection( HCID, hitCollection );
-  G4cout << " HCID " << HCID << " name " << name << G4endl;
 }
 
 
