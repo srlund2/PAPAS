@@ -24,8 +24,8 @@
 //
 // @Author Chad Lantz
 
-#ifndef AirHit_h
-#define AirHit_h 1
+#ifndef PMTHit_h
+#define PMTHit_h 1
 
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
@@ -33,14 +33,14 @@
 #include "G4ThreeVector.hh"
 #include "G4ParticleDefinition.hh"
 
-class AirHit : public G4VHit{
+class PMTHit : public G4VHit{
 public:
 
-  AirHit();
-  ~AirHit();
-  AirHit(const AirHit&);
-  const AirHit& operator=(const AirHit&);
-  G4int operator==(const AirHit&) const;
+  PMTHit();
+  ~PMTHit();
+  PMTHit(const PMTHit&);
+  const PMTHit& operator=(const PMTHit&);
+  G4int operator==(const PMTHit&) const;
 
   inline void* operator new(size_t);
   inline void  operator delete(void*);
@@ -70,14 +70,14 @@ private:
 
 
 ///////////////////////// Hit collection definition /////////////////////////
-typedef G4THitsCollection<AirHit> HitsCollection;
+typedef G4THitsCollection<PMTHit> HitsCollection;
 
-extern G4Allocator<AirHit> HitAllocator;
+extern G4Allocator<PMTHit> HitAllocator;
 
 /*
  *
  */
-inline void* AirHit::operator new(size_t)
+inline void* PMTHit::operator new(size_t)
 {
   void *aHit;
   aHit = (void *) HitAllocator.MallocSingle();
@@ -87,9 +87,9 @@ inline void* AirHit::operator new(size_t)
 /*
  *
  */
-inline void AirHit::operator delete(void *aHit)
+inline void PMTHit::operator delete(void *aHit)
 {
-  HitAllocator.FreeSingle((AirHit*) aHit);
+  HitAllocator.FreeSingle((PMTHit*) aHit);
 }
 
 #endif

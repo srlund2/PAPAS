@@ -22,9 +22,9 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file OpNovice/src/OpNovicePrimaryGeneratorAction.cc
-/// \brief Implementation of the OpNovicePrimaryGeneratorAction class
-#include "OpNovicePrimaryGeneratorAction.hh"
+/// \file /src/PrimaryGeneratorAction.cc
+/// \brief Implementation of the PrimaryGeneratorAction class
+#include "PrimaryGeneratorAction.hh"
 
 #include "Randomize.hh"
 
@@ -37,7 +37,7 @@
 /*
  *
  */
-OpNovicePrimaryGeneratorAction::OpNovicePrimaryGeneratorAction()
+PrimaryGeneratorAction::PrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(0)
 {
@@ -47,7 +47,7 @@ OpNovicePrimaryGeneratorAction::OpNovicePrimaryGeneratorAction()
 /*
  *
  */
-OpNovicePrimaryGeneratorAction::~OpNovicePrimaryGeneratorAction()
+PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
   delete fParticleGun;
 }
@@ -55,7 +55,7 @@ OpNovicePrimaryGeneratorAction::~OpNovicePrimaryGeneratorAction()
 /*
  *
  */
-void OpNovicePrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }

@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,69 +22,30 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file OpNovice/include/OpNovicePhysicsList.hh
-/// \brief Definition of the OpNovicePhysicsList class
+/// \file /include/PrimaryGeneratorAction.hh
+/// \brief Definition of the PrimaryGeneratorAction class
 //
-//
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#ifndef PrimaryGeneratorAction_h
+#define PrimaryGeneratorAction_h 1
 
-#ifndef OpNovicePhysicsList_h
-#define OpNovicePhysicsList_h 1
-
+#include "G4VUserPrimaryGeneratorAction.hh"
 #include "globals.hh"
-#include "G4VUserPhysicsList.hh"
 
-class OpNovicePhysicsListMessenger;
+class G4GeneralParticleSource;
+class G4Event;
 
-class G4Cerenkov;
-class G4Scintillation;
-class G4OpAbsorption;
-class G4OpRayleigh;
-class G4OpMieHG;
-class G4OpBoundaryProcess;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class OpNovicePhysicsList : public G4VUserPhysicsList
+class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
   public:
-
-    OpNovicePhysicsList();
-    virtual ~OpNovicePhysicsList();
+    PrimaryGeneratorAction();
+    virtual ~PrimaryGeneratorAction();
 
   public:
+    virtual void GeneratePrimaries(G4Event*);
 
-    virtual void ConstructParticle();
-    virtual void ConstructProcess();
-
-    virtual void SetCuts();
-
-    //these methods Construct physics processes and register them
-    void ConstructDecay();
-    void ConstructEM();
-    void ConstructOp();
-
-    //for the Messenger 
-    void SetVerbose(G4int);
-    void SetNbOfPhotonsCerenkov(G4int);
- 
   private:
-
-    OpNovicePhysicsListMessenger* fMessenger;
-
-    static G4ThreadLocal G4int fVerboseLevel;
-    static G4ThreadLocal G4int fMaxNumPhotonStep;
-
-    static G4ThreadLocal G4Cerenkov* fCerenkovProcess;
-    static G4ThreadLocal G4Scintillation* fScintillationProcess;
-    static G4ThreadLocal G4OpAbsorption* fAbsorptionProcess;
-    static G4ThreadLocal G4OpRayleigh* fRayleighScatteringProcess;
-    static G4ThreadLocal G4OpMieHG* fMieHGScatteringProcess;
-    static G4ThreadLocal G4OpBoundaryProcess* fBoundaryProcess;
+    G4GeneralParticleSource* fParticleGun;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#endif /* OpNovicePhysicsList_h */
+#endif /*PrimaryGeneratorAction_h*/

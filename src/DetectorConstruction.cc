@@ -22,15 +22,15 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file OpNovice/src/OpNoviceDetectorConstruction.cc
-/// \brief Implementation of the OpNoviceDetectorConstruction class
+/// \file /src/DetectorConstruction.cc
+/// \brief Implementation of the DetectorConstruction class
 //
 //
 
 // USER //
-#include "OpNoviceDetectorConstruction.hh"
+#include "DetectorConstruction.hh"
 #include "Materials.hh"
-#include "AirSD.hh"
+#include "PMTSD.hh"
 
 #include <math.h>
 
@@ -50,17 +50,19 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
-//#ifdef G4LIB_USE_GDML
+#ifdef G4LIB_USE_GDML
 #include "G4GDMLParser.hh"
-//#endif
+#endif
 
 // CADMESH //
+#ifdef CADMESH
 #include "CADMesh.hh"
+#endif
 
 /*
  *
  */
-OpNoviceDetectorConstruction::OpNoviceDetectorConstruction()
+DetectorConstruction::DetectorConstruction()
  : G4VUserDetectorConstruction(){
    materials = Materials::getInstance();
 }
@@ -69,15 +71,15 @@ OpNoviceDetectorConstruction::OpNoviceDetectorConstruction()
 /*
  *
  */
-OpNoviceDetectorConstruction::~OpNoviceDetectorConstruction(){
+DetectorConstruction::~DetectorConstruction(){
 
 }
 
 
-/* Make the detector
- * Ideally this will become the quartz rod, winston cone and PMT
+/* Detector construction is currently all done here
+ * Breaking out into modules may be done later
  */
-G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
+G4VPhysicalVolume* DetectorConstruction::Construct(){
   //Set up the materials
   materials->UseOpticalMaterials(true);
   materials->DefineOpticalProperties();
@@ -85,6 +87,8 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
   G4Material* Al = materials->Al;
   G4Material* Silica = materials->pQuartz;
 
+  //Set the lightguide height. Hardcoded for now,
+  //should be determined by the model dimensions
   G4double lgHeight = 339.*mm/2;
 
   bool checkOverlaps = false;
@@ -117,6 +121,7 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
 
 
   //----------------- Make the light guide -----------------//
+  ////////////////////This got all sorts of fucked up. I'll probably drop GDML support or make it required
   materials->AlSurface->SetSigmaAlpha(fRoughness);
 
   //If we have defined a CAD file, use it
@@ -127,55 +132,52 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
     rot->rotateZ(90*deg);
     rot->rotateY(-90*deg);
 
-    CADMesh* mesh = new CADMesh((char*) filename.c_str());
-    mesh->SetScale(mm);
-    mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
-    mesh->SetReverse(false);
+    //Import the cad model and place it
+    #ifdef CADMESH
+    if(filetype != "gdml"){
+      CADMesh* mesh = new CADMesh((char*) filename.c_str());
+      mesh->SetScale(mm);
+      mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
+      mesh->SetReverse(false);
 
-    G4VSolid* cad_solid = mesh->TessellatedMesh();
+      cad_logical =
+        new G4LogicalVolume(mesh->TessellatedMesh(), //solid
+                            Al,                      //material
+                            "LightGuide");           //name
+    }
+    #elif defined G4LIB_USE_GDML
+    if(filetype == "gdml"){
+      fParser.Read(fReadFile);
+      break;
+    }
+    if(filetype == "step"){
+      cad_logical = fParser.ParseST(filename,Air,Al);
+    }
 
-    G4LogicalVolume* cad_logical =
-      new G4LogicalVolume(cad_solid,     //solid
-                          Al,            //material
-                          "LightGuide"); //name
+    if(cad_logical !=0 ){
+      cad_physical =
+        new G4PVPlacement(0, //rot,
+                          G4ThreeVector(0,0,lgHeight-(3*cm)),
+                          cad_logical,
+                          "cad_physical",
+                          m_logicWorld,
+                          false,
+                          0);
+    }
 
-    G4VPhysicalVolume* cad_physical =
-      new G4PVPlacement(rot,
-                        G4ThreeVector(0,0,lgHeight-(3*cm)),
-                        cad_logical,
-                        "cad_physical",
-                        m_logicWorld,
-                        false,
-                        0);
-
-    //#ifdef G4LIB_USE_GDML
+    //If output to GDML if requested and supported
+    #ifdef G4LIB_USE_GDML
       if(GDMLoutput != ""){
         G4GDMLParser* gdml = new G4GDMLParser();
         gdml->Write("GDMLoutput",cad_physical);
       }
-    //#endif
+    #endif
 
+    //Make the surface optically reflective
     G4LogicalSkinSurface* alumLSS =
       new G4LogicalSkinSurface("AlSkinSurface",
                                cad_logical,
                                materials->AlSurface );
-
-/*
-    if (filetype != "") {
-     // Load CAD file as tetrahedral mesh //
-     CADMesh * tet_mesh = new CADMesh((char*) filename.c_str(),
-                                      (char*) filetype.c_str());
-     tet_mesh->SetScale(1.5);
-     tet_mesh->SetMaterial(Al); // We have to do this before making the G4AssemblyVolume.
-
-     G4AssemblyVolume * cad_assembly = tet_mesh->TetrahedralMesh();
-
-     G4Translate3D translation(20*cm, 0., 0.);
-     G4Transform3D rotation = G4Rotate3D(*rot);
-     G4Transform3D transform = translation*rotation;
-
-     cad_assembly->MakeImprint(m_logicWorld, transform, 0, 0);
-   }*/
 
   }else{
     //Create a trapezoidal air light guide made of aluminum sheet
@@ -227,16 +229,13 @@ G4VPhysicalVolume* OpNoviceDetectorConstruction::Construct(){
                                logicLightGuide,
                                materials->AlSurface );
 
-  }
-
-
-
+  }//end else
 
 
   //----------------- Define PMT window -----------------//
   double PMTradius = 65.0/2*mm;
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
-  AirSD* PMT = new AirSD("MyPMT");
+  PMTSD* PMT = new PMTSD("MyPMT");
   SDman->AddNewDetector( PMT );
 
   G4Tubs* solidPMT =

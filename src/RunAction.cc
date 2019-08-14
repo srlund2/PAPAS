@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,8 +22,8 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file OpNovice/src/OpNoviceRunAction.cc
-/// \brief Implementation of the OpNoviceRunAction class
+/// \file /src/RunAction.cc
+/// \brief Implementation of the RunAction class
 //
 // @Author Chad Lantz
 
@@ -35,7 +34,7 @@
 #include "G4RunManager.hh"
 #include "G4Run.hh"
 
-#include "OpNoviceRunAction.hh"
+#include "RunAction.hh"
 #include "G4VAnalysisManager.hh"
 #include "lgAnalysis.hh"
 
@@ -43,7 +42,7 @@
 /*
  *
  */
-OpNoviceRunAction::OpNoviceRunAction(G4String fileName)
+RunAction::RunAction(G4String fileName)
  : G4UserRunAction(),ffileName(fileName),
    fTimer(0){
   fTimer = new G4Timer;
@@ -62,24 +61,18 @@ OpNoviceRunAction::OpNoviceRunAction(G4String fileName)
 
   // Creating ntuple
   analysisManager->CreateNtuple("lightGuide", "pos and momentum");
-  analysisManager->CreateNtupleDColumn("trackID");
   analysisManager->CreateNtupleDColumn("X");
   analysisManager->CreateNtupleDColumn("Y");
-  analysisManager->CreateNtupleDColumn("Z");
   analysisManager->CreateNtupleDColumn("hitX");
   analysisManager->CreateNtupleDColumn("hitY");
-  analysisManager->CreateNtupleDColumn("hitZ");
   analysisManager->CreateNtupleDColumn("energy");
-  analysisManager->CreateNtupleDColumn("pX");
-  analysisManager->CreateNtupleDColumn("pY");
-  analysisManager->CreateNtupleDColumn("pZ");
   analysisManager->FinishNtuple();
 }
 
 /*
  *
  */
-OpNoviceRunAction::~OpNoviceRunAction(){
+RunAction::~RunAction(){
   delete fTimer;
   delete G4AnalysisManager::Instance();
 }
@@ -87,7 +80,7 @@ OpNoviceRunAction::~OpNoviceRunAction(){
 /*
  *
  */
-void OpNoviceRunAction::BeginOfRunAction(const G4Run* aRun){
+void RunAction::BeginOfRunAction(const G4Run* aRun){
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
   fTimer->Start();
 
@@ -102,7 +95,7 @@ void OpNoviceRunAction::BeginOfRunAction(const G4Run* aRun){
 /*
  *
  */
-void OpNoviceRunAction::EndOfRunAction(const G4Run* aRun){
+void RunAction::EndOfRunAction(const G4Run* aRun){
   fTimer->Stop();
   G4cout << "number of event = " << aRun->GetNumberOfEvent()
          << " " << *fTimer << G4endl;

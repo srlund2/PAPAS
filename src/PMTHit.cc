@@ -24,29 +24,29 @@
 //
 // @Author Chad Lantz
 
-#include "AirHit.hh"
+#include "PMTHit.hh"
 #include "G4UnitsTable.hh"
 #include "G4VVisManager.hh"
 #include "G4Circle.hh"
 #include "G4Colour.hh"
 #include "G4VisAttributes.hh"
 
-G4Allocator<AirHit> HitAllocator;
+G4Allocator<PMTHit> HitAllocator;
 
 /*
  *
  */
-AirHit::AirHit() {}
+PMTHit::PMTHit() {}
 
 /*
  *
  */
-AirHit::~AirHit() {}
+PMTHit::~PMTHit() {}
 
 /*
  *
  */
-AirHit::AirHit(const AirHit& right)
+PMTHit::PMTHit(const PMTHit& right)
   : G4VHit()
 {
   trackID   = right.trackID;
@@ -59,7 +59,7 @@ AirHit::AirHit(const AirHit& right)
 /*
  *
  */
-const AirHit& AirHit::operator=(const AirHit& right)
+const PMTHit& PMTHit::operator=(const PMTHit& right)
 {
   trackID   = right.trackID;
   pos       = right.pos;
@@ -72,7 +72,7 @@ const AirHit& AirHit::operator=(const AirHit& right)
 /*
  *
  */
-G4int AirHit::operator==(const AirHit& right) const
+G4int PMTHit::operator==(const PMTHit& right) const
 {
   return (this==&right) ? 1 : 0;
 }
@@ -80,7 +80,7 @@ G4int AirHit::operator==(const AirHit& right) const
 /*
  *
  */
-void AirHit::Draw()
+void PMTHit::Draw()
 {
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(pVVisManager)
@@ -98,7 +98,7 @@ void AirHit::Draw()
 /*
  *
  */
-void AirHit::Print()
+void PMTHit::Print()
 {
   G4cout << "  trackID: " << trackID << "  Hit from position: " << G4BestUnit(pos,"Length") << G4endl;
 }

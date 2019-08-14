@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -25,29 +24,83 @@
 //
 // @Author Chad Lantz
 
-#ifndef AirSD_h
-#define AirSD_h 1
+#include "PMTSD.hh"
+#include "PMTHit.hh"
 
-#include "G4VSensitiveDetector.hh"
-#include "AirHit.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4Step.hh"
+#include "G4ThreeVector.hh"
+#include "G4SDManager.hh"
+#include "G4ios.hh"
+#include "G4Poisson.hh"
+#include "G4ParticleTypes.hh"
+#include "G4ParticleDefinition.hh"
 
-class G4Step;
-class G4HCofThisEvent;
+#include "TString.h"
+
+#include <string>
+#include <iostream>
+#include <cmath>
 
 
-class AirSD : public G4VSensitiveDetector
-{
-public:
-  AirSD(G4String);
-  ~AirSD();
+/*
+ *
+ */
+PMTSD::PMTSD(G4String sdName)
+  :G4VSensitiveDetector(sdName){
+  collectionName.insert(sdName);
+  HCID = -1;
 
-  void Initialize(G4HCofThisEvent*);
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-  void EndOfEvent(G4HCofThisEvent*);
+}
 
-private:
-  int HCID;
-  HitsCollection* hitCollection;
-};
 
-#endif
+/*
+ *
+ */
+PMTSD::~PMTSD(){
+
+}
+
+
+/* Mandatory method
+ *
+ */
+void PMTSD::Initialize(G4HCofThisEvent* HCE){
+
+  hitCollection = new HitsCollection(GetName(), collectionName[0]);
+
+  std::string name = GetName();
+
+  if(HCID<0)
+    { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
+
+  HCE->AddHitsCollection( HCID, hitCollection );
+}
+
+
+/* Mandatory method
+ *
+ */
+G4bool PMTSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
+
+  G4Track* theTrack = aStep->GetTrack();
+  PMTHit* newHit = new PMTHit();
+
+  newHit->setTrackID  (aStep->GetTrack()->GetTrackID() );
+  newHit->setPos      (aStep->GetTrack()->GetVertexPosition() );
+  newHit->setHit      (aStep->GetTrack()->GetPosition() );
+  newHit->setEnergy   (aStep->GetPreStepPoint()->GetTotalEnergy());
+  newHit->setMomentum (aStep->GetPreStepPoint()->GetMomentum());
+
+  hitCollection->insert( newHit );
+
+  return true;
+}
+
+/* Mandatory method
+ *
+ */
+void PMTSD::EndOfEvent(G4HCofThisEvent*){
+
+
+}

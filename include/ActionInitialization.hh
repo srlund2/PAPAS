@@ -22,25 +22,32 @@
 // * use  in  resulting  scientific  publications,  and indicate your *
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
-// @Author Chad Lantz
-#ifndef OpNoviceEventAction_H
-#define OpNoviceEventAction_H 1
+//
+//
+/// \file ActionInitialization.hh
+/// \brief Definition of the ActionInitialization class
 
-#include "globals.hh"
-#include "G4UserEventAction.hh"
+#ifndef ActionInitialization_h
+#define ActionInitialization_h 1
 
+#include "G4VUserActionInitialization.hh"
+#include "G4String.hh"
 
-class OpNoviceEventAction : public G4UserEventAction{
+class B4DetectorConstruction;
+
+/// Action initialization class.
+///
+
+class ActionInitialization : public G4VUserActionInitialization
+{
   public:
-    OpNoviceEventAction();
-    virtual ~OpNoviceEventAction();
+    ActionInitialization(G4String);
+    virtual ~ActionInitialization();
 
-    virtual void  BeginOfEventAction( const G4Event* event );
-    virtual void    EndOfEventAction( const G4Event* event );
+    virtual void BuildForMaster() const;
+    virtual void Build() const;
 
-  private:
-    G4int hitsCollID;
-    G4int fEventNo;
+    G4String ffileName;
 };
 
 #endif

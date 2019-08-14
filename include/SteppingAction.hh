@@ -23,34 +23,32 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file OpNovice/include/OpNoviceSteppingVerbose.hh
-/// \brief Definition of the OpNoviceSteppingVerbose class
 //
-//
-//
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/// \file SteppingAction.hh
+/// \brief Definition of the SteppingAction class
 
-class OpNoviceSteppingVerbose;
+#ifndef SteppingAction_h
+#define SteppingAction_h 1
 
-#ifndef OpNoviceSteppingVerbose_h
-#define OpNoviceSteppingVerbose_h 1
+#include "G4UserSteppingAction.hh"
+#include "globals.hh"
 
-#include "G4SteppingVerbose.hh"
+/// Stepping action class
+///
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class OpNoviceSteppingVerbose : public G4SteppingVerbose
+class SteppingAction : public G4UserSteppingAction
 {
- public:
+  public:
+    SteppingAction();
+    virtual ~SteppingAction();
 
-   OpNoviceSteppingVerbose();
-   virtual ~OpNoviceSteppingVerbose();
+    // method from the base class
+    virtual void UserSteppingAction(const G4Step*);
 
-   virtual void StepInfo();
-   virtual void TrackingStarted();
-
+  private:
+    G4int fScintillationCounter;
+    G4int fCerenkovCounter;
+    G4int fEventNumber;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

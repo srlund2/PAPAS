@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,25 +22,14 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file OpNovice/OpNovice.cc
-/// \brief Main program of the OpNovice example
+/// \file /lightGuide.cc
+/// \brief Main program of the  example
 //
+// Description: -- Transport of optical Photons through a light guide
 //
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//
-// Description: Test of Continuous Process G4Cerenkov
-//              and RestDiscrete Process G4Scintillation
-//              -- Generation Cerenkov Photons --
-//              -- Generation Scintillation Photons --
-//              -- Transport of optical Photons --
-// Version:     5.0
-// Created:     1996-04-30
-// Author:      Juliet Armstrong
-// mail:        gum@triumf.ca
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// Version:     1.0
+// Created:     2019-8-13
+// Author:      Chad Lantz
 
 #include "G4Types.hh"
 
@@ -53,28 +41,29 @@
 
 #include "G4UImanager.hh"
 
-#include "OpNovicePhysicsList.hh"
 #include "PhysicsList.hh"
-#include "OpNoviceDetectorConstruction.hh"
+#include "DetectorConstruction.hh"
 
-#include "OpNoviceActionInitialization.hh"
+#include "ActionInitialization.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+/*
+*/
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " OpNovice [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName] [-c CADmodelName filetype] [-co GDMLoutFileName] [-s ReflectiveSurfaceRoughness]"
+    G4cerr << " lightGuide [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName] [-c CADmodelName filetype] [-co GDMLoutFileName] [-s ReflectiveSurfaceRoughness]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
   }
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+/*
+*/
 int main(int argc,char** argv)
 {
   // Evaluate arguments
@@ -115,18 +104,28 @@ int main(int argc,char** argv)
     }
   }
 
+
+//----------------- Check options against dependencies -----------------//
+
+  if(CADmodel != ""){
   // Check if the user has GDML support and if they are asking for it
-/*#ifndef G4LIB_USE_GDML
-  filetype.toLower();
-  if(filetype == "gdml"){
-    G4cout << "G4GDML not defined!!! aborting" << G4endl;
-    return 0;
+    #ifndef G4LIB_USE_GDML
+      filetype.toLower();
+      if(filetype == "gdml"){
+        G4cout << "G4GDML not defined!!! aborting" << G4endl;
+        return 0;
+      }
+      if(CADoutFile != ""){
+          G4cout << "G4GDML not defined!!! Model will not be converted" << G4endl;
+          CADoutFile = "";
+      }
+    #endif
+    #ifndef CADMESH
+      if(filetype != "gdml"){
+        G4cout << "Cannot read non-gdml geometries without CADMESH installed!!! aborting" << G4endl;
+      }
+    #endif
   }
-  if(CADoutFile != ""){
-      G4cout << "G4GDML not defined!!! Model will not be converted" << G4endl;
-      CADoutFile = "";
-  }
-#endif*/
 
   // Instantiate G4UIExecutive if interactive mode
   G4UIExecutive* ui = nullptr;
@@ -143,6 +142,7 @@ int main(int argc,char** argv)
 #ifdef G4MULTITHREADED
   G4MTRunManager * runManager = new G4MTRunManager;
   if ( nThreads > 0 ) runManager->SetNumberOfThreads(nThreads);
+  G4cout << "Using G4MULTITHREADED" << G4endl;
 #else
   G4RunManager * runManager = new G4RunManager;
 #endif
@@ -153,7 +153,7 @@ int main(int argc,char** argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  OpNoviceDetectorConstruction* DetConst = new OpNoviceDetectorConstruction();
+  DetectorConstruction* DetConst = new DetectorConstruction();
   if(CADmodel != ""){
     DetConst->SetCADFilename(CADmodel);
     DetConst->SetCADFiletype(filetype);
@@ -162,12 +162,11 @@ int main(int argc,char** argv)
   }
   runManager-> SetUserInitialization(DetConst);
   // Physics list
-  runManager-> SetUserInitialization(new OpNovicePhysicsList());
+  runManager-> SetUserInitialization(new PhysicsList());
   // User action initialization
-  runManager->SetUserInitialization(new OpNoviceActionInitialization(output));
+  runManager->SetUserInitialization(new ActionInitialization(output));
 
   // Initialize G4 kernel
-  //
   runManager->Initialize();
 
   // Initialize visualization
@@ -205,5 +204,3 @@ int main(int argc,char** argv)
 
   return 0;
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

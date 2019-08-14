@@ -24,10 +24,10 @@
 // ********************************************************************
 //
 //
-/// \file OpNoviceSteppingAction.cc
-/// \brief Implementation of the OpNoviceSteppingAction class
+/// \file SteppingAction.cc
+/// \brief Implementation of the SteppingAction class
 
-#include "OpNoviceSteppingAction.hh"
+#include "SteppingAction.hh"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
@@ -36,24 +36,24 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-OpNoviceSteppingAction::OpNoviceSteppingAction()
+/*
+*/
+SteppingAction::SteppingAction()
 : G4UserSteppingAction()
-{ 
+{
   fScintillationCounter = 0;
   fCerenkovCounter      = 0;
   fEventNumber = -1;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-OpNoviceSteppingAction::~OpNoviceSteppingAction()
+/*
+*/
+SteppingAction::~SteppingAction()
 { ; }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void OpNoviceSteppingAction::UserSteppingAction(const G4Step* step)
+/*
+*/
+void SteppingAction::UserSteppingAction(const G4Step* step)
 {
   G4int eventNumber = G4RunManager::GetRunManager()->
                                               GetCurrentEvent()->GetEventID();
@@ -88,5 +88,3 @@ void OpNoviceSteppingAction::UserSteppingAction(const G4Step* step)
      }
   }
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

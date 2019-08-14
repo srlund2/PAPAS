@@ -22,46 +22,25 @@
 // * use  in  resulting  scientific  publications,  and indicate your *
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
-//
-/// \file OpNovice/include/OpNovicePhysicsListMessenger.hh
-/// \brief Definition of the OpNovicePhysicsListMessenger class
-//
-//
-//
-// 
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#ifndef OpNovicePhysicsListMessenger_h
-#define OpNovicePhysicsListMessenger_h 1
+// @Author Chad Lantz
+#ifndef EventAction_H
+#define EventAction_H 1
 
 #include "globals.hh"
-#include "G4UImessenger.hh"
+#include "G4UserEventAction.hh"
 
-class OpNovicePhysicsList;
-class G4UIdirectory;
-class G4UIcmdWithAnInteger;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class OpNovicePhysicsListMessenger: public G4UImessenger
-{
+class EventAction : public G4UserEventAction{
   public:
-    OpNovicePhysicsListMessenger(OpNovicePhysicsList* );
-    virtual ~OpNovicePhysicsListMessenger();
- 
-    virtual void SetNewValue(G4UIcommand*, G4String);
- 
-  private:
-    OpNovicePhysicsList*  fPhysicsList;
- 
-    G4UIdirectory*        fOpNoviceDir;
-    G4UIdirectory*        fPhysDir;
-    G4UIcmdWithAnInteger* fVerboseCmd;
-    G4UIcmdWithAnInteger* fCerenkovCmd;
-};
+    EventAction();
+    virtual ~EventAction();
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+    virtual void  BeginOfEventAction( const G4Event* event );
+    virtual void    EndOfEventAction( const G4Event* event );
+
+  private:
+    G4int hitsCollID;
+    G4int fEventNo;
+};
 
 #endif

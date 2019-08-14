@@ -1,288 +1,289 @@
+//
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
+/// \file /src/PhysicsList.cc
+/// \brief Implementation of the PhysicsList class
+
+#include "globals.hh"
 #include "PhysicsList.hh"
-#include "OpticalPhysics.hh"
 
-#include "G4LossTableManager.hh"
-
-#include "G4ProcessManager.hh"
+#include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
 #include "G4ParticleTable.hh"
 
-#include "FTFP_BERT.hh"
-#include "QGSP_BERT.hh"
+#include "G4BosonConstructor.hh"
+#include "G4LeptonConstructor.hh"
+#include "G4MesonConstructor.hh"
+#include "G4BaryonConstructor.hh"
+#include "G4IonConstructor.hh"
+#include "G4ShortLivedConstructor.hh"
 
-#include "G4Gamma.hh"
-#include "G4Electron.hh"
-#include "G4Positron.hh"
+#include "G4ProcessManager.hh"
 
-#include "G4ProcessTable.hh"
+#include "G4Cerenkov.hh"
+#include "G4Scintillation.hh"
+#include "G4OpAbsorption.hh"
+#include "G4OpRayleigh.hh"
+#include "G4OpMieHG.hh"
+#include "G4OpBoundaryProcess.hh"
 
-#include "G4PionDecayMakeSpin.hh"
-#include "G4DecayWithSpin.hh"
-
-#include "G4DecayTable.hh"
-#include "G4MuonDecayChannelWithSpin.hh"
-#include "G4MuonRadiativeDecayChannelWithSpin.hh"
-#include "G4IonPhysics.hh"
-#include "G4IonBinaryCascadePhysics.hh"
-#include "G4StoppingPhysics.hh"
-#include "G4NeutronCrossSectionXS.hh"
-#include "G4HadronElasticPhysics.hh"
-#include "G4HadronElasticPhysicsXS.hh"
-#include "G4HadronElasticPhysicsHP.hh"
-#include "G4HadronHElasticPhysics.hh"
-#include "G4RadioactiveDecayPhysics.hh"
-
-#include "G4SystemOfUnits.hh"
-#include "G4Version.hh"
 #include "G4LossTableManager.hh"
+#include "G4EmSaturation.hh"
+
+G4ThreadLocal G4int PhysicsList::fVerboseLevel = 0;
+G4ThreadLocal G4int PhysicsList::fMaxNumPhotonStep = 20;
+G4ThreadLocal G4Cerenkov* PhysicsList::fCerenkovProcess = 0;
+G4ThreadLocal G4Scintillation* PhysicsList::fScintillationProcess = 0;
+G4ThreadLocal G4OpAbsorption* PhysicsList::fAbsorptionProcess = 0;
+G4ThreadLocal G4OpRayleigh* PhysicsList::fRayleighScatteringProcess = 0;
+G4ThreadLocal G4OpMieHG* PhysicsList::fMieHGScatteringProcess = 0;
+G4ThreadLocal G4OpBoundaryProcess* PhysicsList::fBoundaryProcess = 0;
 
 /*
- *
- */
-PhysicsList::PhysicsList() : G4VModularPhysicsList()
-{
-    G4LossTableManager::Instance();
-
-    defaultCutValue  = 1.*mm;
-    fCutForGamma     = defaultCutValue;
-    fCutForElectron  = defaultCutValue;
-    fCutForPositron  = defaultCutValue;
-
-//    G4PhysListFactory factory;
-    G4VModularPhysicsList* phys = new FTFP_BERT;
-
-    for (G4int i = 0; ; ++i) {
-       G4VPhysicsConstructor* elem =
-                  const_cast<G4VPhysicsConstructor*> (phys->GetPhysics(i));
-       if (elem == NULL) break;
-       G4cout << "RegisterPhysics: " << elem->GetPhysicsName() << G4endl;
-       RegisterPhysics(elem);
-    }
-    SetAbsorption(false);
-
-    fPhysicsVector =
-                GetSubInstanceManager().offset[GetInstanceID()].physicsVector;
+*/
+PhysicsList::PhysicsList()
+ : G4VUserPhysicsList(){
 
 }
 
 /*
- *
- */
+*/
 PhysicsList::~PhysicsList(){
 
 }
 
 /*
- *
- */
-void PhysicsList::ClearPhysics(){
-    for (G4PhysConstVector::iterator p  = fPhysicsVector->begin();
-                                     p != fPhysicsVector->end(); ++p) {
-        delete (*p);
-    }
-    fPhysicsVector->clear();
-}
-
-/*
- *
- */
+*/
 void PhysicsList::ConstructParticle(){
+  // In this method, static member functions should be called
+  // for all particles which you want to use.
+  // This ensures that objects of these particle types will be
+  // created in the program.
 
-    G4VModularPhysicsList::ConstructParticle();
+  G4BosonConstructor bConstructor;
+  bConstructor.ConstructParticle();
 
-    G4DecayTable* MuonPlusDecayTable = new G4DecayTable();
-    MuonPlusDecayTable -> Insert(new
-                           G4MuonDecayChannelWithSpin("mu+",0.986));
-    MuonPlusDecayTable -> Insert(new
-                           G4MuonRadiativeDecayChannelWithSpin("mu+",0.014));
-    G4MuonPlus::MuonPlusDefinition() -> SetDecayTable(MuonPlusDecayTable);
+  G4LeptonConstructor lConstructor;
+  lConstructor.ConstructParticle();
 
-    G4DecayTable* MuonMinusDecayTable = new G4DecayTable();
-    MuonMinusDecayTable -> Insert(new
-                            G4MuonDecayChannelWithSpin("mu-",0.986));
-    MuonMinusDecayTable -> Insert(new
-                            G4MuonRadiativeDecayChannelWithSpin("mu-",0.014));
-    G4MuonMinus::MuonMinusDefinition() -> SetDecayTable(MuonMinusDecayTable);
+  G4MesonConstructor mConstructor;
+  mConstructor.ConstructParticle();
 
+  G4BaryonConstructor rConstructor;
+  rConstructor.ConstructParticle();
+
+  G4IonConstructor iConstructor;
+  iConstructor.ConstructParticle();
 }
 
 /*
- *
- */
+*/
 void PhysicsList::ConstructProcess(){
-    G4VModularPhysicsList::ConstructProcess();
+  AddTransportation();
+  ConstructDecay();
+  ConstructEM();
+  ConstructOp();
+}
 
-    SetVerbose(0);
-
-    G4DecayWithSpin* decayWithSpin = new G4DecayWithSpin();
-
-    G4ProcessTable* processTable = G4ProcessTable::GetProcessTable();
-
-    G4VProcess* decay;
-    decay = processTable->FindProcess("Decay",G4MuonPlus::MuonPlus());
-
-    G4ProcessManager* pManager;
-    pManager = G4MuonPlus::MuonPlus()->GetProcessManager();
-
-    if (pManager) {
-      if (decay) pManager->RemoveProcess(decay);
-      pManager->AddProcess(decayWithSpin);
+/*
+*/
+#include "G4Decay.hh"
+void PhysicsList::ConstructDecay(){
+  // Add Decay Process
+  G4Decay* theDecayProcess = new G4Decay();
+  auto particleIterator=GetParticleIterator();
+  particleIterator->reset();
+  while( (*particleIterator)() ){
+    G4ParticleDefinition* particle = particleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    if (theDecayProcess->IsApplicable(*particle)) {
+      pmanager ->AddProcess(theDecayProcess);
       // set ordering for PostStepDoIt and AtRestDoIt
-      pManager ->SetProcessOrdering(decayWithSpin, idxPostStep);
-      pManager ->SetProcessOrdering(decayWithSpin, idxAtRest);
+      pmanager ->SetProcessOrdering(theDecayProcess, idxPostStep);
+      pmanager ->SetProcessOrdering(theDecayProcess, idxAtRest);
     }
+  }
+}
 
-    decay = processTable->FindProcess("Decay",G4MuonMinus::MuonMinus());
+/*
+*/
+#include "G4ComptonScattering.hh"
+#include "G4GammaConversion.hh"
+#include "G4PhotoElectricEffect.hh"
 
-    pManager = G4MuonMinus::MuonMinus()->GetProcessManager();
+#include "G4eMultipleScattering.hh"
+#include "G4MuMultipleScattering.hh"
+#include "G4hMultipleScattering.hh"
 
-    if (pManager) {
-      if (decay) pManager->RemoveProcess(decay);
-      pManager->AddProcess(decayWithSpin);
-      // set ordering for PostStepDoIt and AtRestDoIt
-      pManager ->SetProcessOrdering(decayWithSpin, idxPostStep);
-      pManager ->SetProcessOrdering(decayWithSpin, idxAtRest);
+#include "G4eIonisation.hh"
+#include "G4eBremsstrahlung.hh"
+#include "G4eplusAnnihilation.hh"
+
+#include "G4MuIonisation.hh"
+#include "G4MuBremsstrahlung.hh"
+#include "G4MuPairProduction.hh"
+
+#include "G4hIonisation.hh"
+
+/*
+*/
+void PhysicsList::ConstructEM(){
+  auto particleIterator=GetParticleIterator();
+  particleIterator->reset();
+  while( (*particleIterator)() ){
+    G4ParticleDefinition* particle = particleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    G4String particleName = particle->GetParticleName();
+
+    if (particleName == "gamma") {
+    // gamma
+      // Construct processes for gamma
+      pmanager->AddDiscreteProcess(new G4GammaConversion());
+      pmanager->AddDiscreteProcess(new G4ComptonScattering());
+      pmanager->AddDiscreteProcess(new G4PhotoElectricEffect());
+
+    } else if (particleName == "e-") {
+    //electron
+      // Construct processes for electron
+      pmanager->AddProcess(new G4eMultipleScattering(),-1, 1, 1);
+      pmanager->AddProcess(new G4eIonisation(),       -1, 2, 2);
+      pmanager->AddProcess(new G4eBremsstrahlung(),   -1, 3, 3);
+
+    } else if (particleName == "e+") {
+    //positron
+      // Construct processes for positron
+      pmanager->AddProcess(new G4eMultipleScattering(),-1, 1, 1);
+      pmanager->AddProcess(new G4eIonisation(),       -1, 2, 2);
+      pmanager->AddProcess(new G4eBremsstrahlung(),   -1, 3, 3);
+      pmanager->AddProcess(new G4eplusAnnihilation(),  0,-1, 4);
+
+    } else if( particleName == "mu+" ||
+               particleName == "mu-"    ) {
+    //muon
+     // Construct processes for muon
+     pmanager->AddProcess(new G4MuMultipleScattering(),-1, 1, 1);
+     pmanager->AddProcess(new G4MuIonisation(),      -1, 2, 2);
+     pmanager->AddProcess(new G4MuBremsstrahlung(),  -1, 3, 3);
+     pmanager->AddProcess(new G4MuPairProduction(),  -1, 4, 4);
+
+    } else {
+      if ((particle->GetPDGCharge() != 0.0) &&
+          (particle->GetParticleName() != "chargedgeantino") &&
+          !particle->IsShortLived()) {
+       // all others charged particles except geantino
+       pmanager->AddProcess(new G4hMultipleScattering(),-1,1,1);
+       pmanager->AddProcess(new G4hIonisation(),       -1,2,2);
+     }
     }
+  }
+}
 
-    G4PionDecayMakeSpin* poldecay = new G4PionDecayMakeSpin();
+/*
+*/
+#include "G4Threading.hh"
+void PhysicsList::ConstructOp(){
+  fCerenkovProcess = new G4Cerenkov("Cerenkov");
+  fCerenkovProcess->SetMaxNumPhotonsPerStep(fMaxNumPhotonStep);
+  fCerenkovProcess->SetMaxBetaChangePerStep(10.0);
+  fCerenkovProcess->SetTrackSecondariesFirst(true);
+  fScintillationProcess = new G4Scintillation("Scintillation");
+  fScintillationProcess->SetScintillationYieldFactor(1.);
+  fScintillationProcess->SetTrackSecondariesFirst(true);
+  fAbsorptionProcess = new G4OpAbsorption();
+  fRayleighScatteringProcess = new G4OpRayleigh();
+  fMieHGScatteringProcess = new G4OpMieHG();
+  fBoundaryProcess = new G4OpBoundaryProcess();
 
-    decay = processTable->FindProcess("Decay",G4PionPlus::PionPlus());
+  fCerenkovProcess->SetVerboseLevel(fVerboseLevel);
+  fScintillationProcess->SetVerboseLevel(fVerboseLevel);
+  fAbsorptionProcess->SetVerboseLevel(fVerboseLevel);
+  fRayleighScatteringProcess->SetVerboseLevel(fVerboseLevel);
+  fMieHGScatteringProcess->SetVerboseLevel(fVerboseLevel);
+  fBoundaryProcess->SetVerboseLevel(fVerboseLevel);
 
-    pManager = G4PionPlus::PionPlus()->GetProcessManager();
+  // Use Birks Correction in the Scintillation process
+  if(G4Threading::IsMasterThread())
+  {
+    G4EmSaturation* emSaturation =
+              G4LossTableManager::Instance()->EmSaturation();
+      fScintillationProcess->AddSaturation(emSaturation);
+  }
 
-    if (pManager) {
-      if (decay) pManager->RemoveProcess(decay);
-      pManager->AddProcess(poldecay);
-      // set ordering for PostStepDoIt and AtRestDoIt
-      pManager ->SetProcessOrdering(poldecay, idxPostStep);
-      pManager ->SetProcessOrdering(poldecay, idxAtRest);
+  auto particleIterator=GetParticleIterator();
+  particleIterator->reset();
+  while( (*particleIterator)() ){
+    G4ParticleDefinition* particle = particleIterator->value();
+    G4ProcessManager* pmanager = particle->GetProcessManager();
+    G4String particleName = particle->GetParticleName();
+    if (fCerenkovProcess->IsApplicable(*particle)) {
+      pmanager->AddProcess(fCerenkovProcess);
+      pmanager->SetProcessOrdering(fCerenkovProcess,idxPostStep);
     }
-
-    decay = processTable->FindProcess("Decay",G4PionMinus::PionMinus());
-
-    pManager = G4PionMinus::PionMinus()->GetProcessManager();
-
-    if (pManager) {
-      if (decay) pManager->RemoveProcess(decay);
-      pManager->AddProcess(poldecay);
-      // set ordering for PostStepDoIt and AtRestDoIt
-      pManager ->SetProcessOrdering(poldecay, idxPostStep);
-      pManager ->SetProcessOrdering(poldecay, idxAtRest);
+    if (fScintillationProcess->IsApplicable(*particle)) {
+      pmanager->AddProcess(fScintillationProcess);
+      pmanager->SetProcessOrderingToLast(fScintillationProcess, idxAtRest);
+      pmanager->SetProcessOrderingToLast(fScintillationProcess, idxPostStep);
     }
-
-    AddStepMax();
-
-}
-
-
-/*
- *
- */
-void PhysicsList::RemoveFromPhysicsList(const G4String& name){
-    G4bool success = false;
-    for (G4PhysConstVector::iterator p  = fPhysicsVector->begin();
-                                     p != fPhysicsVector->end(); ++p) {
-        G4VPhysicsConstructor* e = (*p);
-        if (e->GetPhysicsName() == name) {
-           fPhysicsVector->erase(p);
-           success = true;
-           break;
-        }
+    if (particleName == "opticalphoton") {
+      G4cout << " AddDiscreteProcess to OpticalPhoton " << G4endl;
+      pmanager->AddDiscreteProcess(fAbsorptionProcess);
+      pmanager->AddDiscreteProcess(fRayleighScatteringProcess);
+      pmanager->AddDiscreteProcess(fMieHGScatteringProcess);
+      pmanager->AddDiscreteProcess(fBoundaryProcess);
     }
-    if (!success) {
-       G4ExceptionDescription message;
-       message << "PhysicsList::RemoveFromEMPhysicsList "<< name << "not found";
-       G4Exception("example PhysicsList::RemoveFromPhysicsList()",
-       "ExamPhysicsList01",FatalException,message);
-    }
+  }
 }
 
 /*
- *
- */
-void PhysicsList::SetAbsorption(G4bool toggle){
-   fAbsorptionOn = toggle;
-	 fPhysicsVector->push_back(fOpticalPhysics = new OpticalPhysics(toggle));
-	 fOpticalPhysics->ConstructProcess();
-
-}
-
-/*
- *
- */
-void PhysicsList::SetCuts(){
-    if (verboseLevel >0) {
-        G4cout << "PhysicsList::SetCuts:";
-        G4cout << "CutLength : " << G4BestUnit(defaultCutValue,"Length")
-               << G4endl;
-    }
-
-    // set cut values for gamma at first and for e- second and next for e+,
-    // because some processes for e+/e- need cut values for gamma
-    //SetCutValue(fCutForGamma, "gamma");
-    SetCutValue(0.05*eV, "gamma");
-    SetCutValue(fCutForElectron, "e-");
-    SetCutValue(fCutForPositron, "e+");
-
-    if (verboseLevel>0) DumpCutValuesTable();
-}
-
-/*
- *
- */
-void PhysicsList::SetCutForGamma(G4double cut){
-    fCutForGamma = cut;
-    SetParticleCuts(fCutForGamma, G4Gamma::Gamma());
-}
-
-/*
- *
- */
-void PhysicsList::SetCutForElectron(G4double cut){
-    fCutForElectron = cut;
-    SetParticleCuts(fCutForElectron, G4Electron::Electron());
-}
-
-/*
- *
- */
-void PhysicsList::SetCutForPositron(G4double cut){
-    fCutForPositron = cut;
-    SetParticleCuts(fCutForPositron, G4Positron::Positron());
-}
-
-
-/*
- *
- */
-void PhysicsList::AddStepMax(){
-  // Step limitation seen as a process
-
-    auto theParticleIterator = GetParticleIterator();
-
-    theParticleIterator->reset();
-
-    while ((*theParticleIterator)()) {
-      G4ParticleDefinition* particle = theParticleIterator->value();
-      G4ProcessManager* pmanager = particle->GetProcessManager();
-   }
- }
-
- /*
-  *
-  */
-void PhysicsList::SetNbOfPhotonsCerenkov(G4int maxNumber){
-
-  fOpticalPhysics->SetNbOfPhotonsCerenkov(maxNumber);
-
-}
-
-/*
- *
- */
+*/
 void PhysicsList::SetVerbose(G4int verbose){
-  fOpticalPhysics->GetCerenkovProcess()->SetVerboseLevel(verbose);
-  fOpticalPhysics->GetAbsorptionProcess()->SetVerboseLevel(verbose);
-  fOpticalPhysics->GetBoundaryProcess()->SetVerboseLevel(verbose);
+  fVerboseLevel = verbose;
 
+  fCerenkovProcess->SetVerboseLevel(fVerboseLevel);
+  fScintillationProcess->SetVerboseLevel(fVerboseLevel);
+  fAbsorptionProcess->SetVerboseLevel(fVerboseLevel);
+  fRayleighScatteringProcess->SetVerboseLevel(fVerboseLevel);
+  fMieHGScatteringProcess->SetVerboseLevel(fVerboseLevel);
+  fBoundaryProcess->SetVerboseLevel(fVerboseLevel);
+}
+
+/*
+*/
+void PhysicsList::SetNbOfPhotonsCerenkov(G4int MaxNumber){
+  fMaxNumPhotonStep = MaxNumber;
+
+  fCerenkovProcess->SetMaxNumPhotonsPerStep(fMaxNumPhotonStep);
+}
+
+/*
+*/
+void PhysicsList::SetCuts(){
+  //  " G4VUserPhysicsList::SetCutsWithDefault" method sets
+  //   the default cut value for all particle types
+  //
+  SetCutsWithDefault();
+
+  if (verboseLevel>0) DumpCutValuesTable();
 }

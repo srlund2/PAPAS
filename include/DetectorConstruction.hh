@@ -23,34 +23,55 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file /include/DetectorConstruction.hh
+/// \brief Definition of the DetectorConstruction class
 //
-/// \file OpNoviceSteppingAction.hh
-/// \brief Definition of the OpNoviceSteppingAction class
+//
+//
+//
+#ifndef DetectorConstruction_h
+#define DetectorConstruction_h 1
 
-#ifndef OpNoviceSteppingAction_h
-#define OpNoviceSteppingAction_h 1
-
-#include "G4UserSteppingAction.hh"
 #include "globals.hh"
+#include "G4Material.hh"
+#include "G4Box.hh"
+#include "G4LogicalVolume.hh"
+#include "G4VUserDetectorConstruction.hh"
+#include "Materials.hh"
 
-/// Stepping action class
-/// 
 
-class OpNoviceSteppingAction : public G4UserSteppingAction
+class DetectorConstruction : public G4VUserDetectorConstruction
 {
   public:
-    OpNoviceSteppingAction();
-    virtual ~OpNoviceSteppingAction();
+    DetectorConstruction();
+    virtual ~DetectorConstruction();
 
-    // method from the base class
-    virtual void UserSteppingAction(const G4Step*);
+  public:
+    virtual G4VPhysicalVolume* Construct();
+    void SetCADFilename     (std::string name){filename   = name;}
+    void SetCADFiletype     (std::string type){filetype   = type;}
+    void SetGDMLoutName     (std::string name){GDMLoutput = name;}
+    void SetSurfaceRoughness(G4double ruff)   {fRoughness = ruff;}
 
   private:
-    G4int fScintillationCounter;
-    G4int fCerenkovCounter;
-    G4int fEventNumber;
+    G4Box*               m_solidWorld;
+    G4LogicalVolume*     m_logicWorld;
+    G4VPhysicalVolume*   m_physWorld;
+
+    G4LogicalVolume*     cad_logical;
+    G4VPhysicalVolume*   cad_physical;
+
+    Materials* materials;
+
+    std::string filename = "";
+    std::string filetype = "";
+    std::string GDMLoutput;
+    G4double    fRoughness = 0;
+
+    #ifdef G4LIB_USE_GDML
+    G4GDMLParser fParser;
+    #elif defined CADMesh
+    CADMesh* mesh;
 };
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-#endif
+#endif /*DetectorConstruction_h*/

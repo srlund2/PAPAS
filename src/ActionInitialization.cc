@@ -24,51 +24,40 @@
 // ********************************************************************
 //
 //
-/// \file OpNoviceActionInitialization.cc
-/// \brief Implementation of the OpNoviceActionInitialization class
+/// \file ActionInitialization.cc
+/// \brief Implementation of the ActionInitialization class
 
-#include "OpNoviceActionInitialization.hh"
-#include "OpNovicePrimaryGeneratorAction.hh"
-#include "OpNoviceRunAction.hh"
-#include "OpNoviceSteppingAction.hh"
-#include "OpNoviceEventAction.hh"
-#include "OpNoviceSteppingVerbose.hh"
+#include "ActionInitialization.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "RunAction.hh"
+#include "SteppingAction.hh"
+#include "EventAction.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-OpNoviceActionInitialization::OpNoviceActionInitialization(G4String fileName)
+/*
+ */
+ActionInitialization::ActionInitialization(G4String fileName)
  : G4VUserActionInitialization(){
    ffileName = fileName;
  }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+ /*
+  */
+ActionInitialization::~ActionInitialization(){
 
-OpNoviceActionInitialization::~OpNoviceActionInitialization()
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void OpNoviceActionInitialization::BuildForMaster() const
-{
-  SetUserAction(new OpNoviceRunAction(ffileName));
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void OpNoviceActionInitialization::Build() const
-{
-  SetUserAction(new OpNovicePrimaryGeneratorAction());
-  SetUserAction(new OpNoviceRunAction(ffileName));
-  SetUserAction(new OpNoviceSteppingAction());
-  SetUserAction(new OpNoviceEventAction());
+/*
+ */
+void ActionInitialization::BuildForMaster() const{
+  SetUserAction(new RunAction(ffileName));
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4VSteppingVerbose*
-               OpNoviceActionInitialization::InitializeSteppingVerbose() const
-{
-  return new OpNoviceSteppingVerbose();
+/*
+ */
+void ActionInitialization::Build() const{
+  SetUserAction(new PrimaryGeneratorAction());
+  SetUserAction(new RunAction(ffileName));
+  SetUserAction(new SteppingAction());
+  SetUserAction(new EventAction());
 }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
