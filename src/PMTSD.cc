@@ -86,11 +86,12 @@ G4bool PMTSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   G4Track* theTrack = aStep->GetTrack();
   PMTHit* newHit = new PMTHit();
 
-  newHit->setTrackID  (aStep->GetTrack()->GetTrackID() );
-  newHit->setPos      (aStep->GetTrack()->GetVertexPosition() );
-  newHit->setHit      (aStep->GetTrack()->GetPosition() );
+  newHit->setTrackID  (theTrack->GetTrackID() );
+  newHit->setPos      (theTrack->GetVertexPosition() );
+  newHit->setHit      (theTrack->GetPosition() );
   newHit->setEnergy   (aStep->GetPreStepPoint()->GetTotalEnergy());
   newHit->setMomentum (aStep->GetPreStepPoint()->GetMomentum());
+  newHit->setTime     (theTrack->GetGlobalTime());
 
   hitCollection->insert( newHit );
 

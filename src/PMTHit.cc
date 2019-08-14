@@ -54,6 +54,7 @@ PMTHit::PMTHit(const PMTHit& right)
   hit       = right.hit;
   energy    = right.energy;
   momentum  = right.momentum;
+  time      = right.time;
 }
 
 /*
@@ -66,6 +67,7 @@ const PMTHit& PMTHit::operator=(const PMTHit& right)
   hit       = right.hit;
   energy    = right.energy;
   momentum  = right.momentum;
+  time      = right.time;
   return *this;
 }
 

@@ -34,8 +34,8 @@
 /gps/pos/type Plane
 /gps/pos/shape Rectangle
 /gps/pos/centre 0. 0. 0. mm
-/gps/pos/halfx 44.875 mm
-/gps/pos/halfy 82 mm
+/gps/pos/halfx 41.875 mm
+/gps/pos/halfy 80 mm
 
 #
 # the incident surface is in the x-y plane
@@ -59,6 +59,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 1
+/run/beamOn 10000000
 ##############################################################
 ##############################################################

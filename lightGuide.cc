@@ -106,7 +106,6 @@ int main(int argc,char** argv)
 
 
 //----------------- Check options against dependencies -----------------//
-
   if(CADmodel != ""){
   // Check if the user has GDML support and if they are asking for it
     #ifndef G4LIB_USE_GDML
@@ -120,11 +119,12 @@ int main(int argc,char** argv)
           CADoutFile = "";
       }
     #endif
-    #ifndef CADMESH
-      if(filetype != "gdml"){
-        G4cout << "Cannot read non-gdml geometries without CADMESH installed!!! aborting" << G4endl;
-      }
-    #endif
+
+    //If you want to use CADMesh but don't have it installed
+    if(filetype == "stl" && !CADMESH){
+      G4cout << "Cannot read STL models without CADMESH installed!!! aborting" << G4endl;
+    }
+
   }
 
   // Instantiate G4UIExecutive if interactive mode

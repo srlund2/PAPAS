@@ -68,7 +68,7 @@ void Materials::DefineOpticalProperties(void){
   G4double quartz_RIND[nEntriesWLS], quartz_ABSL[nEntriesWLS],quartz_RFLT[nEntriesWLS],quartz_EFIC[nEntriesWLS], PhotonEnergy[nEntriesWLS];
      for(int i = 0; i < nEntriesWLS; i++){
          PhotonEnergy[i] = 2.00*eV + i*0.03*eV;
-         quartz_RIND[i] =tile_RI; //Refractive Index - constants
+         quartz_RIND[i] = 1.44221 + 5.9e-3*PhotonEnergy[i] + 6.71e-4*pow(PhotonEnergy[i],2) + 2.3e-5*pow(PhotonEnergy[i],3) + 2.745e-5*pow(PhotonEnergy[i],4); //Refractive Index
          quartz_ABSL[i] = 300.00*cm + i*20*cm; //Attenuation length
          quartz_RFLT[i] = 0.5;
          quartz_EFIC[i] = 0.5;

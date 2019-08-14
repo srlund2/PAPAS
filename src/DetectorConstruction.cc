@@ -50,11 +50,8 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
-#ifdef G4LIB_USE_GDML
 #include "G4GDMLParser.hh"
-#endif
 
-// CADMESH //
 #ifdef CADMESH
 #include "CADMesh.hh"
 #endif
@@ -122,7 +119,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
   //----------------- Make the light guide -----------------//
   ////////////////////This got all sorts of fucked up. I'll probably drop GDML support or make it required
-  materials->AlSurface->SetSigmaAlpha(fRoughness);
+  //materials->AlSurface->SetFinish(ground);
+  //materials->AlSurface->SetPolish(0.1);
+  //materials->AlSurface->SetSigmaAlpha(2.0);
 
   //If we have defined a CAD file, use it
   if(filename != ""){
@@ -132,9 +131,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     rot->rotateZ(90*deg);
     rot->rotateY(-90*deg);
 
-    //Import the cad model and place it
     #ifdef CADMESH
-    if(filetype != "gdml"){
+    if(filetype == "stl"){
       CADMesh* mesh = new CADMesh((char*) filename.c_str());
       mesh->SetScale(mm);
       mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
@@ -145,10 +143,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                             Al,                      //material
                             "LightGuide");           //name
     }
-    #elif defined G4LIB_USE_GDML
+    #endif
+
     if(filetype == "gdml"){
-      fParser.Read(fReadFile);
-      break;
+      fParser.Read(filename);
     }
     if(filetype == "step"){
       cad_logical = fParser.ParseST(filename,Air,Al);
@@ -156,7 +154,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
     if(cad_logical !=0 ){
       cad_physical =
-        new G4PVPlacement(0, //rot,
+        new G4PVPlacement(rot,
                           G4ThreeVector(0,0,lgHeight-(3*cm)),
                           cad_logical,
                           "cad_physical",
@@ -165,13 +163,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                           0);
     }
 
-    //If output to GDML if requested and supported
-    #ifdef G4LIB_USE_GDML
       if(GDMLoutput != ""){
         G4GDMLParser* gdml = new G4GDMLParser();
         gdml->Write("GDMLoutput",cad_physical);
       }
-    #endif
+
 
     //Make the surface optically reflective
     G4LogicalSkinSurface* alumLSS =

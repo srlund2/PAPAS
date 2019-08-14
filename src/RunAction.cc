@@ -65,7 +65,8 @@ RunAction::RunAction(G4String fileName)
   analysisManager->CreateNtupleDColumn("Y");
   analysisManager->CreateNtupleDColumn("hitX");
   analysisManager->CreateNtupleDColumn("hitY");
-  analysisManager->CreateNtupleDColumn("energy");
+  //analysisManager->CreateNtupleDColumn("energy");
+  analysisManager->CreateNtupleDColumn("time");
   analysisManager->FinishNtuple();
 }
 

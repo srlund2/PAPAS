@@ -37,6 +37,8 @@
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "G4GDMLParser.hh"
+
 #include "Materials.hh"
 
 
@@ -68,10 +70,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     std::string GDMLoutput;
     G4double    fRoughness = 0;
 
-    #ifdef G4LIB_USE_GDML
     G4GDMLParser fParser;
-    #elif defined CADMesh
-    CADMesh* mesh;
 };
 
 #endif /*DetectorConstruction_h*/

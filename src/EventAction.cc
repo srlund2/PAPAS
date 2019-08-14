@@ -66,7 +66,6 @@ void EventAction::BeginOfEventAction(const G4Event* event){
  *
  */
 void EventAction::EndOfEventAction(const G4Event* event){
-
   hitsCollID = G4SDManager::GetSDMpointer()->GetCollectionID("MyPMT");
   G4HCofThisEvent* HCE = event->GetHCofThisEvent();
   if(HCE){
@@ -79,8 +78,8 @@ void EventAction::EndOfEventAction(const G4Event* event){
       analysisManager->FillNtupleDColumn(1, aHit->getPos().y() );
       analysisManager->FillNtupleDColumn(2, aHit->getHit().x() );
       analysisManager->FillNtupleDColumn(3, aHit->getHit().y() );
-      analysisManager->FillNtupleDColumn(4, aHit->getEnergy()  );
-      //Add global timeanalysisManager->FillNtupleDColumn(5, aHit->getTime()  );
+      //analysisManager->FillNtupleDColumn(4, aHit->getEnergy()  );
+      analysisManager->FillNtupleDColumn(4, aHit->getTime()  );
       analysisManager->AddNtupleRow();
     }
   }
