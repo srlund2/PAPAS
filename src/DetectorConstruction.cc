@@ -29,6 +29,7 @@
 
 // USER //
 #include "DetectorConstruction.hh"
+#include "DetectorMessenger.hh"
 #include "Materials.hh"
 #include "PMTSD.hh"
 
@@ -37,6 +38,7 @@
 // GEANT4 //
 #include "G4Element.hh"
 #include "G4SDManager.hh"
+#include "G4RunManager.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4LogicalSkinSurface.hh"
 #include "G4OpticalSurface.hh"
@@ -60,8 +62,9 @@
  *
  */
 DetectorConstruction::DetectorConstruction()
- : G4VUserDetectorConstruction(){
+ : G4VUserDetectorConstruction(),fDetectorMessenger(nullptr){
    materials = Materials::getInstance();
+   fDetectorMessenger = new DetectorMessenger(this);
 }
 
 
@@ -82,7 +85,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   materials->DefineOpticalProperties();
   G4Material* Air = materials->Air;
   G4Material* Al = materials->Al;
-  G4Material* Silica = materials->pQuartz;
+
 
   //Set the lightguide height. Hardcoded for now,
   //should be determined by the model dimensions
@@ -118,11 +121,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 
   //----------------- Make the light guide -----------------//
-  ////////////////////This got all sorts of fucked up. I'll probably drop GDML support or make it required
-  //materials->AlSurface->SetFinish(ground);
-  //materials->AlSurface->SetPolish(0.1);
-  //materials->AlSurface->SetSigmaAlpha(2.0);
-
   //If we have defined a CAD file, use it
   if(filename != ""){
 
@@ -170,10 +168,16 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 
     //Make the surface optically reflective
-    G4LogicalSkinSurface* alumLSS =
+    /*G4LogicalSkinSurface* alumLSS =
       new G4LogicalSkinSurface("AlSkinSurface",
                                cad_logical,
-                               materials->AlSurface );
+                               materials->AlSurface );*/
+    G4LogicalBorderSurface* alumLSS =
+      new G4LogicalBorderSurface("AlSurface",
+                                 m_physWorld,
+                                 cad_physical,
+                                 materials->AlSurface );
+    (void)alumLSS;
 
   }else{
     //Create a trapezoidal air light guide made of aluminum sheet
@@ -219,11 +223,24 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                         m_logicWorld,
                         false,
                         0);
+    (void)physLightGuide;
 
-    G4LogicalSkinSurface* alumLSS =
+    /*G4LogicalSkinSurface* alumLSS =
       new G4LogicalSkinSurface("AlSkinSurface",
                                logicLightGuide,
-                               materials->AlSurface );
+                               materials->AlSurface );*/
+   G4LogicalBorderSurface* alumLSS1 =
+     new G4LogicalBorderSurface("AlSurface",
+                                physLightGuide,
+                                m_physWorld,
+                                materials->AlSurface );
+   G4LogicalBorderSurface* alumLSS2 =
+     new G4LogicalBorderSurface("AlSurface",
+                                m_physWorld,
+                                physLightGuide,
+                                materials->AlSurface );
+    (void)alumLSS1;
+    (void)alumLSS2;
 
   }//end else
 
@@ -255,8 +272,44 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                       m_logicWorld,
                       false,
                       0);
+  (void)physPMT;
 
   logicPMT->SetSensitiveDetector( PMT );
 
   return m_physWorld;
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetSurfaceSigmaAlpha(G4double v){
+  materials->AlSurface->SetSigmaAlpha(v);
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+
+  G4cout << "Surface sigma alpha set to: " << materials->AlSurface->GetSigmaAlpha()
+         << G4endl;
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetSurfaceFinish(const G4OpticalSurfaceFinish finish){
+  materials->AlSurface->SetFinish(finish);
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetSurfaceType(const G4SurfaceType type){
+  materials->AlSurface->SetType(type);
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
+  materials->AlSurface->SetModel(model);
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }

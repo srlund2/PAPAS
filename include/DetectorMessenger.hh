@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,60 +22,49 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file /include/DetectorConstruction.hh
-/// \brief Definition of the DetectorConstruction class
+/// \file optical/OpNovice2/include/DetectorMessenger.hh
+/// \brief Definition of the DetectorMessenger class
 //
 //
 //
-//
-#ifndef DetectorConstruction_h
-#define DetectorConstruction_h 1
+
+#ifndef DetectorMessenger_h
+#define DetectorMessenger_h 1
 
 #include "globals.hh"
-#include "G4Material.hh"
-#include "G4Box.hh"
-#include "G4LogicalVolume.hh"
-#include "G4VUserDetectorConstruction.hh"
-#include "G4GDMLParser.hh"
+#include "G4UImessenger.hh"
 
-#include "Materials.hh"
-#include "DetectorMessenger.hh"
+class DetectorConstruction;
+class G4UIdirectory;
+class G4UIcommand;
+class G4UIcmdWithAString;
+class G4UIcmdWithAnInteger;
+class G4UIcmdWithADouble;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithoutParameter;
 
 
-class DetectorConstruction : public G4VUserDetectorConstruction
-{
+class DetectorMessenger: public G4UImessenger{
   public:
-    DetectorConstruction();
-    virtual ~DetectorConstruction();
 
-  public:
-    virtual G4VPhysicalVolume* Construct();
-    void SetCADFilename     (std::string name){filename   = name;}
-    void SetCADFiletype     (std::string type){filetype   = type;}
-    void SetGDMLoutName     (std::string name){GDMLoutput = name;}
+    DetectorMessenger(DetectorConstruction* );
+   ~DetectorMessenger();
 
-    void SetSurfaceFinish(const G4OpticalSurfaceFinish finish);
-    void SetSurfaceType(const G4SurfaceType type);
-    void SetSurfaceModel(const G4OpticalSurfaceModel model);
-    void SetSurfaceSigmaAlpha(G4double v);
-
+    virtual void SetNewValue(G4UIcommand*, G4String);
 
   private:
-    G4Box*               m_solidWorld;
-    G4LogicalVolume*     m_logicWorld;
-    G4VPhysicalVolume*   m_physWorld;
 
-    G4LogicalVolume*     cad_logical;
-    G4VPhysicalVolume*   cad_physical;
+    DetectorConstruction*      fDetector;
 
-    Materials* materials;
+    G4UIdirectory*             flightGuideDir;
 
-    std::string filename = "";
-    std::string filetype = "";
-    std::string GDMLoutput;
+    // the surface
+    G4UIcmdWithAString*        fSurfaceTypeCmd;
+    G4UIcmdWithAString*        fSurfaceFinishCmd;
+    G4UIcmdWithAString*        fSurfaceModelCmd;
+    G4UIcmdWithADouble*        fSurfaceSigmaAlphaCmd;
+    G4UIcmdWithAString*        fSurfaceMatPropVectorCmd;
 
-    G4GDMLParser fParser;
-    DetectorMessenger* fDetectorMessenger;
+
 };
-
-#endif /*DetectorConstruction_h*/
+#endif

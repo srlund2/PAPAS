@@ -79,7 +79,6 @@ int main(int argc,char** argv)
   G4String CADmodel = "";
   G4String filetype;
   G4String CADoutFile = "";
-  G4double roughness = 0;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -92,7 +91,6 @@ int main(int argc,char** argv)
      else if ( G4String(argv[i]) == "-c"  ){CADmodel   = argv[i+1]; filetype = argv[i+2];i++;}
      else if ( G4String(argv[i]) == "-co" ) CADoutFile = argv[i+1];
      else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
-     else if ( G4String(argv[i]) == "-s"  ) roughness  = atof(argv[i+1]);
 #ifdef G4MULTITHREADED
      else if ( G4String(argv[i]) == "-t" ) {
                     nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -158,7 +156,6 @@ int main(int argc,char** argv)
     DetConst->SetCADFilename(CADmodel);
     DetConst->SetCADFiletype(filetype);
     DetConst->SetGDMLoutName(CADoutFile);
-    DetConst->SetSurfaceRoughness(roughness);
   }
   runManager-> SetUserInitialization(DetConst);
   // Physics list
@@ -188,8 +185,6 @@ int main(int argc,char** argv)
   else // Define UI session for interactive mode
   {
      UImanager->ApplyCommand("/control/execute vis.mac");
-     if (ui->IsGUI())
-        UImanager->ApplyCommand("/control/execute gui.mac");
      ui->SessionStart();
      delete ui;
   }
