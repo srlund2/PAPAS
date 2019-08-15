@@ -17,6 +17,16 @@
 
 /gps/particle opticalphoton
 
+#Set reflective surface properties
+/lightGuide/surfaceModel unified
+/lightGuide/surfaceType dielectric_metal
+/lightGuide/surfaceFinish ground
+/lightGuide/surfaceSigmaAlpha .01
+/lightGuide/surfaceProperty SPECULARLOBECONSTANT 0.000002 1.0 0.000008 1.0
+/lightGuide/surfaceProperty SPECULARSPIKECONSTANT 0.000002 0.99 0.000008 0.99
+/lightGuide/surfaceProperty BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
+/lightGuide/surfaceProperty REFLECTIVITY 0.000002 .99 0.000008 .99
+
 # the beam energy is in gaussian profile
 /gps/ene/type Gauss
 /gps/ene/mono 3.4 eV
@@ -59,6 +69,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 10000000
+/run/beamOn 5000000
 ##############################################################
 ##############################################################

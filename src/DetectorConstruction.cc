@@ -177,7 +177,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                                  m_physWorld,
                                  cad_physical,
                                  materials->AlSurface );
-    (void)alumLSS;
+   G4LogicalBorderSurface* alumLSS1 =
+     new G4LogicalBorderSurface("AlSurface",
+                                cad_physical,
+                                m_physWorld,
+                                materials->AlSurface );
 
   }else{
     //Create a trapezoidal air light guide made of aluminum sheet
@@ -239,8 +243,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                                 m_physWorld,
                                 physLightGuide,
                                 materials->AlSurface );
-    (void)alumLSS1;
-    (void)alumLSS2;
 
   }//end else
 
