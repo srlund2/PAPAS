@@ -252,7 +252,29 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
                   FatalException,ed);
     }
   }
-
+  // SURFACE PROPERTY
+  else if (command == fSurfaceMatPropVectorCmd) {
+    // Convert string to physics vector
+    // string format is property name, then pairs of energy, value
+    // space delimited
+    G4MaterialPropertyVector* mpv = new G4MaterialPropertyVector();
+    G4cout << newValue << G4endl;
+    std::istringstream instring(newValue);
+    G4String prop;
+    instring >> prop;
+    while (instring) {
+      G4String tmp;
+      instring >> tmp;
+      if (tmp == "") { break; }
+      G4double en = G4UIcommand::ConvertToDouble(tmp);
+      instring >> tmp;
+      G4double val;
+      val = G4UIcommand::ConvertToDouble(tmp);
+      mpv->InsertValues(en, val);
+    }
+    const char* c = prop.c_str();
+    fDetector->AddSurfaceMPV(c, mpv);
+  }
   // TYPE
   else if (command == fSurfaceTypeCmd) {
     if (newValue == "dielectric_metal") {

@@ -81,6 +81,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
       //analysisManager->FillNtupleDColumn(4, aHit->getEnergy()  );
       analysisManager->FillNtupleDColumn(4, aHit->getTime()  );
       analysisManager->AddNtupleRow();
+      analysisManager->FillH2(1,aHit->getPos().y(), aHit->getPos().x() );
     }
   }
 }

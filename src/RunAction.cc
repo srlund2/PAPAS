@@ -36,6 +36,7 @@
 
 #include "RunAction.hh"
 #include "G4VAnalysisManager.hh"
+#include "G4SystemOfUnits.hh"
 #include "lgAnalysis.hh"
 
 
@@ -65,9 +66,12 @@ RunAction::RunAction(G4String fileName)
   analysisManager->CreateNtupleDColumn("Y");
   analysisManager->CreateNtupleDColumn("hitX");
   analysisManager->CreateNtupleDColumn("hitY");
-  //analysisManager->CreateNtupleDColumn("energy");
   analysisManager->CreateNtupleDColumn("time");
   analysisManager->FinishNtuple();
+  analysisManager->SetFirstHistoId(1);
+  analysisManager->CreateH2("1","Relative Efficiency",
+                            150, -82.0*mm, 82.0*mm,
+                            150, -44.875*mm, 44.875*mm);
 }
 
 /*

@@ -311,6 +311,19 @@ void DetectorConstruction::SetSurfaceType(const G4SurfaceType type){
 /*
  *
  */
+void DetectorConstruction::AddSurfaceMPV(const char* c,
+                                         G4MaterialPropertyVector* mpv) {
+  mpv->SetSpline(true);
+  materials->GetMPTArray().at(1)->AddProperty(c, mpv);
+  materials->AlSurface->SetMaterialPropertiesTable(materials->GetMPTArray().at(1));
+  G4cout << "The MPT for the surface is now: " << G4endl;
+  materials->GetMPTArray().at(1)->DumpTable();
+  G4cout << "............." << G4endl;
+}
+
+/*
+ *
+ */
 void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
   materials->AlSurface->SetModel(model);
   G4RunManager::GetRunManager()->GeometryHasBeenModified();

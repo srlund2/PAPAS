@@ -25,6 +25,8 @@ class Materials
             /*! \brief Define indexes of interest.*/
             void DefineOpticalProperties(void);
 
+            std::vector <G4MaterialPropertiesTable*> GetMPTArray(){return MPT_Array;}
+
             //Elements
             /*  \brief Hydrogen */
             G4Element* H;
