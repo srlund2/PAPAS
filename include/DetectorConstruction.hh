@@ -55,10 +55,12 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetCADFiletype     (std::string type){filetype   = type;}
     void SetGDMLoutName     (std::string name){GDMLoutput = name;}
 
+    void SetSurfaceSigmaAlpha (G4double v);
     void SetSurfaceFinish     (const G4OpticalSurfaceFinish finish);
     void SetSurfaceType       (const G4SurfaceType type);
     void SetSurfaceModel      (const G4OpticalSurfaceModel model);
-    void SetSurfaceSigmaAlpha (G4double v);
+    void AddSurfaceMPV        (const char* c, G4MaterialPropertyVector* mpv);
+
     void SetRotationX         (G4int arg);
     void SetRotationY         (G4int arg);
     void SetRotationZ         (G4int arg);

@@ -46,6 +46,9 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 add_executable(lightGuide lightGuide.cc ${sources} ${headers})
 target_link_libraries(lightGuide ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} cadmesh )
 
+add_executable(plotHisto ${DEPENDENCIES} Analysis/plotHisto.cc)
+TARGET_LINK_LIBRARIES(plotHisto ${ROOT_LIBRARIES})
+
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build lightGuide. This is so that we can run the executable directly because it
@@ -68,6 +71,8 @@ endforeach()
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS lightGuide DESTINATION bin)
-install(FILES run1.mac DESTINATION bin )
-install(FILES vis.mac DESTINATION bin )
-install(DIRECTORY models/ DESTINATION models FILES_MATCHING PATTERN "*.*")
+install(FILES run1.mac DESTINATION  . )
+install(FILES run2.mac DESTINATION  . )
+install(FILES runAndAnalyze.sh DESTINATION . )
+install(FILES vis.mac DESTINATION . )
+install(DIRECTORY models/ DESTINATION models)
