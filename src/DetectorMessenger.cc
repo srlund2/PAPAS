@@ -82,7 +82,46 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fSurfaceMatPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fSurfaceMatPropVectorCmd->SetToBeBroadcasted(false);
 
+  fModelCmd = new G4UIcmdWithAString("/lightGuide/CADmodel", this);
+  fModelCmd->SetGuidance("CAD model to be used");
+  fModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelCmd->SetToBeBroadcasted(false);
 
+  fModelRotationXCmd =
+    new G4UIcmdWithAnInteger("/lightGuide/rotX", this);
+  fModelRotationXCmd->SetGuidance("Set light guide first rotation");
+  fModelRotationXCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelRotationXCmd->SetToBeBroadcasted(false);
+
+  fModelRotationYCmd =
+    new G4UIcmdWithAnInteger("/lightGuide/rotY", this);
+  fModelRotationYCmd->SetGuidance("Set light guide second rotation");
+  fModelRotationYCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelRotationYCmd->SetToBeBroadcasted(false);
+
+  fModelRotationZCmd =
+    new G4UIcmdWithAnInteger("/lightGuide/rotZ", this);
+  fModelRotationZCmd->SetGuidance("Set light guide second rotation");
+  fModelRotationZCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelRotationZCmd->SetToBeBroadcasted(false);
+
+  fModelOffsetXCmd =
+    new G4UIcmdWithADouble("/lightGuide/offsetX", this);
+  fModelOffsetXCmd->SetGuidance("Set light guide X rotation");
+  fModelOffsetXCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelOffsetXCmd->SetToBeBroadcasted(false);
+
+  fModelOffsetYCmd =
+    new G4UIcmdWithADouble("/lightGuide/offsetY", this);
+  fModelOffsetYCmd->SetGuidance("Set light guide Y rotation");
+  fModelOffsetYCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelOffsetYCmd->SetToBeBroadcasted(false);
+
+  fModelOffsetZCmd =
+    new G4UIcmdWithADouble("/lightGuide/offsetZ", this);
+  fModelOffsetZCmd->SetGuidance("Set light guide Z rotation");
+  fModelOffsetZCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelOffsetZCmd->SetToBeBroadcasted(false);
 }
 
 /*
@@ -94,6 +133,13 @@ DetectorMessenger::~DetectorMessenger(){
   delete fSurfaceModelCmd;
   delete fSurfaceSigmaAlphaCmd;
   delete fSurfaceMatPropVectorCmd;
+  delete fModelCmd;
+  delete fModelRotationXCmd;
+  delete fModelRotationYCmd;
+  delete fModelRotationZCmd;
+  delete fModelOffsetXCmd;
+  delete fModelOffsetYCmd;
+  delete fModelOffsetZCmd;
 }
 
 /*
@@ -276,5 +322,29 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if (command == fSurfaceSigmaAlphaCmd) {
     fDetector->SetSurfaceSigmaAlpha(
       G4UIcmdWithADouble::GetNewDoubleValue(newValue));
+  }
+  // MODEL LOCATION
+  else if(command == fModelCmd){
+    fDetector->SetCADFilename(newValue);
+  }
+  // MODEL ROTATION
+  else if(command == fModelRotationXCmd){
+    fDetector->SetRotationX(G4UIcmdWithAnInteger::GetNewIntValue(newValue));
+  }
+  else if(command == fModelRotationYCmd){
+    fDetector->SetRotationY(G4UIcmdWithAnInteger::GetNewIntValue(newValue));
+  }
+  else if(command == fModelRotationZCmd){
+    fDetector->SetRotationZ(G4UIcmdWithAnInteger::GetNewIntValue(newValue));
+  }
+  // MODEL TRANSLATION
+  else if(command == fModelOffsetXCmd){
+    fDetector->SetOffsetX(G4UIcmdWithADouble::GetNewDoubleValue(newValue));
+  }
+  else if(command == fModelOffsetYCmd){
+    fDetector->SetOffsetY(G4UIcmdWithADouble::GetNewDoubleValue(newValue));
+  }
+  else if(command == fModelOffsetZCmd){
+    fDetector->SetOffsetZ(G4UIcmdWithADouble::GetNewDoubleValue(newValue));
   }
 }

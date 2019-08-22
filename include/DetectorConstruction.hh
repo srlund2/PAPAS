@@ -51,14 +51,20 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
   public:
     virtual G4VPhysicalVolume* Construct();
-    void SetCADFilename     (std::string name){filename   = name;}
+    void SetCADFilename     (std::string name);
     void SetCADFiletype     (std::string type){filetype   = type;}
     void SetGDMLoutName     (std::string name){GDMLoutput = name;}
 
-    void SetSurfaceFinish(const G4OpticalSurfaceFinish finish);
-    void SetSurfaceType(const G4SurfaceType type);
-    void SetSurfaceModel(const G4OpticalSurfaceModel model);
-    void SetSurfaceSigmaAlpha(G4double v);
+    void SetSurfaceFinish     (const G4OpticalSurfaceFinish finish);
+    void SetSurfaceType       (const G4SurfaceType type);
+    void SetSurfaceModel      (const G4OpticalSurfaceModel model);
+    void SetSurfaceSigmaAlpha (G4double v);
+    void SetRotationX         (G4int arg);
+    void SetRotationY         (G4int arg);
+    void SetRotationZ         (G4int arg);
+    void SetOffsetX           (G4double arg);
+    void SetOffsetY           (G4double arg);
+    void SetOffsetZ           (G4double arg);
 
 
   private:
@@ -68,6 +74,13 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
     G4LogicalVolume*     cad_logical;
     G4VPhysicalVolume*   cad_physical;
+
+    G4int m_rotX;
+    G4int m_rotY;
+    G4int m_rotZ;
+    G4double m_offsetX;
+    G4double m_offsetY;
+    G4double m_offsetZ;
 
     Materials* materials;
 

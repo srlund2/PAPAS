@@ -39,6 +39,10 @@
 #include "G4Element.hh"
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
+#include "G4GeometryManager.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4SolidStore.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4LogicalSkinSurface.hh"
 #include "G4OpticalSurface.hh"
@@ -126,8 +130,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
     // CAD model rotation.
     G4RotationMatrix * rot = new G4RotationMatrix();
-    rot->rotateZ(90*deg);
-    rot->rotateY(-90*deg);
+    rot->rotateX(m_rotX*deg);
+    rot->rotateY(m_rotY*deg);
+    rot->rotateZ(m_rotZ*deg);
+
 
     #ifdef CADMESH
     if(filetype == "stl"){
@@ -313,5 +319,68 @@ void DetectorConstruction::SetSurfaceType(const G4SurfaceType type){
  */
 void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
   materials->AlSurface->SetModel(model);
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+void DetectorConstruction::SetCADFilename(std::string name){
+  filename = name;
+  G4cout << "Using " << filename << G4endl;
+  delete G4SDManager::GetSDMpointer()->FindSensitiveDetector("MyPMT");
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  //G4RunManager::GetRunManager()->ResetNavigator();
+  G4GeometryManager::GetInstance()->OpenGeometry();
+  G4PhysicalVolumeStore::GetInstance()->Clean();
+  G4LogicalVolumeStore::GetInstance()->Clean();
+  G4SolidStore::GetInstance()->Clean();
+  Construct();
+  //G4RunManager::GetRunManager()->ReinitializeGeometry();
+  // /lightGuide/CADmodel ../zdclg/models/LightGuide2007BigPMT.stl
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetRotationX(G4int arg){
+  m_rotX = arg;
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetRotationY(G4int arg){
+  m_rotY = arg;
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetRotationZ(G4int arg){
+  m_rotZ = arg;
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetOffsetX(G4double arg){
+  m_offsetX = arg;
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetOffsetY(G4double arg){
+  m_offsetY = arg;
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetOffsetZ(G4double arg){
+  m_offsetZ = arg;
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }

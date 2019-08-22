@@ -64,6 +64,13 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fSurfaceModelCmd;
     G4UIcmdWithADouble*        fSurfaceSigmaAlphaCmd;
     G4UIcmdWithAString*        fSurfaceMatPropVectorCmd;
+    G4UIcmdWithAString*        fModelCmd;
+    G4UIcmdWithAnInteger*      fModelRotationXCmd;
+    G4UIcmdWithAnInteger*      fModelRotationYCmd;
+    G4UIcmdWithAnInteger*      fModelRotationZCmd;
+    G4UIcmdWithADouble*        fModelOffsetXCmd;
+    G4UIcmdWithADouble*        fModelOffsetYCmd;
+    G4UIcmdWithADouble*        fModelOffsetZCmd;
 
 
 };
