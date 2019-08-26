@@ -101,12 +101,15 @@ Visualisation
  ------------
 
  - compile and link to generate an executable
+```
   % mkdir zdclg-build zdclg-install
  	% cd zdclg-build
  	% cmake -DCMAKE_INSTALL_PREFIX=../zdclg-install /path/to/zdclg
+```
 
    This example handles the program arguments in a new way.
    It can be run with the following optional arguments:
+```
    % ./lightGuide [-m macro ]
                   [-u UIsession]
                   [-t nThreads]
@@ -114,6 +117,7 @@ Visualisation
                   [-o outputFileName]
                   [-c CADmodelName filetype]
                   [-co GDMLoutFileName]
+```
 
    The -t option is available only in multi-threading mode
    and it allows the user to override the Geant4 default number of
@@ -121,12 +125,16 @@ Visualisation
    environment variable which has the top priority.
 
  - execute lightGuide in 'batch' mode from macro files
+```
  	% ./lightGuide -m run1.mac
+```
 
  - execute lightGuide in 'interactive mode' with visualization
+```
  	% ./lightGuide
  	....
  	Idle> type your commands. For instance:
  	Idle> /control/execute run1.mac
  	....
  	Idle> exit
+```
