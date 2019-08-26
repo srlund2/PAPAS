@@ -1,98 +1,122 @@
 
-///\file "optical/OpNovice/.README.txt"
-///\brief Example OpNovice README page
+///\file "zdclg/.README.txt"
+///\brief LightGuide README page
 
-/*! \page ExampleOpNovice Example OpNovice
+This simulation is based on OpNovice and OpNovice2
 
-This example presently illustrates the following basic concepts, and in
-particular (indicated with ***), how to use G4 for optical photon
-generation and transport. Other extended example of what is possible
-in Geant4 with optical photons can be found at
-examples/extended/optical/LXe and wls
+Build requirements
+  Geant4 compiled with GDML and additional datasets
+  ROOT
+  -CADMesh is required to read CAD models (i.e. stl, step), but is optional for compiling
 
-\section ExampleOpNovice_s1 main()
+\section lightGuide_s1 main()
 
- Define Random Number Engine and initial seed
+define Random Number Engine, initial seed, CAD input and GDML output
 
-\section ExampleOpNovice_s2 G4VUserPhysicsList
+\section lightGuide_s2 G4VUserPhysicsList
 
  - Define particles; including - *** G4OpticalPhoton     ***
- - Define processes; including 
+ - Define processes; including
    - *** G4Cerenkov          ***
    - *** G4Scintillation     ***
    - *** G4OpAbsorption      ***
    - *** G4OpRayleigh        ***
    - *** G4OpBoundaryProcess ***
 
- A messenger command allows to define interactivly the 
- verbose level and the maximum number of Cerenkov photons per step
- (see for instance OpNovice.in)
+\section lightGuide_s3 Materials
 
-\section ExampleOpNovice_s3 G4VUserDetectorConstruction 
+defines many materials for potential use
+    For our purposes the G4OpticalSurface AlSurface and the G4Material Al and Air
+    will be given optical properties and used for construction.
 
- - Define material: Air and Water
- - Define simple G4box geometry
-   - *** add G4MaterialPropertiesTable to G4Material       ***
-   - *** define G4LogicalSurface(s)                        ***
-   - *** define G4OpticalSurface                           ***
-   - *** add G4MaterialPropertiesTable to G4OpticalSurface ***
+\section lightGuide_s4 G4VUserDetectorConstruction
 
-\section ExampleOpNovice_s4 G4VUserPrimaryGeneratorAction
+A light guide is made either by simple G4trd or by importing a model
+    via CADMesh.
+    define G4LogicalBorderSurface between the light guide and world volume
+    defines a PMT window sensitive detector at the top of the light guide
+    AlSurface properties can be modified via DetectorMessenger via the following commands
+    /lightGuide/surfaceModel
+    /lightGuide/surfaceType
+    /lightGuide/surfaceFinish
+    /lightGuide/surfaceSigmaAlpha
+    /lightGuide/surfaceProperty
 
- Use G4ParticleGun to shoot a charge particle into a Cerenkov radiator
- 
- A messenger command allows to define interactivly the polarization of an
- primary optical photon (see for instance optPhoton.mac)
-     
-\section ExampleOpNovice_s5 G4UserRunAction
+    examples can be found in run1.mac
 
- - Define G4Timer (start/stop)
- - Set verbose levels
+\section lightGuide_s5 G4VUserPrimaryGeneratorAction
 
-\section ExampleOpNovice_s6 G4UserStackingAction
+Use G4GeneralParticleSource to shoot an optical photon into the light guide
+Particle type and distribution is set in run1.mac
+
+\section lightGuide_s6 G4UserRunAction
+
+define G4Timer (start/stop)
+define G4AnalysisManager (output .root file)
+set verbose levels
+
+\section lightGuide_s7 PMTHit
+
+stores G4int         trackID,
+       G4ThreeVector pos;      // Origin position of the photon
+       G4ThreeVector hit;      // Location where the photon hit the PMT window
+       G4double      energy;   // Energy of the photon
+       G4ThreeVector momentum; // Momentum of the photon (direction)
+       G4double      time;     // Time of arrival of the photon
+for each hit on the PMT sensitive detector
+
+\section lightGuide_s8 PMTSD
+
+Records a PMTHit if the photon strikes the PMT window
+
+\section lightGuide_s9 G4UserEventAction
 
  Show how to count the number of secondary particles in an event
 
-\section ExampleOpNovice_s7 Visualisation
- 
+\section lightGuide_s10 Visualisation
+
  The Visualization Manager is set in the main().
  The initialisation of the drawing is done via a set of /vis/ commands
- in the macro vis.mac. This macro is automatically read from 
+ in the macro vis.mac. This macro is automatically read from
  the main in case of interactive running mode.
- 	
- The detector has a default view which is a longitudinal view of the tank. 	
- The tracks are drawn at the end of event, and erased at the end of run.
- 
-\section ExampleOpNovice_s8 How to start
+
+\section lightGuide_s11 How to start
 
  - compile and link to generate an executable
 \verbatim
-        % cd OpNovice
-        % gmake
+  % mkdir zdclg-build zdclg-install
+  % cd zdclg-build
+  % cmake -DCMAKE_INSTALL_PREFIX=../zdclg-install /path/to/zdclg
 \endverbatim
 
    This example handles the program arguments in a new way.
    It can be run with the following optional arguments:
 \verbatim
-   % OpNovice [-m macro ] [-u UIsession] [-t nThreads]
+  % ./lightGuide [-m macro ]
+                 [-u UIsession]
+                 [-t nThreads]
+                 [-r seed]
+                 [-o outputFileName]
+                 [-c CADmodelName filetype]
+                 [-co GDMLoutFileName]
 \endverbatim
 
    The -t option is available only in multi-threading mode
    and it allows the user to override the Geant4 default number of
    threads. The number of threads can be also set via G4FORCENUMBEROFTHREADS
    environment variable which has the top priority.
- 
- - execute OpNovice in 'batch' mode from macro files
+
+ - execute lightGuide in 'batch' mode from macro files
 \verbatim
-   % OpNovice -m OpNovice.in
+   % ./lightGuide -m run1.mac
 \endverbatim
 
- - execute OpNovice in 'interactive mode' with visualization
+ - execute lightGuide in 'interactive mode' with visualization
 \verbatim
-% OpNovice
+% lightGuide
 ....
 Idle> type your commands. For instance:
-Idle> /control/execute optPhoton.mac
+Idle> /control/execute run1.mac
 ....
 Idle> exit
 \endverbatim

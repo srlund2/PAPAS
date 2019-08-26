@@ -21,9 +21,9 @@
 /lightGuide/surfaceModel unified
 /lightGuide/surfaceType dielectric_metal
 /lightGuide/surfaceFinish ground
-/lightGuide/surfaceSigmaAlpha .01
+/lightGuide/surfaceSigmaAlpha .1
 /lightGuide/surfaceProperty SPECULARLOBECONSTANT 0.000002 1.0 0.000008 1.0
-/lightGuide/surfaceProperty SPECULARSPIKECONSTANT 0.000002 0.99 0.000008 0.99
+/lightGuide/surfaceProperty SPECULARSPIKECONSTANT 0.000002 0.3 0.000008 0.3
 /lightGuide/surfaceProperty BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
 /lightGuide/surfaceProperty REFLECTIVITY 0.000002 .99 0.000008 .99
 
@@ -69,6 +69,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 5000000
+/run/beamOn 5
 ##############################################################
 ##############################################################
