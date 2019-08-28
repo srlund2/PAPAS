@@ -44,6 +44,7 @@
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithoutParameter.hh"
+#include "G4UIcmdWith3VectorAndUnit.hh"
 
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
@@ -87,41 +88,21 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fModelCmd->SetToBeBroadcasted(false);
 
-  fModelRotationXCmd =
-    new G4UIcmdWithAnInteger("/lightGuide/rotX", this);
-  fModelRotationXCmd->SetGuidance("Set light guide first rotation");
-  fModelRotationXCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fModelRotationXCmd->SetToBeBroadcasted(false);
+  fModelRotationCmd =
+    new G4UIcmdWith3VectorAndUnit("/lightGuide/rotate", this);
+  fModelRotationCmd->SetGuidance("Set light guide first rotation");
+  fModelRotationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelRotationCmd->SetToBeBroadcasted(false);
+  fModelRotationCmd->SetParameterName("rotationX","rotationY","rotationZ",true);
+  fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
+  fModelRotationCmd->SetDefaultUnit("deg");
 
-  fModelRotationYCmd =
-    new G4UIcmdWithAnInteger("/lightGuide/rotY", this);
-  fModelRotationYCmd->SetGuidance("Set light guide second rotation");
-  fModelRotationYCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fModelRotationYCmd->SetToBeBroadcasted(false);
+  fModelTranslationCmd =
+    new G4UIcmdWith3VectorAndUnit("/lightGuide/translate", this);
+  fModelTranslationCmd->SetGuidance("Set light guide translation");
+  fModelTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelTranslationCmd->SetToBeBroadcasted(false);
 
-  fModelRotationZCmd =
-    new G4UIcmdWithAnInteger("/lightGuide/rotZ", this);
-  fModelRotationZCmd->SetGuidance("Set light guide second rotation");
-  fModelRotationZCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fModelRotationZCmd->SetToBeBroadcasted(false);
-
-  fModelOffsetXCmd =
-    new G4UIcmdWithADouble("/lightGuide/offsetX", this);
-  fModelOffsetXCmd->SetGuidance("Set light guide X rotation");
-  fModelOffsetXCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fModelOffsetXCmd->SetToBeBroadcasted(false);
-
-  fModelOffsetYCmd =
-    new G4UIcmdWithADouble("/lightGuide/offsetY", this);
-  fModelOffsetYCmd->SetGuidance("Set light guide Y rotation");
-  fModelOffsetYCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fModelOffsetYCmd->SetToBeBroadcasted(false);
-
-  fModelOffsetZCmd =
-    new G4UIcmdWithADouble("/lightGuide/offsetZ", this);
-  fModelOffsetZCmd->SetGuidance("Set light guide Z rotation");
-  fModelOffsetZCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fModelOffsetZCmd->SetToBeBroadcasted(false);
 }
 
 /*
@@ -134,12 +115,8 @@ DetectorMessenger::~DetectorMessenger(){
   delete fSurfaceSigmaAlphaCmd;
   delete fSurfaceMatPropVectorCmd;
   delete fModelCmd;
-  delete fModelRotationXCmd;
-  delete fModelRotationYCmd;
-  delete fModelRotationZCmd;
-  delete fModelOffsetXCmd;
-  delete fModelOffsetYCmd;
-  delete fModelOffsetZCmd;
+  delete fModelRotationCmd;
+  delete fModelTranslationCmd;
 }
 
 /*
@@ -350,23 +327,11 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     fDetector->SetCADFilename(newValue);
   }
   // MODEL ROTATION
-  else if(command == fModelRotationXCmd){
-    fDetector->SetRotationX(G4UIcmdWithAnInteger::GetNewIntValue(newValue));
-  }
-  else if(command == fModelRotationYCmd){
-    fDetector->SetRotationY(G4UIcmdWithAnInteger::GetNewIntValue(newValue));
-  }
-  else if(command == fModelRotationZCmd){
-    fDetector->SetRotationZ(G4UIcmdWithAnInteger::GetNewIntValue(newValue));
+  else if(command == fModelRotationCmd){
+    fDetector->SetRotation(fModelRotationCmd->GetNew3VectorValue(newValue));
   }
   // MODEL TRANSLATION
-  else if(command == fModelOffsetXCmd){
-    fDetector->SetOffsetX(G4UIcmdWithADouble::GetNewDoubleValue(newValue));
-  }
-  else if(command == fModelOffsetYCmd){
-    fDetector->SetOffsetY(G4UIcmdWithADouble::GetNewDoubleValue(newValue));
-  }
-  else if(command == fModelOffsetZCmd){
-    fDetector->SetOffsetZ(G4UIcmdWithADouble::GetNewDoubleValue(newValue));
+  else if(command == fModelTranslationCmd){
+    fDetector->SetTranslation(fModelTranslationCmd->GetNew3VectorValue(newValue));
   }
 }

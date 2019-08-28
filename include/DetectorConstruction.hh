@@ -61,30 +61,40 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetSurfaceModel      (const G4OpticalSurfaceModel model);
     void AddSurfaceMPV        (const char* c, G4MaterialPropertyVector* mpv);
 
-    void SetRotationX         (G4int arg);
-    void SetRotationY         (G4int arg);
-    void SetRotationZ         (G4int arg);
-    void SetOffsetX           (G4double arg);
-    void SetOffsetY           (G4double arg);
-    void SetOffsetZ           (G4double arg);
+    void SetRotation          (G4ThreeVector arg);
+    void SetTranslation       (G4ThreeVector arg);
 
 
   private:
+
     G4Box*               m_solidWorld;
     G4LogicalVolume*     m_logicWorld;
     G4VPhysicalVolume*   m_physWorld;
 
+    G4Box*               m_solidHalfWorld;
+    G4LogicalVolume*     m_logicHalfWorld;
+    G4VPhysicalVolume*   m_physHalfWorld;
+
     G4LogicalVolume*     m_logicLightGuide;
     G4VPhysicalVolume*   m_physLightGuide;
 
-    G4Box*               m_solidFillGas;
-    G4LogicalVolume*     m_logicFillGas;
-    G4VPhysicalVolume*   m_physFillGas;
+    G4Tubs*              m_solidPMT;
+    G4LogicalVolume*     m_logicPMT;
+    G4VPhysicalVolume*   m_physPMT;
 
+    G4LogicalBorderSurface* m_SurfLGtoWorld;
+    G4LogicalBorderSurface* m_SurfLGtoInner;
+
+    G4double m_WorldSizeX;
+    G4double m_WorldSizeY;
+    G4double m_WorldSizeZ;
 
     G4int m_rotX;
     G4int m_rotY;
     G4int m_rotZ;
+
+    G4ThreeVector m_translation;
+    G4RotationMatrix* m_rotation;
 
     G4double m_offsetX;
     G4double m_offsetY;

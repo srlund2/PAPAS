@@ -42,6 +42,7 @@ class G4UIcmdWithAnInteger;
 class G4UIcmdWithADouble;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithoutParameter;
+class G4UIcmdWith3VectorAndUnit;
 
 
 class DetectorMessenger: public G4UImessenger{
@@ -65,12 +66,8 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithADouble*        fSurfaceSigmaAlphaCmd;
     G4UIcmdWithAString*        fSurfaceMatPropVectorCmd;
     G4UIcmdWithAString*        fModelCmd;
-    G4UIcmdWithAnInteger*      fModelRotationXCmd;
-    G4UIcmdWithAnInteger*      fModelRotationYCmd;
-    G4UIcmdWithAnInteger*      fModelRotationZCmd;
-    G4UIcmdWithADouble*        fModelOffsetXCmd;
-    G4UIcmdWithADouble*        fModelOffsetYCmd;
-    G4UIcmdWithADouble*        fModelOffsetZCmd;
+    G4UIcmdWith3VectorAndUnit* fModelRotationCmd;
+    G4UIcmdWith3VectorAndUnit* fModelTranslationCmd;
 
 
 };
