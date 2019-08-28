@@ -66,9 +66,11 @@
  *
  */
 DetectorConstruction::DetectorConstruction()
- : G4VUserDetectorConstruction(),fDetectorMessenger(nullptr){
+ : G4VUserDetectorConstruction(),m_DetectorMessenger(nullptr){
    materials = Materials::getInstance();
-   fDetectorMessenger = new DetectorMessenger(this);
+   m_DetectorMessenger = new DetectorMessenger(this);
+   m_filename = m_filetype = "";
+
 }
 
 
@@ -126,7 +128,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
   //----------------- Make the light guide -----------------//
   //If we have defined a CAD file, use it
-  if(filename != ""){
+  if(m_filename != ""){
 
     // CAD model rotation.
     G4RotationMatrix * rot = new G4RotationMatrix();
@@ -136,32 +138,32 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 
     #ifdef CADMESH
-    if(filetype == "stl"){
-      CADMesh* mesh = new CADMesh((char*) filename.c_str());
+    if(m_filetype == "stl"){
+      CADMesh* mesh = new CADMesh((char*) m_filename.c_str());
       mesh->SetScale(mm);
       mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
       mesh->SetReverse(false);
 
-      cad_logical =
+      m_logicLightGuide =
         new G4LogicalVolume(mesh->TessellatedMesh(), //solid
                             Al,                      //material
                             "LightGuide");           //name
     }
     #endif
 
-    if(filetype == "gdml"){
-      fParser.Read(filename);
+    if(m_filetype == "gdml"){
+      m_Parser.Read(m_filename);
     }
-    if(filetype == "step"){
-      cad_logical = fParser.ParseST(filename,Air,Al);
+    if(m_filetype == "step"){
+      m_logicLightGuide = m_Parser.ParseST(m_filename,Air,Al);
     }
 
-    if(cad_logical !=0 ){
-      cad_physical =
+    if(m_logicLightGuide !=0 ){
+      m_physLightGuide =
         new G4PVPlacement(rot,
                           G4ThreeVector(0,0,lgHeight-(3*cm)),
-                          cad_logical,
-                          "cad_physical",
+                          m_logicLightGuide,
+                          "physLightGuide",
                           m_logicWorld,
                           false,
                           0);
@@ -169,25 +171,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
       if(GDMLoutput != ""){
         G4GDMLParser* gdml = new G4GDMLParser();
-        gdml->Write("GDMLoutput",cad_physical);
+        gdml->Write("GDMLoutput",m_physLightGuide);
       }
-
-
-    //Make the surface optically reflective
-    /*G4LogicalSkinSurface* alumLSS =
-      new G4LogicalSkinSurface("AlSkinSurface",
-                               cad_logical,
-                               materials->AlSurface );*/
-    G4LogicalBorderSurface* alumLSS =
-      new G4LogicalBorderSurface("AlSurface",
-                                 m_physWorld,
-                                 cad_physical,
-                                 materials->AlSurface );
-   G4LogicalBorderSurface* alumLSS1 =
-     new G4LogicalBorderSurface("AlSurface",
-                                cad_physical,
-                                m_physWorld,
-                                materials->AlSurface );
 
   }else{
     //Create a trapezoidal air light guide made of aluminum sheet
@@ -220,37 +205,34 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                              outter,
                              inner);
 
-    G4LogicalVolume* logicLightGuide =
+    G4LogicalVolume* m_logicLightGuide =
       new G4LogicalVolume(LightGuide,
                           Al,
                           "BasicLightGuide");
 
-    G4VPhysicalVolume*  physLightGuide =
+    G4VPhysicalVolume*  m_physLightGuide =
       new G4PVPlacement(0,
                         G4ThreeVector(0, 0, HeightZ),
-                        logicLightGuide,
+                        m_logicLightGuide,
                         "BasicLightGuide",
                         m_logicWorld,
                         false,
                         0);
-    (void)physLightGuide;
-
-    /*G4LogicalSkinSurface* alumLSS =
-      new G4LogicalSkinSurface("AlSkinSurface",
-                               logicLightGuide,
-                               materials->AlSurface );*/
-   G4LogicalBorderSurface* alumLSS1 =
-     new G4LogicalBorderSurface("AlSurface",
-                                physLightGuide,
-                                m_physWorld,
-                                materials->AlSurface );
-   G4LogicalBorderSurface* alumLSS2 =
-     new G4LogicalBorderSurface("AlSurface",
-                                m_physWorld,
-                                physLightGuide,
-                                materials->AlSurface );
 
   }//end else
+
+  //----------------- Define Optical Borders -----------------//
+
+  G4LogicalBorderSurface* alumLSS1 =
+    new G4LogicalBorderSurface("AlSurface",
+                               m_physLightGuide,
+                               m_physWorld,
+                               materials->AlSurface );
+  G4LogicalBorderSurface* alumLSS2 =
+    new G4LogicalBorderSurface("AlSurface",
+                               m_physWorld,
+                               m_physLightGuide,
+                               materials->AlSurface );
 
 
   //----------------- Define PMT window -----------------//
@@ -336,8 +318,8 @@ void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
 }
 
 void DetectorConstruction::SetCADFilename(std::string name){
-  filename = name;
-  G4cout << "Using " << filename << G4endl;
+  m_filename = name;
+  G4cout << "Using " << m_filename << G4endl;
   delete G4SDManager::GetSDMpointer()->FindSensitiveDetector("MyPMT");
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
   //G4RunManager::GetRunManager()->ResetNavigator();

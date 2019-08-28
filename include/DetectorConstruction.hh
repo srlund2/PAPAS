@@ -52,7 +52,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   public:
     virtual G4VPhysicalVolume* Construct();
     void SetCADFilename     (std::string name);
-    void SetCADFiletype     (std::string type){filetype   = type;}
+    void SetCADFiletype     (std::string type){m_filetype   = type;}
     void SetGDMLoutName     (std::string name){GDMLoutput = name;}
 
     void SetSurfaceSigmaAlpha (G4double v);
@@ -74,24 +74,30 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume*     m_logicWorld;
     G4VPhysicalVolume*   m_physWorld;
 
-    G4LogicalVolume*     cad_logical;
-    G4VPhysicalVolume*   cad_physical;
+    G4LogicalVolume*     m_logicLightGuide;
+    G4VPhysicalVolume*   m_physLightGuide;
+
+    G4Box*               m_solidFillGas;
+    G4LogicalVolume*     m_logicFillGas;
+    G4VPhysicalVolume*   m_physFillGas;
+
 
     G4int m_rotX;
     G4int m_rotY;
     G4int m_rotZ;
+
     G4double m_offsetX;
     G4double m_offsetY;
     G4double m_offsetZ;
 
     Materials* materials;
 
-    std::string filename = "";
-    std::string filetype = "";
+    std::string m_filename;
+    std::string m_filetype;
     std::string GDMLoutput;
 
-    G4GDMLParser fParser;
-    DetectorMessenger* fDetectorMessenger;
+    G4GDMLParser m_Parser;
+    DetectorMessenger* m_DetectorMessenger;
 };
 
 #endif /*DetectorConstruction_h*/
