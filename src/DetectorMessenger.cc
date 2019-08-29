@@ -324,7 +324,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   // MODEL LOCATION
   else if(command == fModelCmd){
-    fDetector->SetCADFilename(newValue);
+    fDetector->UseCADModel(newValue);
   }
   // MODEL ROTATION
   else if(command == fModelRotationCmd){

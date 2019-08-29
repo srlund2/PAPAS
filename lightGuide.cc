@@ -55,7 +55,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " lightGuide [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName] [-c CADmodelName filetype] [-co GDMLoutFileName] [-s ReflectiveSurfaceRoughness]"
+    G4cerr << " lightGuide [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
@@ -76,9 +76,6 @@ int main(int argc,char** argv)
   G4String macro;
   G4String session;
   G4String output;
-  G4String CADmodel = "";
-  G4String filetype;
-  G4String CADoutFile = "";
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -88,8 +85,6 @@ int main(int argc,char** argv)
      if      ( G4String(argv[i]) == "-m"  ) macro      = argv[i+1];
      else if ( G4String(argv[i]) == "-u"  ) session    = argv[i+1];
      else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
-     else if ( G4String(argv[i]) == "-c"  ){CADmodel   = argv[i+1]; filetype = argv[i+2];i++;}
-     else if ( G4String(argv[i]) == "-co" ) CADoutFile = argv[i+1];
      else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
 #ifdef G4MULTITHREADED
      else if ( G4String(argv[i]) == "-t" ) {
@@ -102,28 +97,6 @@ int main(int argc,char** argv)
     }
   }
 
-
-//----------------- Check options against dependencies -----------------//
-  if(CADmodel != ""){
-  // Check if the user has GDML support and if they are asking for it
-    #ifndef G4LIB_USE_GDML
-      filetype.toLower();
-      if(filetype == "gdml"){
-        G4cout << "G4GDML not defined!!! aborting" << G4endl;
-        return 0;
-      }
-      if(CADoutFile != ""){
-          G4cout << "G4GDML not defined!!! Model will not be converted" << G4endl;
-          CADoutFile = "";
-      }
-    #endif
-
-    //If you want to use CADMesh but don't have it installed
-    if(filetype == "stl" && !CADMESH){
-      G4cout << "Cannot read STL models without CADMESH installed!!! aborting" << G4endl;
-    }
-
-  }
 
   // Instantiate G4UIExecutive if interactive mode
   G4UIExecutive* ui = nullptr;
@@ -151,13 +124,7 @@ int main(int argc,char** argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  DetectorConstruction* DetConst = new DetectorConstruction();
-  if(CADmodel != ""){
-    DetConst->SetCADFilename(CADmodel);
-    DetConst->SetCADFiletype(filetype);
-    DetConst->SetGDMLoutName(CADoutFile);
-  }
-  runManager-> SetUserInitialization(DetConst);
+  runManager-> SetUserInitialization(new DetectorConstruction());
   // Physics list
   runManager-> SetUserInitialization(new PhysicsList());
   // User action initialization

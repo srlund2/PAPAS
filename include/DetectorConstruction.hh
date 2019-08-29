@@ -51,9 +51,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
   public:
     virtual G4VPhysicalVolume* Construct();
-    void SetCADFilename     (std::string name);
-    void SetCADFiletype     (std::string type){m_filetype   = type;}
-    void SetGDMLoutName     (std::string name){GDMLoutput = name;}
+
+    void UseCADModel          (G4String fileName);
+    void OutputToGDML         (G4String name);
+    void SetRotation          (G4ThreeVector arg);
+    void SetTranslation       (G4ThreeVector arg);
 
     void SetSurfaceSigmaAlpha (G4double v);
     void SetSurfaceFinish     (const G4OpticalSurfaceFinish finish);
@@ -61,53 +63,38 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetSurfaceModel      (const G4OpticalSurfaceModel model);
     void AddSurfaceMPV        (const char* c, G4MaterialPropertyVector* mpv);
 
-    void SetRotation          (G4ThreeVector arg);
-    void SetTranslation       (G4ThreeVector arg);
-
-
   private:
 
-    G4Box*               m_solidWorld;
-    G4LogicalVolume*     m_logicWorld;
-    G4VPhysicalVolume*   m_physWorld;
+    G4Box*                  m_solidWorld;
+    G4LogicalVolume*        m_logicWorld;
+    G4VPhysicalVolume*      m_physWorld;
 
-    G4Box*               m_solidHalfWorld;
-    G4LogicalVolume*     m_logicHalfWorld;
-    G4VPhysicalVolume*   m_physHalfWorld;
+    G4Box*                  m_solidHalfWorld;
+    G4LogicalVolume*        m_logicHalfWorld;
+    G4VPhysicalVolume*      m_physHalfWorld;
 
-    G4LogicalVolume*     m_logicLightGuide;
-    G4VPhysicalVolume*   m_physLightGuide;
+    G4LogicalVolume*        m_logicLightGuide;
+    G4VPhysicalVolume*      m_physLightGuide;
 
-    G4Tubs*              m_solidPMT;
-    G4LogicalVolume*     m_logicPMT;
-    G4VPhysicalVolume*   m_physPMT;
+    G4Tubs*                 m_solidPMT;
+    G4LogicalVolume*        m_logicPMT;
+    G4VPhysicalVolume*      m_physPMT;
 
     G4LogicalBorderSurface* m_SurfLGtoWorld;
     G4LogicalBorderSurface* m_SurfLGtoInner;
 
-    G4double m_WorldSizeX;
-    G4double m_WorldSizeY;
-    G4double m_WorldSizeZ;
+    G4double                m_WorldSizeX;
+    G4double                m_WorldSizeY;
+    G4double                m_WorldSizeZ;
 
-    G4int m_rotX;
-    G4int m_rotY;
-    G4int m_rotZ;
+    G4ThreeVector           m_translation;
+    G4RotationMatrix*       m_rotation;
 
-    G4ThreeVector m_translation;
-    G4RotationMatrix* m_rotation;
+    Materials*              materials;
+    G4Material*             filler;
 
-    G4double m_offsetX;
-    G4double m_offsetY;
-    G4double m_offsetZ;
-
-    Materials* materials;
-
-    std::string m_filename;
-    std::string m_filetype;
-    std::string GDMLoutput;
-
-    G4GDMLParser m_Parser;
-    DetectorMessenger* m_DetectorMessenger;
+    G4GDMLParser            m_Parser;
+    DetectorMessenger*      m_DetectorMessenger;
 };
 
 #endif /*DetectorConstruction_h*/

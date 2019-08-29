@@ -69,15 +69,9 @@ DetectorConstruction::DetectorConstruction()
  : G4VUserDetectorConstruction(),m_DetectorMessenger(nullptr){
    materials = Materials::getInstance();
    m_DetectorMessenger = new DetectorMessenger(this);
-   m_filename = m_filetype = "";
 
    m_WorldSizeX = m_WorldSizeZ = 0.25*m;
    m_WorldSizeY = 0.5*m;
-
-   m_rotX = m_rotY = m_rotZ = 0;
-
-
-
 
 }
 
@@ -89,9 +83,8 @@ DetectorConstruction::~DetectorConstruction(){
 
 }
 
-
-/* Detector construction is currently all done here
- * Breaking out into modules may be done later
+/* Default geometry (2018 testbeam) is created here
+ * The user is able to modify geometry via messenger commands
  */
 G4VPhysicalVolume* DetectorConstruction::Construct(){
   //Set up the materials
@@ -109,10 +102,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
   //----------------- Define the world volume -----------------//
   m_solidWorld =
-    new G4Box("World", //name
+    new G4Box("World",       //name
               m_WorldSizeX,  //sizeX
               m_WorldSizeY,  //sizeY
-              m_WorldSizeZ);  //sizeZ
+              m_WorldSizeZ); //sizeZ
 
   m_logicWorld =
     new G4LogicalVolume(m_solidWorld, //solid
@@ -139,7 +132,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   // and PMT
 
   m_solidHalfWorld =
-    new G4Box("HalfWorld", //name
+    new G4Box("HalfWorld",    //name
               m_WorldSizeX,   //sizeX
               m_WorldSizeY/2, //sizeY
               m_WorldSizeZ);  //sizeZ
@@ -147,13 +140,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   m_logicHalfWorld =
     new G4LogicalVolume(m_solidHalfWorld, //solid
                         Air,              //material
-                        "HalfWorld");         //name
+                        "HalfWorld");     //name
 
   m_physHalfWorld =
     new G4PVPlacement(0,                                 //no rotation
                       G4ThreeVector(0,m_WorldSizeY/2,0), //at (0,0,0)
                       m_logicHalfWorld,                  //logical volume
-                      "HalfWorld",                           //name
+                      "HalfWorld",                       //name
                       m_logicWorld,                      //mother  volume
                       false,                             //no boolean operation
                       0,                                 //copy number
@@ -165,106 +158,52 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 
   //----------------- Make the light guide -----------------//
-  //If we have defined a CAD file, use it
-  if(m_filename != ""){
+  //Make this one by default and allow the user to replace it later
+  //Create a trapezoidal air light guide made of aluminum sheet
+  G4double thickness = 1.0*mm;
+  G4double LengthX   = 89.75*mm/2;
+  G4double LengthY   = 164.*mm/2;
+  G4double PMTwindow = 45.969*mm/2;
+  G4double HeightZ   = lgHeight;
+  G4RotationMatrix* rot = new G4RotationMatrix();
+  rot->rotateX(90*deg);
 
-    // CAD model rotation.
-    G4RotationMatrix * rot = new G4RotationMatrix();
-    rot->rotateX(m_rotX*deg);
-    rot->rotateY(m_rotY*deg);
-    rot->rotateZ(m_rotZ*deg);
+  //Aluminum outter
+  G4Trd* outter =
+    new G4Trd("BasicLightGuide",
+              LengthX+thickness,
+              PMTwindow+thickness,
+              LengthY+thickness,
+              PMTwindow+thickness,
+              HeightZ);
+  //Air inner
+  G4Trd* inner =
+    new G4Trd("AirVolume",
+              LengthX,
+              PMTwindow,
+              LengthY,
+              PMTwindow,
+              HeightZ+2.0*mm);
 
+  //Subtract material to hollow out the light guide
+  G4SubtractionSolid* LightGuide =
+    new G4SubtractionSolid("BasicLightGuide",
+                           outter,
+                           inner);
 
-    #ifdef CADMESH
-    if(m_filetype == "stl"){
-      CADMesh* mesh = new CADMesh((char*) m_filename.c_str());
-      mesh->SetScale(mm);
-      mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
-      mesh->SetReverse(false);
+  m_logicLightGuide =
+    new G4LogicalVolume(LightGuide,
+                        Al,
+                        "BasicLightGuide");
 
-      m_logicLightGuide =
-        new G4LogicalVolume(mesh->TessellatedMesh(), //solid
-                            Al,                      //material
-                            "LightGuide");           //name
-    }
-    #endif
-
-    if(m_filetype == "gdml"){
-      m_Parser.Read(m_filename);
-    }
-    if(m_filetype == "step"){
-      m_logicLightGuide = m_Parser.ParseST(m_filename,Air,Al);
-    }
-
-    if(m_logicLightGuide !=0 ){
-      m_physLightGuide =
-        new G4PVPlacement(rot,
-                          G4ThreeVector(0,0,lgHeight-(3*cm)),
-                          m_logicLightGuide,
-                          "physLightGuide",
-                          m_logicHalfWorld,
-                          false,
-                          0);
-    }
-
-      if(GDMLoutput != ""){
-        G4GDMLParser* gdml = new G4GDMLParser();
-        gdml->Write("GDMLoutput",m_physLightGuide);
-      }
-
-  }else{
-    //Create a trapezoidal air light guide made of aluminum sheet
-    G4double thickness = 1.0*mm;
-    G4double LengthX   = 89.75*mm/2;
-    G4double LengthY   = 164.*mm/2;
-    G4double PMTwindow = 45.969*mm/2;
-    G4double HeightZ   = lgHeight;
-    G4RotationMatrix * rot = new G4RotationMatrix();
-    rot->rotateX(m_rotX*deg);
-    rot->rotateY(m_rotY*deg);
-    rot->rotateZ(m_rotZ*deg);
-    //rot->rotateX(90*deg);
-    //rot->rotateY(90*deg);
-    //rot->rotateZ(m_rotZ*deg);
-
-    //Aluminum outter
-    G4Trd* outter =
-      new G4Trd("BasicLightGuide",
-                LengthX+thickness,
-                PMTwindow+thickness,
-                LengthY+thickness,
-                PMTwindow+thickness,
-                HeightZ);
-    //Air inner
-    G4Trd* inner =
-      new G4Trd("AirVolume",
-                LengthX,
-                PMTwindow,
-                LengthY,
-                PMTwindow,
-                HeightZ+2.0*mm);
-
-    //Subtract material to hollow out the light guide
-    G4SubtractionSolid* LightGuide =
-      new G4SubtractionSolid("BasicLightGuide",
-                             outter,
-                             inner);
-
-    m_logicLightGuide =
-      new G4LogicalVolume(LightGuide,
-                          Al,
-                          "BasicLightGuide");
-
-    m_physLightGuide =
-      new G4PVPlacement(rot,
-                        G4ThreeVector(0, HeightZ - m_WorldSizeY/2, 0),
-                        m_logicLightGuide,
-                        "BasicLightGuide",
-                        m_logicHalfWorld,
-                        false,
-                        0);
-
-  }//end else
+  m_physLightGuide =
+    new G4PVPlacement(rot,
+                      G4ThreeVector(0, HeightZ - m_WorldSizeY/2, 0),
+                      m_logicLightGuide,
+                      "BasicLightGuide",
+                      m_logicHalfWorld,
+                      false,
+                      0);
 
   //----------------- Define Optical Borders -----------------//
 
@@ -291,15 +230,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   SDman->AddNewDetector( PMT );
 
   m_solidPMT =
-    new G4Tubs("PMT",     //name
-              0.0*mm,     //Inner radius
-              PMTradius,  //Outter radius
-              PMTthickness,     //Height
-              0.0*deg,    //Rotation start
-              360.0*deg); //Sweep
+    new G4Tubs("PMT",       //name
+              0.0*mm,       //Inner radius
+              PMTradius,    //Outter radius
+              PMTthickness, //Height
+              0.0*deg,      //Rotation start
+              360.0*deg);   //Sweep
 
   m_logicPMT =
-    new G4LogicalVolume(m_solidPMT,   //solid
+    new G4LogicalVolume(m_solidPMT, //solid
                         Air,        //material
                         "PMT");     //name
 
@@ -326,6 +265,82 @@ void DetectorConstruction::SetSurfaceSigmaAlpha(G4double v){
 
   G4cout << "Surface sigma alpha set to: " << materials->AlSurface->GetSigmaAlpha()
          << G4endl;
+}
+
+/*
+ *
+ */
+void DetectorConstruction::UseCADModel(G4String fileName){
+  //Delete anything we are going to redefine
+  if(m_SurfLGtoWorld)   delete m_SurfLGtoWorld;
+  if(m_SurfLGtoInner)   delete m_SurfLGtoInner;
+  if(m_logicLightGuide) delete m_logicLightGuide;
+  if(m_physLightGuide)  delete m_physLightGuide;
+
+  G4double lgHeight = 130*mm;
+  G4String fileType = fileName.substr( fileName.last('.') + 1, fileName.size() - fileName.last('.'));
+  G4cout << fileType << G4endl;
+
+  #ifdef CADMESH
+  if(fileType == "stl"){
+    CADMesh* mesh = new CADMesh((char*) fileName.c_str());
+    mesh->SetScale(mm);
+    mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
+    mesh->SetReverse(false);
+
+    m_logicLightGuide =
+      new G4LogicalVolume(mesh->TessellatedMesh(), //solid
+                          materials->Al,            //material
+                          "LightGuide");           //name
+  }
+  #endif
+
+  if(fileType == "gdml"){
+    m_Parser.Read(fileName);
+  }
+  if(fileType == "step"){
+    m_logicLightGuide = m_Parser.ParseST(fileName,materials->Air,materials->Al);
+  }
+
+  if(m_logicLightGuide !=0 ){
+    m_physLightGuide =
+      new G4PVPlacement(0,
+                        G4ThreeVector(0,0,lgHeight),
+                        m_logicLightGuide,
+                        "physLightGuide",
+                        m_logicHalfWorld,
+                        false,
+                        0);
+  }
+
+  //----------------- Define Optical Borders -----------------//
+  m_SurfLGtoWorld =
+    new G4LogicalBorderSurface("AlSurface",
+                               m_physLightGuide,
+                               m_physHalfWorld,
+                               materials->AlSurface );
+  m_SurfLGtoInner =
+    new G4LogicalBorderSurface("AlSurface",
+                               m_physHalfWorld,
+                               m_physLightGuide,
+                               materials->AlSurface );
+
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+
+/*
+ *
+ */
+void DetectorConstruction::OutputToGDML(G4String fileName){
+  if(m_physLightGuide != 0){
+    //For some reason this only works as a pointer
+    G4GDMLParser* gdml = new G4GDMLParser();
+    gdml->Write(fileName.c_str(),m_physLightGuide);
+    delete gdml;
+  }else{
+    G4cout << "No physical light guide defined..." << G4endl;
+    G4cout << "Can't write model to GDML" << G4endl;
+  }
 }
 
 /*
@@ -363,21 +378,6 @@ void DetectorConstruction::AddSurfaceMPV(const char* c,
 void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
   materials->AlSurface->SetModel(model);
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
-}
-
-void DetectorConstruction::SetCADFilename(std::string name){
-  m_filename = name;
-  G4cout << "Using " << m_filename << G4endl;
-  delete G4SDManager::GetSDMpointer()->FindSensitiveDetector("MyPMT");
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
-  //G4RunManager::GetRunManager()->ResetNavigator();
-  G4GeometryManager::GetInstance()->OpenGeometry();
-  G4PhysicalVolumeStore::GetInstance()->Clean();
-  G4LogicalVolumeStore::GetInstance()->Clean();
-  G4SolidStore::GetInstance()->Clean();
-  Construct();
-  //G4RunManager::GetRunManager()->ReinitializeGeometry();
-  // /lightGuide/CADmodel ../zdclg/models/LightGuide2007BigPMT.stl
 }
 
 /*
