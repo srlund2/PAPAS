@@ -38,6 +38,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "G4GDMLParser.hh"
+#include "G4RunManager.hh"
 
 #include "Materials.hh"
 #include "DetectorMessenger.hh"
@@ -62,6 +63,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetSurfaceType       (const G4SurfaceType type);
     void SetSurfaceModel      (const G4OpticalSurfaceModel model);
     void AddSurfaceMPV        (const char* c, G4MaterialPropertyVector* mpv);
+    void AddGasMPV            (const char* c, G4MaterialPropertyVector* mpv);
 
   private:
 
@@ -91,9 +93,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4RotationMatrix*       m_rotation;
 
     Materials*              materials;
-    G4Material*             filler;
+    G4Material*             m_filler;
+    G4MaterialPropertiesTable* m_GasMPT;
 
     G4GDMLParser            m_Parser;
+    G4RunManager*           m_runMan;
     DetectorMessenger*      m_DetectorMessenger;
 };
 

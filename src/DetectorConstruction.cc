@@ -54,7 +54,9 @@
 #include "G4SubtractionSolid.hh"
 #include "G4NistManager.hh"
 #include "G4VisAttributes.hh"
+#include "G4VisExtent.hh"
 #include "G4Colour.hh"
+#include "G4UImanager.hh"
 
 #include "G4GDMLParser.hh"
 
@@ -69,10 +71,14 @@ DetectorConstruction::DetectorConstruction()
  : G4VUserDetectorConstruction(),m_DetectorMessenger(nullptr){
    materials = Materials::getInstance();
    m_DetectorMessenger = new DetectorMessenger(this);
+   m_runMan = G4RunManager::GetRunManager();
 
    m_WorldSizeX = m_WorldSizeZ = 0.25*m;
    m_WorldSizeY = 0.5*m;
 
+   m_filler = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
+   m_GasMPT = new G4MaterialPropertiesTable();
+   m_filler->SetMaterialPropertiesTable(m_GasMPT);
 }
 
 
@@ -139,7 +145,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
   m_logicHalfWorld =
     new G4LogicalVolume(m_solidHalfWorld, //solid
-                        Air,              //material
+                        m_filler,         //material
                         "HalfWorld");     //name
 
   m_physHalfWorld =
@@ -263,8 +269,7 @@ void DetectorConstruction::SetSurfaceSigmaAlpha(G4double v){
   materials->AlSurface->SetSigmaAlpha(v);
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
 
-  G4cout << "Surface sigma alpha set to: " << materials->AlSurface->GetSigmaAlpha()
-         << G4endl;
+  G4cout << "Surface sigma alpha set to: " << materials->AlSurface->GetSigmaAlpha() << G4endl;
 }
 
 /*
@@ -279,7 +284,6 @@ void DetectorConstruction::UseCADModel(G4String fileName){
 
   G4double lgHeight = 130*mm;
   G4String fileType = fileName.substr( fileName.last('.') + 1, fileName.size() - fileName.last('.'));
-  G4cout << fileType << G4endl;
 
   #ifdef CADMESH
   if(fileType == "stl"){
@@ -290,7 +294,7 @@ void DetectorConstruction::UseCADModel(G4String fileName){
 
     m_logicLightGuide =
       new G4LogicalVolume(mesh->TessellatedMesh(), //solid
-                          materials->Al,            //material
+                          materials->Al,           //material
                           "LightGuide");           //name
   }
   #endif
@@ -303,14 +307,19 @@ void DetectorConstruction::UseCADModel(G4String fileName){
   }
 
   if(m_logicLightGuide !=0 ){
+    G4VisExtent extent = m_logicLightGuide->GetSolid()->GetExtent();
+    G4cout << "Xmin, Xmax " << extent.GetXmin() << ", " << extent.GetXmax() << G4endl;
+    G4cout << "Ymin, Ymax " << extent.GetYmin() << ", " << extent.GetYmax() << G4endl;
+    G4cout << "Zmin, Zmax " << extent.GetZmin() << ", " << extent.GetZmax() << G4endl;
     m_physLightGuide =
       new G4PVPlacement(0,
-                        G4ThreeVector(0,0,lgHeight),
+                        G4ThreeVector(0,-1*m_WorldSizeY/2,0),
                         m_logicLightGuide,
                         "physLightGuide",
                         m_logicHalfWorld,
                         false,
                         0);
+
   }
 
   //----------------- Define Optical Borders -----------------//
@@ -325,7 +334,11 @@ void DetectorConstruction::UseCADModel(G4String fileName){
                                m_physLightGuide,
                                materials->AlSurface );
 
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+
+  m_runMan->GeometryHasBeenModified();
+  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  //m_runMan->BeamOn(1);
+  G4cout << "Replaced default light guide with CAD model" << G4endl;
 }
 
 /*
@@ -348,7 +361,7 @@ void DetectorConstruction::OutputToGDML(G4String fileName){
  */
 void DetectorConstruction::SetSurfaceFinish(const G4OpticalSurfaceFinish finish){
   materials->AlSurface->SetFinish(finish);
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  m_runMan->GeometryHasBeenModified();
 }
 
 /*
@@ -356,14 +369,13 @@ void DetectorConstruction::SetSurfaceFinish(const G4OpticalSurfaceFinish finish)
  */
 void DetectorConstruction::SetSurfaceType(const G4SurfaceType type){
   materials->AlSurface->SetType(type);
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  m_runMan->GeometryHasBeenModified();
 }
 
 /*
  *
  */
-void DetectorConstruction::AddSurfaceMPV(const char* c,
-                                         G4MaterialPropertyVector* mpv) {
+void DetectorConstruction::AddSurfaceMPV(const char* c, G4MaterialPropertyVector* mpv){
   mpv->SetSpline(true);
   materials->GetMPTArray().at(1)->AddProperty(c, mpv);
   materials->AlSurface->SetMaterialPropertiesTable(materials->GetMPTArray().at(1));
@@ -375,21 +387,36 @@ void DetectorConstruction::AddSurfaceMPV(const char* c,
 /*
  *
  */
+void DetectorConstruction::AddGasMPV(const char* c, G4MaterialPropertyVector* mpv){
+  mpv->SetSpline(true);
+  m_GasMPT->AddProperty(c, mpv);
+  G4cout << "The MPT for the gas is now: " << G4endl;
+  m_GasMPT->DumpTable();
+  G4cout << "............." << G4endl;
+}
+
+/*
+ *
+ */
 void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
   materials->AlSurface->SetModel(model);
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  m_runMan->GeometryHasBeenModified();
 }
 
 /*
  *
  */
 void DetectorConstruction::SetRotation(G4ThreeVector arg){
-  if(!m_rotation) m_rotation = new G4RotationMatrix();
-  m_rotation->rotateX(arg.x());
-  m_rotation->rotateY(arg.y());
-  m_rotation->rotateZ(arg.z());
+  if(m_rotation) delete m_rotation;
+  m_rotation = new G4RotationMatrix();
+
+  m_rotation->rotateX(arg.x()*deg);
+  m_rotation->rotateY(arg.y()*deg);
+  m_rotation->rotateZ(arg.z()*deg);
   m_physLightGuide->SetRotation(m_rotation);
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+
+  m_runMan->GeometryHasBeenModified();
+  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
 }
 
 /*
@@ -397,5 +424,7 @@ void DetectorConstruction::SetRotation(G4ThreeVector arg){
  */
 void DetectorConstruction::SetTranslation(G4ThreeVector arg){
   m_physLightGuide->SetTranslation(arg);
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+
+  m_runMan->GeometryHasBeenModified();
+  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
 }

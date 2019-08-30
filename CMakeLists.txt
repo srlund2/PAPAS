@@ -57,6 +57,7 @@ TARGET_LINK_LIBRARIES(plotHisto ${ROOT_LIBRARIES})
 set(lightGuide_SCRIPTS
     vis.mac
     run1.mac
+    models.mac
   )
 
 foreach(_script ${lightGuide_SCRIPTS})

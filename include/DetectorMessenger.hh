@@ -58,6 +58,8 @@ class DetectorMessenger: public G4UImessenger{
     DetectorConstruction*      fDetector;
 
     G4UIdirectory*             flightGuideDir;
+    G4UIdirectory*             fSurfaceDir;
+    G4UIdirectory*             fModelDir;
 
     // the surface
     G4UIcmdWithAString*        fSurfaceTypeCmd;
@@ -65,6 +67,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fSurfaceModelCmd;
     G4UIcmdWithADouble*        fSurfaceSigmaAlphaCmd;
     G4UIcmdWithAString*        fSurfaceMatPropVectorCmd;
+    G4UIcmdWithAString*        fGasPropVectorCmd;
     G4UIcmdWithAString*        fModelCmd;
     G4UIcmdWith3VectorAndUnit* fModelRotationCmd;
     G4UIcmdWith3VectorAndUnit* fModelTranslationCmd;

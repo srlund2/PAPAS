@@ -53,55 +53,71 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   flightGuideDir = new G4UIdirectory("/lightGuide/");
   flightGuideDir->SetGuidance("Parameters for optical simulation.");
 
-  fSurfaceTypeCmd = new G4UIcmdWithAString("/lightGuide/surfaceType", this);
+  fSurfaceDir = new G4UIdirectory("/lightGuide/surface/");
+  fSurfaceDir->SetGuidance("Surface parameters for optical simulation.");
+
+  fModelDir = new G4UIdirectory("/lightGuide/model/");
+  fModelDir->SetGuidance("Model source, translation and rotation");
+
+  fSurfaceTypeCmd = new G4UIcmdWithAString("/lightGuide/surface/Type", this);
   fSurfaceTypeCmd->SetGuidance("Surface type.");
   fSurfaceTypeCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fSurfaceTypeCmd->SetToBeBroadcasted(false);
 
-  fSurfaceFinishCmd = new G4UIcmdWithAString("/lightGuide/surfaceFinish", this);
+  fSurfaceFinishCmd = new G4UIcmdWithAString("/lightGuide/surface/Finish", this);
   fSurfaceFinishCmd->SetGuidance("Surface finish.");
   fSurfaceFinishCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fSurfaceFinishCmd->SetToBeBroadcasted(false);
 
   fSurfaceModelCmd =
-    new G4UIcmdWithAString("/lightGuide/surfaceModel", this);
+    new G4UIcmdWithAString("/lightGuide/surface/Model", this);
   fSurfaceModelCmd->SetGuidance("surface model.");
   fSurfaceModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fSurfaceModelCmd->SetToBeBroadcasted(false);
 
   fSurfaceSigmaAlphaCmd =
-    new G4UIcmdWithADouble("/lightGuide/surfaceSigmaAlpha", this);
+    new G4UIcmdWithADouble("/lightGuide/surface/SigmaAlpha", this);
   fSurfaceSigmaAlphaCmd->SetGuidance("surface sigma alpha");
   fSurfaceSigmaAlphaCmd->SetGuidance(" parameter.");
   fSurfaceSigmaAlphaCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fSurfaceSigmaAlphaCmd->SetToBeBroadcasted(false);
 
   fSurfaceMatPropVectorCmd =
-    new G4UIcmdWithAString("/lightGuide/surfaceProperty", this);
+    new G4UIcmdWithAString("/lightGuide/surface/Property", this);
   fSurfaceMatPropVectorCmd->SetGuidance("Set material property vector");
   fSurfaceMatPropVectorCmd->SetGuidance(" for the surface.");
   fSurfaceMatPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fSurfaceMatPropVectorCmd->SetToBeBroadcasted(false);
 
-  fModelCmd = new G4UIcmdWithAString("/lightGuide/CADmodel", this);
+  fGasPropVectorCmd =
+    new G4UIcmdWithAString("/lightGuide/gasProperty", this);
+  fGasPropVectorCmd->SetGuidance("Set fill gas property vector");
+  fGasPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fGasPropVectorCmd->SetToBeBroadcasted(false);
+
+  fModelCmd = new G4UIcmdWithAString("/lightGuide/model/CADmodel", this);
   fModelCmd->SetGuidance("CAD model to be used");
   fModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fModelCmd->SetToBeBroadcasted(false);
+  fModelCmd->SetDefaultValue("models/Winston_cone.stl");
 
   fModelRotationCmd =
-    new G4UIcmdWith3VectorAndUnit("/lightGuide/rotate", this);
+    new G4UIcmdWith3VectorAndUnit("/lightGuide/model/rotate", this);
   fModelRotationCmd->SetGuidance("Set light guide first rotation");
   fModelRotationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fModelRotationCmd->SetToBeBroadcasted(false);
   fModelRotationCmd->SetParameterName("rotationX","rotationY","rotationZ",true);
-  fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
-  fModelRotationCmd->SetDefaultUnit("deg");
+  //fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
+  //fModelRotationCmd->SetDefaultUnit("deg");
 
   fModelTranslationCmd =
-    new G4UIcmdWith3VectorAndUnit("/lightGuide/translate", this);
+    new G4UIcmdWith3VectorAndUnit("/lightGuide/model/translate", this);
   fModelTranslationCmd->SetGuidance("Set light guide translation");
   fModelTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fModelTranslationCmd->SetToBeBroadcasted(false);
+  fModelRotationCmd->SetParameterName("X","Y","Z",true);
+  fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
+  fModelRotationCmd->SetDefaultUnit("mm");
 
 }
 
@@ -114,6 +130,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fSurfaceModelCmd;
   delete fSurfaceSigmaAlphaCmd;
   delete fSurfaceMatPropVectorCmd;
+  delete fGasPropVectorCmd;
   delete fModelCmd;
   delete fModelRotationCmd;
   delete fModelTranslationCmd;
@@ -321,6 +338,29 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if (command == fSurfaceSigmaAlphaCmd) {
     fDetector->SetSurfaceSigmaAlpha(
       G4UIcmdWithADouble::GetNewDoubleValue(newValue));
+  }
+  // SURFACE PROPERTY
+  else if (command == fGasPropVectorCmd) {
+    // Convert string to physics vector
+    // string format is property name, then pairs of energy, value
+    // space delimited
+    G4MaterialPropertyVector* mpv = new G4MaterialPropertyVector();
+    G4cout << newValue << G4endl;
+    std::istringstream instring(newValue);
+    G4String prop;
+    instring >> prop;
+    while (instring) {
+      G4String tmp;
+      instring >> tmp;
+      if (tmp == "") { break; }
+      G4double en = G4UIcommand::ConvertToDouble(tmp);
+      instring >> tmp;
+      G4double val;
+      val = G4UIcommand::ConvertToDouble(tmp);
+      mpv->InsertValues(en, val);
+    }
+    const char* c = prop.c_str();
+    fDetector->AddGasMPV(c, mpv);
   }
   // MODEL LOCATION
   else if(command == fModelCmd){
