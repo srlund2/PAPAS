@@ -15,60 +15,99 @@
 /run/particle/verbose 0
 /hits/verbose 0
 
+
+
+#----- Set the light guide to be used and position it -----
+#If no model is selected, the program will default to a
+#simplified version of the 2018 testbeam light guide
+
+#/lightGuide/model/CADmodel models/LightGuide2018TB.stl
+#/lightGuide/model/rotate 0 90 0
+#/lightGuide/model/translate 0 -250 200 mm
+#/lightGuide/model/translatePMT 0 339 0 mm
+
+#/lightGuide/model/CADmodel models/Winston_cone.stl
+#/lightGuide/model/rotate 0 0 90
+#/lightGuide/model/translate 0 -111 0 mm
+#/lightGuide/model/translatePMT 0 339 0 mm
+
+#/lightGuide/model/CADmodel models/LightGuide2007BigPMT.stl
+#/lightGuide/model/rotate 0 -90 0
+#/lightGuide/model/translate 0 -250 -200 mm
+#/lightGuide/model/translatePMT 0 131 0 mm
+
+#/lightGuide/model/CADmodel models/LightGuide2007SmallPMT.stl
+#/lightGuide/model/rotate 0 -90 0
+#/lightGuide/model/translate 0 -250 -200 mm
+#/lightGuide/model/translatePMT 0 131 0 mm
+
+
+
+#----- Set surface properties of the light guide -----
+/lightGuide/surface/Model unified
+/lightGuide/surface/Type dielectric_metal
+/lightGuide/surface/Finish ground
+/lightGuide/surface/SigmaAlpha .2
+/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 1.0 0.000008 1.0
+/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 0.3 0.000008 0.3
+/lightGuide/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
+#/lightGuide/surface/Property REFLECTIVITY 0.000002 .89 0.000008 .89
+
+
+
+#----- Set the refractive index of the gas the light guide is inside of -----
+#/lightGuide/gasProperty RINDEX 0.000002 1.0 0.000008 1.0
+
+
+
+#----- Set the beam energy profile -----
 /gps/particle opticalphoton
-
-#Set reflective surface properties
-/lightGuide/surfaceModel unified
-/lightGuide/surfaceType dielectric_metal
-/lightGuide/surfaceFinish ground
-/lightGuide/surfaceSigmaAlpha .1
-/lightGuide/surfaceProperty SPECULARLOBECONSTANT 0.000002 1.0 0.000008 1.0
-/lightGuide/surfaceProperty SPECULARSPIKECONSTANT 0.000002 0.3 0.000008 0.3
-/lightGuide/surfaceProperty BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
-/lightGuide/surfaceProperty REFLECTIVITY 0.000002 .99 0.000008 .99
-
-# the beam energy is in gaussian profile
 /gps/ene/type Gauss
 /gps/ene/mono 3.4 eV
 /gps/ene/sigma 1 eV
 /gps/polarization 0 0 0
 
-# General particle source, beam
+
+
+#----- Set the beam geometry -----
+# Circular beam source. Simulates a single fiber optic
 #/gps/pos/type Beam
 #/gps/pos/shape Circle
-#/gps/pos/centre 0. 0. 0. mm
 #/gps/pos/radius 0.75 mm
 #/gps/pos/sigma_r 0.002 mm
 
-# General particle source, rectangular plane
+# Rectangular plane for infinite resolution
 /gps/pos/type Plane
 /gps/pos/shape Rectangle
-/gps/pos/centre 0. 0. 0. mm
 /gps/pos/halfx 44.875 mm
 /gps/pos/halfy 82 mm
 
-#
-# the incident surface is in the x-y plane
+# the incident surface is in the x-z plane just below the gas
 /gps/pos/rot1 1 0 0
-/gps/pos/rot2 0 1 0
-#
-#
-# the beam is travelling along the z-axis
-/gps/ang/rot1 0 1 0
-/gps/ang/rot2 1 0 0
+/gps/pos/rot2 0 0 1
+/gps/pos/centre 0. -0.1 0. mm
+
+# the photons are emitted around the y-axis
+/gps/ang/rot1 1 0 0
+/gps/ang/rot2 0 0 1
 /gps/ang/type beam1d
-# the beam angular dispersion
+
+
+
+#----- Set beam angular dispersion for fiber optic -----
 # N.A. is 0.22 so acceptance cone is ~25.4 degrees
 /gps/ang/sigma_r 25.40 deg
-# 1.0milliradians  = 0.057 deg
-#
+
+
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
-/vis/ogl/set/displayListLimit 1000000
+/vis/ogl/set/displayListLimit 10000
+
+
 
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 5
+/run/beamOn 100
 ##############################################################
 ##############################################################

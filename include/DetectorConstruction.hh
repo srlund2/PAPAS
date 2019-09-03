@@ -40,6 +40,10 @@
 #include "G4GDMLParser.hh"
 #include "G4RunManager.hh"
 
+#ifdef CADMESH
+#include "CADMesh.hh"
+#endif
+
 #include "Materials.hh"
 #include "DetectorMessenger.hh"
 
@@ -57,6 +61,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void OutputToGDML         (G4String name);
     void SetRotation          (G4ThreeVector arg);
     void SetTranslation       (G4ThreeVector arg);
+    void SetPMTTranslation    (G4ThreeVector arg);
 
     void SetSurfaceSigmaAlpha (G4double v);
     void SetSurfaceFinish     (const G4OpticalSurfaceFinish finish);
@@ -74,6 +79,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4Box*                  m_solidHalfWorld;
     G4LogicalVolume*        m_logicHalfWorld;
     G4VPhysicalVolume*      m_physHalfWorld;
+
+    #ifdef CADMESH
+    CADMesh*                m_mesh;
+    #endif
 
     G4LogicalVolume*        m_logicLightGuide;
     G4VPhysicalVolume*      m_physLightGuide;

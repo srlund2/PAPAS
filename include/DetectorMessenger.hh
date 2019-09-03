@@ -71,6 +71,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fModelCmd;
     G4UIcmdWith3VectorAndUnit* fModelRotationCmd;
     G4UIcmdWith3VectorAndUnit* fModelTranslationCmd;
+    G4UIcmdWith3VectorAndUnit* fPMTTranslationCmd;
 
 
 };

@@ -107,17 +107,26 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fModelRotationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fModelRotationCmd->SetToBeBroadcasted(false);
   fModelRotationCmd->SetParameterName("rotationX","rotationY","rotationZ",true);
-  //fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
-  //fModelRotationCmd->SetDefaultUnit("deg");
+  fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
+  fModelRotationCmd->SetDefaultUnit("deg");
 
   fModelTranslationCmd =
     new G4UIcmdWith3VectorAndUnit("/lightGuide/model/translate", this);
   fModelTranslationCmd->SetGuidance("Set light guide translation");
   fModelTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
   fModelTranslationCmd->SetToBeBroadcasted(false);
-  fModelRotationCmd->SetParameterName("X","Y","Z",true);
-  fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
-  fModelRotationCmd->SetDefaultUnit("mm");
+  fModelTranslationCmd->SetParameterName("X","Y","Z",true);
+  fModelTranslationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
+  fModelTranslationCmd->SetDefaultUnit("mm");
+
+  fPMTTranslationCmd =
+    new G4UIcmdWith3VectorAndUnit("/lightGuide/model/translatePMT", this);
+  fPMTTranslationCmd->SetGuidance("Set PMT translation");
+  fPMTTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fPMTTranslationCmd->SetToBeBroadcasted(false);
+  fPMTTranslationCmd->SetParameterName("X","Y","Z",true);
+  fPMTTranslationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
+  fPMTTranslationCmd->SetDefaultUnit("mm");
 
 }
 
@@ -134,6 +143,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fModelCmd;
   delete fModelRotationCmd;
   delete fModelTranslationCmd;
+  delete fPMTTranslationCmd;
 }
 
 /*
@@ -373,5 +383,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   // MODEL TRANSLATION
   else if(command == fModelTranslationCmd){
     fDetector->SetTranslation(fModelTranslationCmd->GetNew3VectorValue(newValue));
+  }
+  // PMT TRANSLATION
+  else if(command == fPMTTranslationCmd){
+    fDetector->SetPMTTranslation(fPMTTranslationCmd->GetNew3VectorValue(newValue));
   }
 }

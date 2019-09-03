@@ -60,10 +60,6 @@
 
 #include "G4GDMLParser.hh"
 
-#ifdef CADMESH
-#include "CADMesh.hh"
-#endif
-
 /*
  *
  */
@@ -79,6 +75,10 @@ DetectorConstruction::DetectorConstruction()
    m_filler = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
    m_GasMPT = new G4MaterialPropertiesTable();
    m_filler->SetMaterialPropertiesTable(m_GasMPT);
+
+   #ifdef CADMESH
+   m_mesh = 0;
+   #endif
 }
 
 
@@ -158,8 +158,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                       0,                                 //copy number
                       checkOverlaps);                    //overlaps checking
 
-  G4VisAttributes* boxVisAtt_half_world = new G4VisAttributes(G4Colour(0.0,0.0,1.0,0.9));
-
+  G4VisAttributes* boxVisAtt_half_world = new G4VisAttributes(G4Colour(0.0,0.0,1.0,0.1)); // or G4Colour(0.0,0.0,1.0,0.1)
 	m_logicHalfWorld ->SetVisAttributes(boxVisAtt_half_world);
 
 
@@ -257,6 +256,9 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                       false,
                       0);
 
+  G4VisAttributes* VisAtt_PMT = new G4VisAttributes(G4Colour(1.0,1.0,0.6,0.7));
+  m_logicPMT->SetVisAttributes(VisAtt_PMT);
+
   m_logicPMT->SetSensitiveDetector( PMT );
 
   return m_physWorld;
@@ -287,13 +289,14 @@ void DetectorConstruction::UseCADModel(G4String fileName){
 
   #ifdef CADMESH
   if(fileType == "stl"){
-    CADMesh* mesh = new CADMesh((char*) fileName.c_str());
-    mesh->SetScale(mm);
-    mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
-    mesh->SetReverse(false);
+    if(m_mesh != 0) delete m_mesh;
+    m_mesh = new CADMesh((char*) fileName.c_str());
+    m_mesh->SetScale(mm);
+    m_mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
+    m_mesh->SetReverse(false);
 
     m_logicLightGuide =
-      new G4LogicalVolume(mesh->TessellatedMesh(), //solid
+      new G4LogicalVolume(m_mesh->TessellatedMesh(), //solid
                           materials->Al,           //material
                           "LightGuide");           //name
   }
@@ -307,13 +310,21 @@ void DetectorConstruction::UseCADModel(G4String fileName){
   }
 
   if(m_logicLightGuide !=0 ){
+
+    //Print the extent to the console to help the user position the light guide
+    char message[64];
     G4VisExtent extent = m_logicLightGuide->GetSolid()->GetExtent();
-    G4cout << "Xmin, Xmax " << extent.GetXmin() << ", " << extent.GetXmax() << G4endl;
-    G4cout << "Ymin, Ymax " << extent.GetYmin() << ", " << extent.GetYmax() << G4endl;
-    G4cout << "Zmin, Zmax " << extent.GetZmin() << ", " << extent.GetZmax() << G4endl;
+    G4cout << "===== Light guide extent =====" << G4endl;
+    sprintf(message,"Xmin = %04.2f, Xmax = %04.2f: Width  = %04.2f", extent.GetXmin(), extent.GetXmax(), extent.GetXmax() - extent.GetXmin() );
+    G4cout << message << G4endl;
+    sprintf(message,"Ymin = %04.2f, Ymax = %04.2f: Height = %04.2f", extent.GetYmin(), extent.GetYmax(), extent.GetYmax() - extent.GetYmin() );
+    G4cout << message << G4endl;
+    sprintf(message,"Zmin = %04.2f, Zmax = %04.2f: Depth  = %04.2f", extent.GetZmin(), extent.GetZmax(), extent.GetZmax() - extent.GetZmin() );
+    G4cout << message << G4endl;
+
     m_physLightGuide =
       new G4PVPlacement(0,
-                        G4ThreeVector(0,-1*m_WorldSizeY/2,0),
+                        G4ThreeVector(0,0,0),
                         m_logicLightGuide,
                         "physLightGuide",
                         m_logicHalfWorld,
@@ -410,9 +421,9 @@ void DetectorConstruction::SetRotation(G4ThreeVector arg){
   if(m_rotation) delete m_rotation;
   m_rotation = new G4RotationMatrix();
 
-  m_rotation->rotateX(arg.x()*deg);
-  m_rotation->rotateY(arg.y()*deg);
-  m_rotation->rotateZ(arg.z()*deg);
+  m_rotation->rotateX(arg.x());
+  m_rotation->rotateY(arg.y());
+  m_rotation->rotateZ(arg.z());
   m_physLightGuide->SetRotation(m_rotation);
 
   m_runMan->GeometryHasBeenModified();
@@ -424,6 +435,16 @@ void DetectorConstruction::SetRotation(G4ThreeVector arg){
  */
 void DetectorConstruction::SetTranslation(G4ThreeVector arg){
   m_physLightGuide->SetTranslation(arg);
+
+  m_runMan->GeometryHasBeenModified();
+  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+}
+
+/*
+ *
+ */
+void DetectorConstruction::SetPMTTranslation(G4ThreeVector arg){
+  m_physPMT->SetTranslation(arg);
 
   m_runMan->GeometryHasBeenModified();
   G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
