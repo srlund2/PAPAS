@@ -284,7 +284,6 @@ void DetectorConstruction::UseCADModel(G4String fileName){
   if(m_logicLightGuide) delete m_logicLightGuide;
   if(m_physLightGuide)  delete m_physLightGuide;
 
-  G4double lgHeight = 130*mm;
   G4String fileType = fileName.substr( fileName.last('.') + 1, fileName.size() - fileName.last('.'));
 
   #ifdef CADMESH

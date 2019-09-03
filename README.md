@@ -4,10 +4,12 @@
 
 This simulation is based on OpNovice and OpNovice2
 
-Build requirements
-  Geant4 compiled with GDML and additional datasets
-  ROOT
-  -CADMesh is required to read CAD models (i.e. stl, step), but is optional for compiling
+#### Build requirements
+  - Geant4 compiled with GDML and additional datasets
+
+  - CERN ROOT
+
+  - CADMesh is required to read CAD models (i.e. stl, step), but is optional for compiling
 
 #### main()
 
@@ -15,7 +17,8 @@ define Random Number Engine, initial seed, CAD input and GDML output
 
 #### G4VUserPhysicsList
 
- - Define particles; including - *** G4OpticalPhoton     ***
+ - Define particles; including
+  - *** G4OpticalPhoton     ***
  - Define processes; including
    - *** G4Cerenkov          ***
    - *** G4Scintillation     ***
@@ -36,14 +39,28 @@ A light guide is made either by simple G4trd or by importing a model
     define G4LogicalBorderSurface between the light guide and world volume
     defines a PMT window sensitive detector at the top of the light guide
     AlSurface properties can be modified via DetectorMessenger via the following commands
+```
+    /lightGuide/surface/Model
+    /lightGuide/surface/Type
+    /lightGuide/surface/Finish
+    /lightGuide/surface/SigmaAlpha
+    /lightGuide/surface/Property
+```
 
-    /lightGuide/surfaceModel
-    /lightGuide/surfaceType
-    /lightGuide/surfaceFinish
-    /lightGuide/surfaceSigmaAlpha
-    /lightGuide/surfaceProperty
+CAD models can be imported and positioned via
+```
+    /lightGuide/model/CADmodel
+    /lightGuide/model/rotate
+    /lightGuide/model/translate
+    /lightGuide/model/translatePMT
+```
 
-examples can be found in run1.mac
+And the optical properties of a sub volume of G4Air which the light guide sits in can be configured via
+```
+    /lightGuide/gasProperty
+```
+
+examples of all of these can be found in run1.mac
 
 #### G4VUserPrimaryGeneratorAction
 
@@ -98,8 +115,6 @@ Records a PMTHit if the photon strikes the PMT window
                   [-t nThreads]
                   [-r seed]
                   [-o outputFileName]
-                  [-c CADmodelName filetype]
-                  [-co GDMLoutFileName]
 ```
 
    The -t option is available only in multi-threading mode

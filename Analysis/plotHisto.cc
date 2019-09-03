@@ -8,6 +8,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
+  if(argc == 0) return 0;
   TFile *f = new TFile( Form("%s.root",argv[1]) );
   if(f->IsZombie()){
     cout << Form("%s.root does not exist... exiting",argv[1]) << endl;

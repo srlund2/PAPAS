@@ -44,9 +44,9 @@
  *
  */
 RunAction::RunAction(G4String fileName)
- : G4UserRunAction(),ffileName(fileName),
-   fTimer(0){
+ : G4UserRunAction(),fTimer(0){
   fTimer = new G4Timer;
+  m_fileName = fileName;
 
   G4RunManager::GetRunManager()->SetPrintProgress(1);
 
@@ -93,8 +93,8 @@ void RunAction::BeginOfRunAction(const G4Run* aRun){
   auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
-  if(ffileName == "") ffileName = "output";
-  analysisManager->OpenFile(ffileName);
+  if(m_fileName == "") m_fileName = "output";
+  analysisManager->OpenFile(m_fileName);
 }
 
 /*

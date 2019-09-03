@@ -57,7 +57,6 @@ TARGET_LINK_LIBRARIES(plotHisto ${ROOT_LIBRARIES})
 set(lightGuide_SCRIPTS
     vis.mac
     run1.mac
-    models.mac
   )
 
 foreach(_script ${lightGuide_SCRIPTS})
@@ -71,9 +70,7 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS lightGuide DESTINATION bin)
-install(FILES run1.mac DESTINATION  . )
-install(FILES run2.mac DESTINATION  . )
-install(FILES runAndAnalyze.sh DESTINATION . )
-install(FILES vis.mac DESTINATION . )
+install(TARGETS lightGuide DESTINATION bin )
+install(FILES run1.mac DESTINATION bin )
+install(FILES vis.mac DESTINATION bin)
 install(DIRECTORY models/ DESTINATION models)

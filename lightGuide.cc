@@ -75,7 +75,7 @@ int main(int argc,char** argv)
 
   G4String macro;
   G4String session;
-  G4String output;
+  G4String output = "";
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif

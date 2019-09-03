@@ -54,7 +54,7 @@ class RunAction : public G4UserRunAction
 
   private:
     G4Timer* fTimer;
-    G4String ffileName = "";
+    G4String m_fileName;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
