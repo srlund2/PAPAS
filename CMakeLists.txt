@@ -71,6 +71,7 @@ endforeach()
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS lightGuide DESTINATION bin )
+install(TARGETS plotHisto DESTINATION bin )
 install(FILES run1.mac DESTINATION bin )
 install(FILES vis.mac DESTINATION bin)
 install(DIRECTORY models/ DESTINATION models)
