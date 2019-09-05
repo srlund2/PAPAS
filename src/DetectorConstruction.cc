@@ -249,16 +249,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
   m_physPMT =
     new G4PVPlacement(PMTrot,
-                      G4ThreeVector(0, 2*lgHeight + PMTthickness, 0),
+                      G4ThreeVector(0, 2*lgHeight + PMTthickness - m_WorldSizeY/2, 0),
                       m_logicPMT,
                       "PMT",
-                      m_logicWorld,
+                      m_logicHalfWorld,
                       false,
                       0);
 
   G4VisAttributes* VisAtt_PMT = new G4VisAttributes(G4Colour(1.0,1.0,0.6,0.7));
   m_logicPMT->SetVisAttributes(VisAtt_PMT);
-
   m_logicPMT->SetSensitiveDetector( PMT );
 
   return m_physWorld;
