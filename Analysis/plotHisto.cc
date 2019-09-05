@@ -4,16 +4,21 @@
 #include "TTree.h"
 #include "TStyle.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 int main(int argc, char *argv[]){
   if(argc == 0) return 0;
-  TFile *f = new TFile( Form("%s.root",argv[1]) );
+  TFile *f = new TFile( argv[1] );
   if(f->IsZombie()){
     cout << Form("%s.root does not exist... exiting",argv[1]) << endl;
     return 0;
   }
+
+  string name = argv[1];
+  if(name.find("/") != string::npos) name.erase( 0, name.find_last_of("/") + 1 );
+  if(name.find(".") != string::npos) name.erase( name.find_last_of(".") );
 
   TTree *t = (TTree*)f->Get("lightGuide");
   double x,y;
@@ -32,7 +37,7 @@ int main(int argc, char *argv[]){
   gStyle->SetOptStat(0);
   h->Scale(1.0/h->GetMaximum());
   h->Draw("COLZ");
-  c->Print( Form("%s.png",argv[1]) );
+  c->Print( Form("%s.png",name.c_str()) );
   delete f;
   return 1;
 }
