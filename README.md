@@ -5,11 +5,14 @@
 This simulation is based on OpNovice and OpNovice2
 
 #### Build requirements
-  - Geant4 compiled with GDML and additional datasets
+  - Geant4 compiled with GDML and additional datasets. Be sure to source geant4make.sh
+```
+    source /path/to/geant4-install/share/Geant4-[version]/geant4make/geant4make.sh
+```
 
   - CERN ROOT
 
-  - CADMesh is required to read CAD models (i.e. stl, step), but is optional for compiling
+  - CADMesh is required to read CAD models (i.e. stl, step), but is optional for compiling. Avaialble at https://github.com/christopherpoole/CADMesh
 
 #### main()
 
