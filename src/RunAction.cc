@@ -68,10 +68,6 @@ RunAction::RunAction(G4String fileName)
   analysisManager->CreateNtupleDColumn("hitY");
   analysisManager->CreateNtupleDColumn("time");
   analysisManager->FinishNtuple();
-  analysisManager->SetFirstHistoId(1);
-  analysisManager->CreateH2("1","Relative Efficiency",
-                            150, -82.0*mm, 82.0*mm,
-                            150, -44.875*mm, 44.875*mm);
 }
 
 /*
