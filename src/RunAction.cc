@@ -63,9 +63,9 @@ RunAction::RunAction(G4String fileName)
   // Creating ntuple
   analysisManager->CreateNtuple("lightGuide", "pos and momentum");
   analysisManager->CreateNtupleDColumn("X");
-  analysisManager->CreateNtupleDColumn("Y");
+  analysisManager->CreateNtupleDColumn("Z");
   analysisManager->CreateNtupleDColumn("hitX");
-  analysisManager->CreateNtupleDColumn("hitY");
+  analysisManager->CreateNtupleDColumn("hitZ");
   analysisManager->CreateNtupleDColumn("time");
   analysisManager->FinishNtuple();
 }

@@ -21,9 +21,9 @@ int main(int argc, char *argv[]){
   if(name.find(".") != string::npos) name.erase( name.find_last_of(".") );
 
   TTree *t = (TTree*)f->Get("lightGuide");
-  double x,y;
+  double x,z;
   t->SetBranchAddress("X",&x);
-  t->SetBranchAddress("Y",&y);
+  t->SetBranchAddress("Z",&z);
 
   TCanvas *c = new TCanvas("Data","Data",1280,720);
   TH2D *h = new TH2D("eff","Relative Efficiency",40,-82,82,40,-42.875,42.875);
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
   int nEvents = t->GetEntries();
   for(int ev = 0; ev < nEvents; ev++){
     t->GetEntry(ev);
-    h->Fill(y,x);
+    h->Fill(z,x);
   }
 
   gStyle->SetOptStat(0);

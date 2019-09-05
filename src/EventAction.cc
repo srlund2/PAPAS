@@ -75,9 +75,9 @@ void EventAction::EndOfEventAction(const G4Event* event){
       // fill ntuple  //
       G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
       analysisManager->FillNtupleDColumn(0, aHit->getPos().x() );
-      analysisManager->FillNtupleDColumn(1, aHit->getPos().y() );
+      analysisManager->FillNtupleDColumn(1, aHit->getPos().z() );
       analysisManager->FillNtupleDColumn(2, aHit->getHit().x() );
-      analysisManager->FillNtupleDColumn(3, aHit->getHit().y() );
+      analysisManager->FillNtupleDColumn(3, aHit->getHit().z() );
       analysisManager->FillNtupleDColumn(4, aHit->getTime()  );
       analysisManager->AddNtupleRow();
     }
