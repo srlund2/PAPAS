@@ -57,7 +57,6 @@
 #include "G4VisExtent.hh"
 #include "G4Colour.hh"
 #include "G4UImanager.hh"
-
 #include "G4GDMLParser.hh"
 
 /*
@@ -244,7 +243,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
   m_logicPMT =
     new G4LogicalVolume(m_solidPMT, //solid
-                        Air,        //material
+                        m_filler,   //material
                         "PMT");     //name
 
   m_physPMT =
@@ -346,7 +345,6 @@ void DetectorConstruction::UseCADModel(G4String fileName){
 
   m_runMan->GeometryHasBeenModified();
   G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
-  //m_runMan->BeamOn(1);
   G4cout << "Replaced default light guide with CAD model" << G4endl;
 }
 
