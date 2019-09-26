@@ -47,9 +47,9 @@
 /lightGuide/surface/Model unified
 /lightGuide/surface/Type dielectric_metal
 /lightGuide/surface/Finish ground
-/lightGuide/surface/SigmaAlpha .2
-/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 1.0 0.000008 1.0
-/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 0.3 0.000008 0.3
+/lightGuide/surface/SigmaAlpha .1
+/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
+/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
 /lightGuide/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
 #/lightGuide/surface/Property REFLECTIVITY 0.000002 .89 0.000008 .89
 
