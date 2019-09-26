@@ -26,7 +26,7 @@ int main(int argc, char *argv[]){
   t->SetBranchAddress("Z",&z);
 
   TCanvas *c = new TCanvas("Data","Data",1280,720);
-  TH2D *h = new TH2D("eff","Relative Efficiency",40,-82,82,40,-42.875,42.875);
+  TH2D *h = new TH2D("eff","Relative Efficiency",44,-82,82,21,-42.875,42.875);
 
   int nEvents = t->GetEntries();
   for(int ev = 0; ev < nEvents; ev++){
@@ -37,6 +37,7 @@ int main(int argc, char *argv[]){
   gStyle->SetOptStat(0);
   h->Scale(1.0/h->GetMaximum());
   h->Draw("COLZ");
+  h->SetAxisRange(0.4,1.0,"Z");
   c->Print( Form("%s.png",name.c_str()) );
   delete f;
   return 1;
