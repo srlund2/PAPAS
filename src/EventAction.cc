@@ -74,11 +74,13 @@ void EventAction::EndOfEventAction(const G4Event* event){
       PMTHit* aHit = (*HC)[0];
       // fill ntuple  //
       G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+      G4double pTheta = atan(sqrt(pow(aHit->getMomentum().x(),2) + pow(aHit->getMomentum().z(),2) )/fabs(aHit->getMomentum().y() ));
       analysisManager->FillNtupleDColumn(0, aHit->getPos().x() );
       analysisManager->FillNtupleDColumn(1, aHit->getPos().z() );
       analysisManager->FillNtupleDColumn(2, aHit->getHit().x() );
       analysisManager->FillNtupleDColumn(3, aHit->getHit().z() );
       analysisManager->FillNtupleDColumn(4, aHit->getTime()  );
+      analysisManager->FillNtupleDColumn(5, pTheta );
       analysisManager->AddNtupleRow();
     }
   }

@@ -41,16 +41,25 @@
 #/lightGuide/model/translate 0 -250 -200 mm
 #/lightGuide/model/translatePMT 0 131 0 mm
 
+#/lightGuide/model/CADmodel ../models/run2.stl
+#/lightGuide/model/rotate 0 0 0
+#/lightGuide/model/translate 200 -250 0 mm
+#/lightGuide/model/translatePMT 0 -119 0 mm
+
+#/lightGuide/model/CADmodel ../models/run3wc.stl
+#/lightGuide/model/rotate 0 0 90
+#/lightGuide/model/translate 0 -319 0 mm
+#/lightGuide/model/translatePMT 0 -119 0 mm
 
 
 #----- Set surface properties of the light guide -----
 /lightGuide/surface/Model unified
 /lightGuide/surface/Type dielectric_metal
 /lightGuide/surface/Finish ground
-/lightGuide/surface/SigmaAlpha .1
-/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
-/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
-/lightGuide/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
+#/lightGuide/surface/SigmaAlpha .1
+#/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
+#/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
+#/lightGuide/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
 #/lightGuide/surface/Property REFLECTIVITY 0.000002 .89 0.000008 .89
 
 
@@ -79,8 +88,8 @@
 # Rectangular plane for infinite resolution
 /gps/pos/type Plane
 /gps/pos/shape Rectangle
-/gps/pos/halfx 44.875 mm
-/gps/pos/halfy 82 mm
+/gps/pos/halfx 40 mm
+/gps/pos/halfy 68 mm
 
 # the incident surface is in the x-z plane just below the gas
 /gps/pos/rot1 1 0 0
@@ -92,11 +101,14 @@
 /gps/ang/rot2 0 0 1
 /gps/ang/type beam1d
 
-
+#----- Set beam angular dispersion from histogram -----
+/gps/ang/surfnorm false
+/gps/ang/type user
+/control/execute hist.mac
 
 #----- Set beam angular dispersion for fiber optic -----
 # N.A. is 0.22 so acceptance cone is ~25.4 degrees
-/gps/ang/sigma_r 25.40 deg
+#/gps/ang/sigma_r 25.40 deg
 
 
 

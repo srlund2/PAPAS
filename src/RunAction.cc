@@ -67,6 +67,7 @@ RunAction::RunAction(G4String fileName)
   analysisManager->CreateNtupleDColumn("hitX");
   analysisManager->CreateNtupleDColumn("hitZ");
   analysisManager->CreateNtupleDColumn("time");
+  analysisManager->CreateNtupleDColumn("theta");
   analysisManager->FinishNtuple();
 }
 
