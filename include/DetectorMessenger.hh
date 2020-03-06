@@ -67,11 +67,17 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fSurfaceModelCmd;
     G4UIcmdWithADouble*        fSurfaceSigmaAlphaCmd;
     G4UIcmdWithAString*        fSurfaceMatPropVectorCmd;
+
+    // the gas
     G4UIcmdWithAString*        fGasPropVectorCmd;
+
+    // the model
     G4UIcmdWithAString*        fModelCmd;
     G4UIcmdWith3VectorAndUnit* fModelRotationCmd;
     G4UIcmdWith3VectorAndUnit* fModelTranslationCmd;
     G4UIcmdWith3VectorAndUnit* fPMTTranslationCmd;
+    G4UIcmdWithADoubleAndUnit* fPMTDiameterCmd;
+    G4UIcmdWithAString*        fOutputModelCmd;
 
 
 };

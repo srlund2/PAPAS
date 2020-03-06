@@ -445,3 +445,13 @@ void DetectorConstruction::SetPMTTranslation(G4ThreeVector arg){
   m_runMan->GeometryHasBeenModified();
   G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
 }
+
+/*
+ *
+ */
+void DetectorConstruction::SetPMTDiameter(G4double arg){
+  m_solidPMT->SetOuterRadius(arg/2.0);
+
+  m_runMan->GeometryHasBeenModified();
+  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+}

@@ -51,6 +51,16 @@
 #/lightGuide/model/translate 0 -319 0 mm
 #/lightGuide/model/translatePMT 0 -119 0 mm
 
+/lightGuide/model/CADmodel ../models/YuvalCone.stl
+/lightGuide/model/translate 200 -136.75 0 mm
+/lightGuide/model/translatePMT 0 -136.5 0 mm
+/lightGuide/model/PMTDiameter 170
+
+#/lightGuide/model/CADmodel ../models/YuvalHad.stl
+#/lightGuide/model/translate 0 -319 0 mm
+#/lightGuide/model/translatePMT 0 -136.5 0 mm
+#/lightGuide/model/PMTDiameter 170
+
 
 #----- Set surface properties of the light guide -----
 /lightGuide/surface/Model unified
@@ -80,16 +90,17 @@
 
 #----- Set the beam geometry -----
 # Circular beam source. Simulates a single fiber optic
-#/gps/pos/type Beam
-#/gps/pos/shape Circle
+/gps/pos/type Beam
+/gps/pos/shape Circle
 #/gps/pos/radius 0.75 mm
+/gps/pos/radius 102 mm
 #/gps/pos/sigma_r 0.002 mm
 
 # Rectangular plane for infinite resolution
-/gps/pos/type Plane
-/gps/pos/shape Rectangle
-/gps/pos/halfx 40 mm
-/gps/pos/halfy 68 mm
+#/gps/pos/type Plane
+#/gps/pos/shape Rectangle
+#/gps/pos/halfx 40 mm
+#/gps/pos/halfy 68 mm
 
 # the incident surface is in the x-z plane just below the gas
 /gps/pos/rot1 1 0 0
@@ -120,6 +131,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 100
+/run/beamOn 10000000
 ##############################################################
 ##############################################################

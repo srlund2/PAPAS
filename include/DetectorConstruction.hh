@@ -62,6 +62,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void SetRotation          (G4ThreeVector arg);
     void SetTranslation       (G4ThreeVector arg);
     void SetPMTTranslation    (G4ThreeVector arg);
+    void SetPMTDiameter       (G4double arg);
 
     void SetSurfaceSigmaAlpha (G4double v);
     void SetSurfaceFinish     (const G4OpticalSurfaceFinish finish);

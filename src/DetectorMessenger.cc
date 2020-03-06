@@ -128,6 +128,20 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fPMTTranslationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
   fPMTTranslationCmd->SetDefaultUnit("mm");
 
+  fPMTDiameterCmd =
+    new G4UIcmdWithADoubleAndUnit("/lightGuide/model/PMTDiameter",this);
+  fPMTDiameterCmd->SetGuidance("Set PMT diameter");
+  fPMTDiameterCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fPMTDiameterCmd->SetToBeBroadcasted(false);
+  fPMTDiameterCmd->SetParameterName("dia",true);
+  fPMTDiameterCmd->SetDefaultValue( 65.0*mm );
+  fPMTDiameterCmd->SetDefaultUnit("mm");
+
+  fOutputModelCmd = new G4UIcmdWithAString("/lightGuide/model/OutputModel",this);
+  fOutputModelCmd->SetGuidance("Creates a .gdml file of the light guide with the given name");
+  fOutputModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fOutputModelCmd->SetToBeBroadcasted(false);
+
 }
 
 /*
@@ -144,6 +158,8 @@ DetectorMessenger::~DetectorMessenger(){
   delete fModelRotationCmd;
   delete fModelTranslationCmd;
   delete fPMTTranslationCmd;
+  delete fPMTDiameterCmd;
+  delete fOutputModelCmd;
 }
 
 /*
@@ -387,5 +403,13 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   // PMT TRANSLATION
   else if(command == fPMTTranslationCmd){
     fDetector->SetPMTTranslation(fPMTTranslationCmd->GetNew3VectorValue(newValue));
+  }
+  // PMT Diameter
+  else if(command == fPMTDiameterCmd){
+    fDetector->SetPMTDiameter(fPMTDiameterCmd->GetNewDoubleValue(newValue));
+  }
+  // PMT Diameter
+  else if(command == fOutputModelCmd){
+    fDetector->OutputToGDML(newValue);
   }
 }
