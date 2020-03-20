@@ -85,7 +85,7 @@ DetectorConstruction::DetectorConstruction()
  *
  */
 DetectorConstruction::~DetectorConstruction(){
-
+  delete m_DetectorMessenger;
 }
 
 /* Default geometry (2018 testbeam) is created here

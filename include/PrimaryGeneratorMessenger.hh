@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,41 +22,45 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file optical/OpNovice2/include/DetectorMessenger.hh
+/// \brief Definition of the DetectorMessenger class
 //
-/// \file ActionInitialization.cc
-/// \brief Implementation of the ActionInitialization class
+//
+//
 
-#include "ActionInitialization.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
-#include "SteppingAction.hh"
-#include "EventAction.hh"
+#ifndef PrimaryGeneratorMessenger_h
+#define PrimaryGeneratorMessenger_h 1
+
+#include "globals.hh"
+#include "G4UImessenger.hh"
+
+class PrimaryGeneratorAction;
+class G4UIdirectory;
+class G4UIcommand;
+class G4UIcmdWithAString;
+class G4UIcmdWithAnInteger;
+class G4UIcmdWithADouble;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithoutParameter;
+class G4UIcmdWith3VectorAndUnit;
 
 
-/*
- */
-ActionInitialization::ActionInitialization(G4String fileName)
- : G4VUserActionInitialization(){
-   ffileName = fileName;
- }
+class PrimaryGeneratorMessenger: public G4UImessenger{
+  public:
 
- /*
-  */
-ActionInitialization::~ActionInitialization(){
+    PrimaryGeneratorMessenger(PrimaryGeneratorAction* );
+   ~PrimaryGeneratorMessenger();
 
-}
+    virtual void SetNewValue(G4UIcommand*, G4String);
 
-/*
- */
-void ActionInitialization::BuildForMaster() const{
-  SetUserAction(new RunAction(ffileName));
-}
+  private:
 
-/*
- */
-void ActionInitialization::Build() const{
-  SetUserAction(new PrimaryGeneratorAction());
-  SetUserAction(new SteppingAction());
-  SetUserAction(new EventAction());
-  SetUserAction(new RunAction(ffileName));
-}
+    PrimaryGeneratorAction*    fGenerator;
+
+    G4UIdirectory*             fGeneratorDir;
+
+    G4UIcmdWithAString*        fInputFileCmd;
+
+
+};
+#endif

@@ -23,41 +23,48 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file ASCIIPrimaryGenerator.hh
+/// \brief Definition of the ASCIIPrimaryGenerator class
 //
-/// \file ActionInitialization.cc
-/// \brief Implementation of the ActionInitialization class
+//
+//
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#include "ActionInitialization.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
-#include "SteppingAction.hh"
-#include "EventAction.hh"
+#ifndef ASCIIPrimaryGenerator_h
+#define ASCIIPrimaryGenerator_h 1
 
+#include "G4VPrimaryGenerator.hh"
+#include "lgAnalysis.hh"
 
-/*
- */
-ActionInitialization::ActionInitialization(G4String fileName)
- : G4VUserActionInitialization(){
-   ffileName = fileName;
- }
+#include <fstream>
+#include <vector>
 
- /*
-  */
-ActionInitialization::~ActionInitialization(){
+class G4Event;
 
-}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-/*
- */
-void ActionInitialization::BuildForMaster() const{
-  SetUserAction(new RunAction(ffileName));
-}
+class ASCIIPrimaryGenerator : public G4VPrimaryGenerator
+{
+  public:
+    ASCIIPrimaryGenerator();
+   ~ASCIIPrimaryGenerator();
 
-/*
- */
-void ActionInitialization::Build() const{
-  SetUserAction(new PrimaryGeneratorAction());
-  SetUserAction(new SteppingAction());
-  SetUserAction(new EventAction());
-  SetUserAction(new RunAction(ffileName));
-}
+   virtual void SetInputFile(G4String _name);
+   virtual void GetNextEvent( );
+
+  public:
+    virtual void GeneratePrimaryVertex(G4Event*);
+
+  private:
+    std::vector< G4ThreeVector >*   fPositionVec;
+    std::vector< G4ThreeVector >*   fMomentumVec;
+    std::vector< G4double >*        fEnergyVec;
+    G4int                           fEventNo;
+    G4int                           fnEvents;
+    std::ifstream                   fInputFile;
+};
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+#endif

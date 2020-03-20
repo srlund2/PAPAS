@@ -43,6 +43,12 @@
 EventAction::EventAction()
   : G4UserEventAction(),
     hitsCollID(0){
+  fPtrVec.push_back(&x);
+  fPtrVec.push_back(&z);
+  fPtrVec.push_back(&xHit);
+  fPtrVec.push_back(&zHit);
+  fPtrVec.push_back(&time);
+  fPtrVec.push_back(&theta);
 
 }
 
@@ -60,6 +66,10 @@ void EventAction::BeginOfEventAction(const G4Event* event){
   fEventNo = event->GetEventID();
   if(fEventNo%100000 == 0) G4cout << "Begin Event " << fEventNo << G4endl;
   hitsCollID = 0;
+
+  for(uint i = 0; i < fPtrVec.size(); i++){
+    fPtrVec.at(i)->clear();
+  }
 }
 
 /*
@@ -71,16 +81,27 @@ void EventAction::EndOfEventAction(const G4Event* event){
   if(HCE){
     HitsCollection* HC = (HitsCollection*)(HCE->GetHC(hitsCollID));
     if( HC->entries() ){
-      PMTHit* aHit = (*HC)[0];
+      for(int i = 0; i < HC->entries(); i++ ){
+        PMTHit* aHit = (*HC)[i];
+        // fill vectors //
+        x.push_back    ( aHit->getPos().x() );
+        z.push_back    ( aHit->getPos().z() );
+        xHit.push_back ( aHit->getHit().x() );
+        zHit.push_back ( aHit->getHit().z() );
+        time.push_back ( aHit->getTime()    );
+        G4double pTheta = atan(sqrt(pow(aHit->getMomentum().x(),2) + pow(aHit->getMomentum().z(),2) )/fabs(aHit->getMomentum().y() ));
+        theta.push_back( pTheta );
+      }
       // fill ntuple  //
       G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-      G4double pTheta = atan(sqrt(pow(aHit->getMomentum().x(),2) + pow(aHit->getMomentum().z(),2) )/fabs(aHit->getMomentum().y() ));
-      analysisManager->FillNtupleDColumn(0, aHit->getPos().x() );
-      analysisManager->FillNtupleDColumn(1, aHit->getPos().z() );
-      analysisManager->FillNtupleDColumn(2, aHit->getHit().x() );
-      analysisManager->FillNtupleDColumn(3, aHit->getHit().z() );
-      analysisManager->FillNtupleDColumn(4, aHit->getTime()  );
-      analysisManager->FillNtupleDColumn(5, pTheta );
+      /* Not necessary if filling with vectors
+      analysisManager->FillNtupleDColumn(0, x     );
+      analysisManager->FillNtupleDColumn(1, z     );
+      analysisManager->FillNtupleDColumn(2, xHit  );
+      analysisManager->FillNtupleDColumn(3, zHit  );
+      analysisManager->FillNtupleDColumn(4, time  );
+      analysisManager->FillNtupleDColumn(5, theta );
+      */
       analysisManager->AddNtupleRow();
     }
   }

@@ -35,9 +35,11 @@
 #include "G4Run.hh"
 
 #include "RunAction.hh"
+#include "EventAction.hh"
+#include "lgAnalysis.hh"
+
 #include "G4VAnalysisManager.hh"
 #include "G4SystemOfUnits.hh"
-#include "lgAnalysis.hh"
 
 
 /*
@@ -51,10 +53,19 @@ RunAction::RunAction(G4String fileName)
   G4RunManager::GetRunManager()->SetPrintProgress(1);
 
   // Create analysis manager. The choice of analysis
-  // technology is done via selectin of a namespace
+  // technology is done via selection of a namespace
   // in B4Analysis.hh
   auto analysisManager = G4AnalysisManager::Instance();
   G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  // Get event action
+  const EventAction* constEventAction
+    = static_cast<const EventAction*>(G4RunManager::GetRunManager()
+      ->GetUserEventAction());
+  EventAction* eventAction
+    = const_cast<EventAction*>(constEventAction);
+
+    std::vector< std::vector<double>* >  pVec = eventAction->GetVectors( );
 
   // Create directories
   analysisManager->SetVerboseLevel(1);
@@ -62,13 +73,15 @@ RunAction::RunAction(G4String fileName)
 
   // Creating ntuple
   analysisManager->CreateNtuple("lightGuide", "pos and momentum");
-  analysisManager->CreateNtupleDColumn("X");
-  analysisManager->CreateNtupleDColumn("Z");
-  analysisManager->CreateNtupleDColumn("hitX");
-  analysisManager->CreateNtupleDColumn("hitZ");
-  analysisManager->CreateNtupleDColumn("time");
-  analysisManager->CreateNtupleDColumn("theta");
+  analysisManager->CreateNtupleDColumn( "X",       *pVec[0] );
+  analysisManager->CreateNtupleDColumn( "Z",       *pVec[1] );
+  analysisManager->CreateNtupleDColumn( "hitX",    *pVec[2] );
+  analysisManager->CreateNtupleDColumn( "hitZ",    *pVec[3] );
+  analysisManager->CreateNtupleDColumn( "time",    *pVec[4] );
+  analysisManager->CreateNtupleDColumn( "theta",   *pVec[5] );
+  analysisManager->CreateNtupleIColumn( "EventNo" );
   analysisManager->FinishNtuple();
+
 }
 
 /*

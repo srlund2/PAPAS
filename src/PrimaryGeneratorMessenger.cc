@@ -23,41 +23,51 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \file /include/PrimaryGeneratorMessenger.cc
+/// \brief Implementation of the PrimaryGeneratorMessenger class
 //
-/// \file ActionInitialization.cc
-/// \brief Implementation of the ActionInitialization class
+//
 
-#include "ActionInitialization.hh"
+#include "PrimaryGeneratorMessenger.hh"
+
+#include <sstream>
+#include <iostream>
+
+#include "G4OpticalSurface.hh"
+
 #include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
-#include "SteppingAction.hh"
-#include "EventAction.hh"
+#include "G4UIdirectory.hh"
+#include "G4UIcommand.hh"
+#include "G4UIparameter.hh"
+#include "G4UIcmdWithAString.hh"
 
 
-/*
- */
-ActionInitialization::ActionInitialization(G4String fileName)
- : G4VUserActionInitialization(){
-   ffileName = fileName;
- }
+PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Gen)
+:G4UImessenger(),fGenerator(Gen),fGeneratorDir(0),fInputFileCmd(0)
+{
+  fGeneratorDir = new G4UIdirectory("/Input/");
+  fGeneratorDir->SetGuidance("");
 
- /*
-  */
-ActionInitialization::~ActionInitialization(){
+  fInputFileCmd = new G4UIcmdWithAString("/Input/FileName", this);
+  fInputFileCmd->SetGuidance("Filepath of the previously generated events");
+  fInputFileCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fInputFileCmd->SetToBeBroadcasted(false);
 
 }
 
 /*
+ *
  */
-void ActionInitialization::BuildForMaster() const{
-  SetUserAction(new RunAction(ffileName));
+PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger(){
+  delete fInputFileCmd;
 }
 
 /*
+ *
  */
-void ActionInitialization::Build() const{
-  SetUserAction(new PrimaryGeneratorAction());
-  SetUserAction(new SteppingAction());
-  SetUserAction(new EventAction());
-  SetUserAction(new RunAction(ffileName));
+void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
+{
+  if(command == fInputFileCmd){
+    fGenerator->SetInputFile(newValue);
+  }
 }

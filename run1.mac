@@ -1,8 +1,6 @@
-# Macro file for JZCaPA beam test 2018
+# Macro file for lightGuide
 #
 # To be run preferably in batch, without graphics:
-#
-# 31 TeV Pb ion
 
 # Initialize kernel
 /run/initialize
@@ -16,121 +14,23 @@
 /hits/verbose 0
 
 
-
-#----- Set the light guide to be used and position it -----
-#If no model is selected, the program will default to a
-#simplified version of the 2018 testbeam light guide
-
-#/lightGuide/model/CADmodel ../models/LightGuide2018TB.stl
-#/lightGuide/model/rotate 0 90 0
-#/lightGuide/model/translate 0 -250 200 mm
-#/lightGuide/model/translatePMT 0 339 0 mm
-
-#/lightGuide/model/CADmodel ../models/Winston_cone.stl
-#/lightGuide/model/rotate 0 0 90
-#/lightGuide/model/translate 0 -111 0 mm
-#/lightGuide/model/translatePMT 0 339 0 mm
-
-#/lightGuide/model/CADmodel ../models/LightGuide2007BigPMT.stl
-#/lightGuide/model/rotate 0 -90 0
-#/lightGuide/model/translate 0 -250 -200 mm
-#/lightGuide/model/translatePMT 0 131 0 mm
-
-#/lightGuide/model/CADmodel ../models/LightGuide2007SmallPMT.stl
-#/lightGuide/model/rotate 0 -90 0
-#/lightGuide/model/translate 0 -250 -200 mm
-#/lightGuide/model/translatePMT 0 131 0 mm
-
-#/lightGuide/model/CADmodel ../models/run2.stl
-#/lightGuide/model/rotate 0 0 0
-#/lightGuide/model/translate 200 -250 0 mm
-#/lightGuide/model/translatePMT 0 -119 0 mm
-
-#/lightGuide/model/CADmodel ../models/run3wc.stl
-#/lightGuide/model/rotate 0 0 90
-#/lightGuide/model/translate 0 -319 0 mm
-#/lightGuide/model/translatePMT 0 -119 0 mm
-
-/lightGuide/model/CADmodel ../models/YuvalCone.stl
-/lightGuide/model/translate 200 -136.75 0 mm
-/lightGuide/model/translatePMT 0 -136.5 0 mm
-/lightGuide/model/PMTDiameter 170
-
-#/lightGuide/model/CADmodel ../models/YuvalHad.stl
-#/lightGuide/model/translate 0 -319 0 mm
-#/lightGuide/model/translatePMT 0 -136.5 0 mm
-#/lightGuide/model/PMTDiameter 170
+#Lightguide selection and properties can be set with geom.mac
+/control/execute geom.mac
 
 
-#----- Set surface properties of the light guide -----
-/lightGuide/surface/Model unified
-/lightGuide/surface/Type dielectric_metal
-/lightGuide/surface/Finish ground
-#/lightGuide/surface/SigmaAlpha .1
-#/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
-#/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
-#/lightGuide/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
-#/lightGuide/surface/Property REFLECTIVITY 0.000002 .89 0.000008 .89
+#Uncomment to generate events from ASCII file, set the file path here.
+#make sure to set beamOn # to the number of events contained in the ASCII file (Have to figure out how to automatically handle this)
+/Input/FileName test.txt
 
-
-
-#----- Set the refractive index of the gas the light guide is inside of -----
-#/lightGuide/gasProperty RINDEX 0.000002 1.0 0.000008 1.0
-
-
-
-#----- Set the beam energy profile -----
-/gps/particle opticalphoton
-/gps/ene/type Gauss
-/gps/ene/mono 3.4 eV
-/gps/ene/sigma 1 eV
-/gps/polarization 0 0 0
-
-
-
-#----- Set the beam geometry -----
-# Circular beam source. Simulates a single fiber optic
-/gps/pos/type Beam
-/gps/pos/shape Circle
-#/gps/pos/radius 0.75 mm
-/gps/pos/radius 102 mm
-#/gps/pos/sigma_r 0.002 mm
-
-# Rectangular plane for infinite resolution
-#/gps/pos/type Plane
-#/gps/pos/shape Rectangle
-#/gps/pos/halfx 40 mm
-#/gps/pos/halfy 68 mm
-
-# the incident surface is in the x-z plane just below the gas
-/gps/pos/rot1 1 0 0
-/gps/pos/rot2 0 0 1
-/gps/pos/centre 0. -0.1 0. mm
-
-# the photons are emitted around the y-axis
-/gps/ang/rot1 1 0 0
-/gps/ang/rot2 0 0 1
-/gps/ang/type beam1d
-
-#----- Set beam angular dispersion from histogram -----
-/gps/ang/surfnorm false
-/gps/ang/type user
-/control/execute hist.mac
-
-#----- Set beam angular dispersion for fiber optic -----
-# N.A. is 0.22 so acceptance cone is ~25.4 degrees
-#/gps/ang/sigma_r 25.40 deg
-
-
-
-#if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
-/vis/ogl/set/displayListLimit 10000
-
+#Uncomment to use gps style of setting the beam profile
+#/control/execute beam.mac
+#set number of photons per event
+#/gps/number 10
 
 
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 10000000
+/run/beamOn 10
 ##############################################################
 ##############################################################

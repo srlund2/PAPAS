@@ -25,23 +25,24 @@
 /// \file /src/PrimaryGeneratorAction.cc
 /// \brief Implementation of the PrimaryGeneratorAction class
 #include "PrimaryGeneratorAction.hh"
+#include "lgAnalysis.hh"
 
 #include "Randomize.hh"
 
 #include "G4Event.hh"
-#include "G4GeneralParticleSource.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
-#include "G4SystemOfUnits.hh"
+
 
 /*
  *
  */
 PrimaryGeneratorAction::PrimaryGeneratorAction()
- : G4VUserPrimaryGeneratorAction(),
-   fParticleGun(0)
+ : G4VUserPrimaryGeneratorAction()
 {
-  fParticleGun = new G4GeneralParticleSource();
+  fParticleGun      = new G4GeneralParticleSource();
+  fASCIIParticleGun = new ASCIIPrimaryGenerator();
+  fMessenger        = new PrimaryGeneratorMessenger( this );
 }
 
 /*
@@ -50,6 +51,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
   delete fParticleGun;
+  delete fASCIIParticleGun;
+  delete fMessenger;
 }
 
 /*
@@ -57,5 +60,14 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
  */
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  fParticleGun->GeneratePrimaryVertex(anEvent);
+  if(fUseInput){
+    fASCIIParticleGun->GeneratePrimaryVertex(anEvent);
+  }else{
+    fParticleGun->GeneratePrimaryVertex(anEvent);
+  }
+}
+
+void PrimaryGeneratorAction::SetInputFile(G4String _name){
+  fASCIIParticleGun->SetInputFile(_name);
+  fUseInput = true;
 }

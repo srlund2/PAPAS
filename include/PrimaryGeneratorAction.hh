@@ -29,7 +29,11 @@
 #define PrimaryGeneratorAction_h 1
 
 #include "G4VUserPrimaryGeneratorAction.hh"
+#include "PrimaryGeneratorMessenger.hh"
+#include "ASCIIPrimaryGenerator.hh"
+
 #include "globals.hh"
+#include "G4GeneralParticleSource.hh"
 
 class G4GeneralParticleSource;
 class G4Event;
@@ -43,9 +47,14 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
   public:
     virtual void GeneratePrimaries(G4Event*);
+    virtual void SetInputFile(G4String _name);
 
   private:
-    G4GeneralParticleSource* fParticleGun;
+    G4GeneralParticleSource*        fParticleGun;
+    ASCIIPrimaryGenerator*          fASCIIParticleGun;
+    PrimaryGeneratorMessenger*      fMessenger;
+    G4bool                          fUseInput;
+
 };
 
 #endif /*PrimaryGeneratorAction_h*/

@@ -29,6 +29,8 @@
 #include "globals.hh"
 #include "G4UserEventAction.hh"
 
+#include <vector>
+
 
 class EventAction : public G4UserEventAction{
   public:
@@ -36,11 +38,16 @@ class EventAction : public G4UserEventAction{
     virtual ~EventAction();
 
     virtual void  BeginOfEventAction( const G4Event* event );
-    virtual void    EndOfEventAction( const G4Event* event );
+    virtual void  EndOfEventAction( const G4Event* event );
+
+    inline  std::vector< std::vector<double>* >  GetVectors( ){return fPtrVec;}
 
   private:
     G4int hitsCollID;
     G4int fEventNo;
+
+    std::vector<double> x,z,xHit,zHit,time,theta;
+    std::vector< std::vector<double>* > fPtrVec;
 };
 
 #endif
