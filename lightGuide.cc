@@ -45,6 +45,7 @@
 #include "DetectorConstruction.hh"
 
 #include "ActionInitialization.hh"
+#include "PrimaryGeneratorAction.hh"
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -124,9 +125,9 @@ int main(int argc,char** argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  runManager-> SetUserInitialization(new DetectorConstruction());
+  runManager->SetUserInitialization(new DetectorConstruction());
   // Physics list
-  runManager-> SetUserInitialization(new PhysicsList());
+  runManager->SetUserInitialization(new PhysicsList());
   // User action initialization
   runManager->SetUserInitialization(new ActionInitialization(output));
 
@@ -148,6 +149,11 @@ int main(int argc,char** argv)
      // Batch mode
      G4String command = "/control/execute ";
      UImanager->ApplyCommand(command+macro);
+     PrimaryGeneratorAction* pga = (PrimaryGeneratorAction*)runManager->GetUserPrimaryGeneratorAction();
+     G4int nEvents = pga->GetnEvents();
+     if( nEvents > 0){
+       runManager->BeamOn(nEvents);
+     }
   }
   else // Define UI session for interactive mode
   {

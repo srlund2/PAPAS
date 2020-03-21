@@ -34,6 +34,7 @@
 #include "ASCIIPrimaryGenerator.hh"
 
 #include "G4Event.hh"
+#include "G4RunManager.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4PrimaryParticle.hh"

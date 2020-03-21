@@ -46,8 +46,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual ~PrimaryGeneratorAction();
 
   public:
-    virtual void GeneratePrimaries(G4Event*);
-    virtual void SetInputFile(G4String _name);
+    virtual void  GeneratePrimaries(G4Event*);
+    virtual void  SetInputFile(G4String _name);
+    inline  G4int GetnEvents(){return fASCIIParticleGun->GetnEvents();}
 
   private:
     G4GeneralParticleSource*        fParticleGun;

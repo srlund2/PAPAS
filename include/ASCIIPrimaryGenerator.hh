@@ -50,8 +50,9 @@ class ASCIIPrimaryGenerator : public G4VPrimaryGenerator
     ASCIIPrimaryGenerator();
    ~ASCIIPrimaryGenerator();
 
-   virtual void SetInputFile(G4String _name);
-   virtual void GetNextEvent( );
+   virtual void  SetInputFile(G4String _name);
+   virtual void  GetNextEvent( );
+   inline  G4int GetnEvents(){return fnEvents;}
 
   public:
     virtual void GeneratePrimaryVertex(G4Event*);
@@ -61,7 +62,7 @@ class ASCIIPrimaryGenerator : public G4VPrimaryGenerator
     std::vector< G4ThreeVector >*   fMomentumVec;
     std::vector< G4double >*        fEnergyVec;
     G4int                           fEventNo;
-    G4int                           fnEvents;
+    G4int                           fnEvents = 0;
     std::ifstream                   fInputFile;
 };
 
