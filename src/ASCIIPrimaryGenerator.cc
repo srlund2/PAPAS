@@ -140,9 +140,9 @@ void ASCIIPrimaryGenerator::GetNextEvent(){
       G4cout << "Error reading input vertex at position " << fInputFile.tellg() << G4endl;
       return;
     }
-    x = std::atof( str.substr(2,12).c_str()  );
-    y = std::atof( str.substr(13,23).c_str() );
-    z = std::atof( str.substr(24,34).c_str() );
+    x = std::atof( str.substr(2,19).c_str()  );
+    y = std::atof( str.substr(20,37).c_str() );
+    z = std::atof( str.substr(38,55).c_str() );
     fPositionVec->push_back( G4ThreeVector(x*mm,y*mm,z*mm) );
 
     //
@@ -152,11 +152,11 @@ void ASCIIPrimaryGenerator::GetNextEvent(){
       G4cout << "Error reading input momentum at position " << fInputFile.tellg() << G4endl;
       return;
     }
-    px = std::atof( str.substr(2,12).c_str()  );
-    py = std::atof( str.substr(13,23).c_str() );
-    pz = std::atof( str.substr(24,34).c_str() );
+    px = std::atof( str.substr(2,19).c_str()  );
+    py = std::atof( str.substr(20,37).c_str() );
+    pz = std::atof( str.substr(38,55).c_str() );
     fMomentumVec->push_back( G4ThreeVector(px,py,pz) );
-    energy = std::atof( str.substr(35,45).c_str() );
+    energy = std::atof( str.substr(56,73).c_str() );
     fEnergyVec->push_back( energy );
 
     //
