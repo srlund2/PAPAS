@@ -79,6 +79,7 @@ RunAction::RunAction(G4String fileName)
   analysisManager->CreateNtupleDColumn( "hitZ",    *pVec[3] );
   analysisManager->CreateNtupleDColumn( "time",    *pVec[4] );
   analysisManager->CreateNtupleDColumn( "theta",   *pVec[5] );
+  analysisManager->CreateNtupleDColumn( "energy",  *pVec[6] );
   analysisManager->CreateNtupleIColumn( "EventNo" );
   analysisManager->FinishNtuple();
 

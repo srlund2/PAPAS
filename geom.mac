@@ -22,20 +22,20 @@
 #/lightGuide/model/translate 0 -250 -200 mm
 #/lightGuide/model/translatePMT 0 131 0 mm
 
-#/lightGuide/model/CADmodel ../models/run2.stl
-#/lightGuide/model/rotate 0 0 0
-#/lightGuide/model/translate 200 -250 0 mm
-#/lightGuide/model/translatePMT 0 -119 0 mm
+/lightGuide/model/CADmodel ../models/run2.stl
+/lightGuide/model/rotate 0 0 0
+/lightGuide/model/translate 200 -250 0 mm
+/lightGuide/model/translatePMT 0 -119 0 mm
 
 #/lightGuide/model/CADmodel ../models/run3wc.stl
 #/lightGuide/model/rotate 0 0 90
 #/lightGuide/model/translate 0 -319 0 mm
 #/lightGuide/model/translatePMT 0 -119 0 mm
 
-/lightGuide/model/CADmodel ../models/YuvalCone.stl
-/lightGuide/model/translate 200 -136.75 0 mm
-/lightGuide/model/translatePMT 0 -136.5 0 mm
-/lightGuide/model/PMTDiameter 170
+#/lightGuide/model/CADmodel ../models/YuvalCone.stl
+#/lightGuide/model/translate 200 -136.75 0 mm
+#/lightGuide/model/translatePMT 0 -136.5 0 mm
+#/lightGuide/model/PMTDiameter 170
 
 #/lightGuide/model/CADmodel ../models/YuvalHad.stl
 #/lightGuide/model/translate 0 -319 0 mm

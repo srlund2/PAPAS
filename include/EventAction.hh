@@ -46,7 +46,7 @@ class EventAction : public G4UserEventAction{
     G4int hitsCollID;
     G4int fEventNo;
 
-    std::vector<double> x,z,xHit,zHit,time,theta;
+    std::vector<double> x,z,xHit,zHit,time,theta,energy;
     std::vector< std::vector<double>* > fPtrVec;
 };
 

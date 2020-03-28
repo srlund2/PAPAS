@@ -49,6 +49,7 @@ EventAction::EventAction()
   fPtrVec.push_back(&zHit);
   fPtrVec.push_back(&time);
   fPtrVec.push_back(&theta);
+  fPtrVec.push_back(&energy);
 
 }
 
@@ -84,24 +85,17 @@ void EventAction::EndOfEventAction(const G4Event* event){
       for(int i = 0; i < HC->entries(); i++ ){
         PMTHit* aHit = (*HC)[i];
         // fill vectors //
-        x.push_back    ( aHit->getPos().x() );
-        z.push_back    ( aHit->getPos().z() );
-        xHit.push_back ( aHit->getHit().x() );
-        zHit.push_back ( aHit->getHit().z() );
-        time.push_back ( aHit->getTime()    );
+        x.push_back     ( aHit->getPos().x() );
+        z.push_back     ( aHit->getPos().z() );
+        xHit.push_back  ( aHit->getHit().x() );
+        zHit.push_back  ( aHit->getHit().z() );
+        time.push_back  ( aHit->getTime()    );
+        energy.push_back( aHit->getEnergy()  );
         G4double pTheta = atan(sqrt(pow(aHit->getMomentum().x(),2) + pow(aHit->getMomentum().z(),2) )/fabs(aHit->getMomentum().y() ));
         theta.push_back( pTheta );
       }
       // fill ntuple  //
       G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-      /* Not necessary if filling with vectors
-      analysisManager->FillNtupleDColumn(0, x     );
-      analysisManager->FillNtupleDColumn(1, z     );
-      analysisManager->FillNtupleDColumn(2, xHit  );
-      analysisManager->FillNtupleDColumn(3, zHit  );
-      analysisManager->FillNtupleDColumn(4, time  );
-      analysisManager->FillNtupleDColumn(5, theta );
-      */
       analysisManager->AddNtupleRow();
     }
   }

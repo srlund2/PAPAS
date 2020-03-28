@@ -81,7 +81,7 @@ void ASCIIPrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
 
   // Pass the original event number through to the ouput
   auto analysisManager = G4AnalysisManager::Instance();
-  analysisManager->FillNtupleDColumn(6, fEventNo );
+  analysisManager->FillNtupleIColumn(7, fEventNo );
 
   //For each photon read in, add a new particle and vertex to the event
   int nPhotons = fPositionVec->size();
