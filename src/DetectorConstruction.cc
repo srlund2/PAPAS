@@ -88,8 +88,11 @@ DetectorConstruction::DetectorConstruction()
 
    //Set default values
 
+   G4double PhotonEnergy[2] = {0.5*eV,8.0*eV};
+   G4double RefractiveIndexAir[2] = {1.0,1.0};
    m_filler = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
    m_GasMPT = new G4MaterialPropertiesTable();
+   m_GasMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexAir, 2);
    m_filler->SetMaterialPropertiesTable(m_GasMPT);
 
    #ifdef CADMESH
@@ -120,6 +123,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   } else {
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
     UImanager->ApplyCommand("/control/execute geometry.mac");
+    BuildPMT();
   }
 
   if(!m_logicWorld) BuildWorld();
@@ -199,23 +203,10 @@ void DetectorConstruction::BuildWorld(){
  * Make the trapezoidal light guide logical volume
  */
 void DetectorConstruction::BuildTrapezoidLG( ){
-  if(m_inner) delete m_inner;
-  if(m_outter) delete m_outter;
-  if(m_LightGuide) delete m_LightGuide;
-  if(m_logicLightGuide) delete m_logicLightGuide;
-
   //Divide the light guide envelope (cumulative) by the number
   //of light guides that will occupy it
   G4double xSize = (m_LGenvelope->x()/2.)/m_nSegmentsX;
   G4double zSize = (m_LGenvelope->z()/2.)/m_nSegmentsZ;
-
-  std::cout << "envelope z = " << m_LGenvelope->x() << std::endl;
-  std::cout << "xSize = " << xSize << std::endl;
-  std::cout << "x segments = " << m_nSegmentsX << std::endl;
-
-  std::cout << "envelope z = " << m_LGenvelope->z() << std::endl;
-  std::cout << "zSize = " << zSize << std::endl;
-  std::cout << "z segments = " << m_nSegmentsZ << std::endl;
 
   //Determine the size of the top of the trapezoid so the
   //square opening will be inscribed in the window of the PMT
@@ -250,10 +241,6 @@ void DetectorConstruction::BuildTrapezoidLG( ){
                         materials->Al,
                         "BasicLightGuide");
 
-
-  //Build the PMT to go along with this light guide
-  BuildPMT();
-
 }
 
 
@@ -261,8 +248,6 @@ void DetectorConstruction::BuildTrapezoidLG( ){
  * Make the PMT logical volume and Sensitvie Detector
  */
 void DetectorConstruction::BuildPMT(){
-  if(m_solidPMT) delete m_solidPMT;
-  if(m_logicPMT) delete m_logicPMT;
 
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   PMTSD* PMT = new PMTSD("MyPMT");
@@ -294,10 +279,6 @@ void DetectorConstruction::PlaceGeometry(){
   G4double xPos = 0.;
   G4double yPos = m_LGenvelope->y()/2. + m_LGpos->y() - m_worldDim->y()/2.;
   G4double zPos = 0.;
-
-  std::cout << "envelope y = " << m_LGenvelope->y() << std::endl;
-  std::cout << "yPos = " << yPos << std::endl;
-  std::cout << "world y = " << m_worldDim->y() << std::endl;
 
   G4double PMTx = 0.;
   G4double PMTy = m_LGenvelope->y() + m_pmtPos->y() + m_PMTthickness - m_worldDim->y()/2.;
@@ -546,8 +527,6 @@ void DetectorConstruction::UseCADModel(G4String fileName){
 
   }
 
-  //----------------- Build one PMT -----------------//
-  BuildPMT();
   if(m_pmtPos == 0) m_pmtPos = new G4ThreeVector();
 
   if(m_ConstructionHasBeenDone){

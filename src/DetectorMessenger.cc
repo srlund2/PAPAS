@@ -121,6 +121,15 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fPMTDiameterCmd->SetDefaultValue( 65.0*mm );
   fPMTDiameterCmd->SetDefaultUnit("mm");
 
+  fLGThicknessCmd =
+    new G4UIcmdWithADoubleAndUnit("/lightGuide/model/SkinThickness",this);
+  fLGThicknessCmd->SetGuidance("Set thickness of the light guide skin");
+  fLGThicknessCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fLGThicknessCmd->SetToBeBroadcasted(false);
+  fLGThicknessCmd->SetParameterName("thickness",true);
+  fLGThicknessCmd->SetDefaultValue( 1.0*mm );
+  fLGThicknessCmd->SetDefaultUnit("mm");
+
   fOutputModelCmd = new G4UIcmdWithAString("/lightGuide/model/OutputModel",this);
   fOutputModelCmd->SetGuidance("Creates a .gdml file of the light guide with the given name");
   fOutputModelCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -193,6 +202,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fModelTranslationCmd;
   delete fPMTTranslationCmd;
   delete fPMTDiameterCmd;
+  delete fLGThicknessCmd;
   delete fOutputModelCmd;
   delete fNsegmentsXCmd;
   delete fNsegmentsZCmd;
@@ -237,8 +247,12 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fPMTDiameterCmd){
     fDetector->SetPMTDiameter(fPMTDiameterCmd->GetNewDoubleValue(newValue));
   }
+  // PMT DIAMETER
+  else if(command == fLGThicknessCmd){
+    fDetector->SetLGthickness(fLGThicknessCmd->GetNewDoubleValue(newValue));
+  }
   // OUTPUT GEOMETRY TO GDML
-  else if(command == fNsegmentsXCmd){
+  else if(command == fOutputModelCmd){
     fDetector->OutputToGDML(newValue);
   }
   // X SEGMENTATION
