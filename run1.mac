@@ -23,14 +23,14 @@
 ##############################################################
 #Uncomment to generate events from ASCII file, set the file path here.
 #make sure /run/beamOn is commented out below
-/Input/FileName Out_target1.txt
+#/Input/FileName Out_target1.txt
 
 
 #Uncomment to use gps style of setting the beam profile
-#/control/execute beam.mac
+/control/execute beam.mac
 #set number of photons per event
-#/gps/number 10
+/gps/number 100
 # number of events
-#/run/beamOn 1
+/run/beamOn 1
 ##############################################################
 ##############################################################

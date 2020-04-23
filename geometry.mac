@@ -2,8 +2,9 @@
 /lightGuide/worldVolume 0.25 0.25 0.25 m
 /lightGuide/envelope 89.75 113. 165. mm
 
-#/lightGuide/model/nSegmentsX 1
-#/lightGuide/model/nSegmentsZ 1
+/lightGuide/model/PMTDiameter 53 mm
+/lightGuide/model/nSegmentsX 2
+/lightGuide/model/nSegmentsZ 2
 
 
 
@@ -53,9 +54,9 @@
 
 
 #----- Set surface properties of the light guide -----
-/lightGuide/surface/Model unified
-/lightGuide/surface/Type dielectric_metal
-/lightGuide/surface/Finish ground
+#/lightGuide/surface/Model unified
+#/lightGuide/surface/Type dielectric_metal
+#/lightGuide/surface/Finish ground
 #/lightGuide/surface/SigmaAlpha .1
 #/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
 #/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
