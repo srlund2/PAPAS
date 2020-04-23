@@ -61,24 +61,28 @@ class DetectorMessenger: public G4UImessenger{
     G4UIdirectory*             fSurfaceDir;
     G4UIdirectory*             fModelDir;
 
+    // the model
+    G4UIcmdWithAString*        fModelCmd;
+    G4UIcmdWith3VectorAndUnit* fWorldVolumeCmd;
+    G4UIcmdWith3VectorAndUnit* fEnvelopeCmd;
+    G4UIcmdWith3VectorAndUnit* fModelRotationCmd;
+    G4UIcmdWith3VectorAndUnit* fModelTranslationCmd;
+    G4UIcmdWith3VectorAndUnit* fPMTTranslationCmd;
+    G4UIcmdWithADoubleAndUnit* fPMTDiameterCmd;
+    G4UIcmdWithADoubleAndUnit* fLGThicknessCmd;
+    G4UIcmdWithAString*        fOutputModelCmd;
+    G4UIcmdWithAnInteger*      fNsegmentsXCmd;
+    G4UIcmdWithAnInteger*      fNsegmentsZCmd;
+
     // the surface
-    G4UIcmdWithAString*        fSurfaceTypeCmd;
-    G4UIcmdWithAString*        fSurfaceFinishCmd;
     G4UIcmdWithAString*        fSurfaceModelCmd;
+    G4UIcmdWithAString*        fSurfaceFinishCmd;
+    G4UIcmdWithAString*        fSurfaceTypeCmd;
     G4UIcmdWithADouble*        fSurfaceSigmaAlphaCmd;
     G4UIcmdWithAString*        fSurfaceMatPropVectorCmd;
 
     // the gas
     G4UIcmdWithAString*        fGasPropVectorCmd;
-
-    // the model
-    G4UIcmdWithAString*        fModelCmd;
-    G4UIcmdWith3VectorAndUnit* fModelRotationCmd;
-    G4UIcmdWith3VectorAndUnit* fModelTranslationCmd;
-    G4UIcmdWith3VectorAndUnit* fPMTTranslationCmd;
-    G4UIcmdWithADoubleAndUnit* fPMTDiameterCmd;
-    G4UIcmdWithAString*        fOutputModelCmd;
-
 
 };
 #endif

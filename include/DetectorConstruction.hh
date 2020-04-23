@@ -37,6 +37,7 @@
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "G4SubtractionSolid.hh"
 #include "G4GDMLParser.hh"
 #include "G4RunManager.hh"
 
@@ -57,21 +58,42 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   public:
     virtual G4VPhysicalVolume* Construct();
 
-    void UseCADModel          (G4String fileName);
-    void OutputToGDML         (G4String name);
+    void BuildWorld           ();
+    void BuildTrapezoidLG     ();
+    void BuildPMT             ();
+    void PlaceGeometry        ();
+    void SetWorldVolume       (G4ThreeVector arg);
+    void SetEnvelope          (G4ThreeVector arg);
     void SetRotation          (G4ThreeVector arg);
     void SetTranslation       (G4ThreeVector arg);
     void SetPMTTranslation    (G4ThreeVector arg);
     void SetPMTDiameter       (G4double arg);
+    void SetLGthickness       (G4double arg);
+    void UseCADModel          (G4String fileName);
+    void OutputToGDML         (G4String name);
+    void SetNSegmentsX        (G4int arg);
+    void SetNSegmentsZ        (G4int arg);
 
-    void SetSurfaceSigmaAlpha (G4double v);
+    void SetSurfaceModel      (const G4OpticalSurfaceModel model);
     void SetSurfaceFinish     (const G4OpticalSurfaceFinish finish);
     void SetSurfaceType       (const G4SurfaceType type);
-    void SetSurfaceModel      (const G4OpticalSurfaceModel model);
+    void SetSurfaceSigmaAlpha (G4double v);
     void AddSurfaceMPV        (const char* c, G4MaterialPropertyVector* mpv);
     void AddGasMPV            (const char* c, G4MaterialPropertyVector* mpv);
 
   private:
+    G4ThreeVector*          m_worldDim;
+    G4ThreeVector*          m_LGenvelope;
+    G4ThreeVector*          m_LGpos;
+    G4ThreeVector*          m_pmtPos;
+    G4RotationMatrix*       m_rotation;
+    G4double                m_pmtDia;
+    G4double                m_PMTthickness;
+    G4double                m_thickness;
+    G4int                   m_nSegmentsX;
+    G4int                   m_nSegmentsZ;
+    G4bool                  m_ConstructionHasBeenDone;
+    G4bool                  m_UsingCADmodel;
 
     G4Box*                  m_solidWorld;
     G4LogicalVolume*        m_logicWorld;
@@ -85,30 +107,25 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     CADMesh*                m_mesh;
     #endif
 
-    G4LogicalVolume*        m_logicLightGuide;
-    G4VPhysicalVolume*      m_physLightGuide;
+    G4Trd*                                 m_inner;
+    G4Trd*                                 m_outter;
+    G4SubtractionSolid*                    m_LightGuide;
+    G4LogicalVolume*                       m_logicLightGuide;
+    std::vector< G4VPhysicalVolume* >      m_physLightGuide;
 
-    G4Tubs*                 m_solidPMT;
-    G4LogicalVolume*        m_logicPMT;
-    G4VPhysicalVolume*      m_physPMT;
+    G4Tubs*                                m_solidPMT;
+    G4LogicalVolume*                       m_logicPMT;
+    std::vector< G4VPhysicalVolume* >      m_physPMT;
 
-    G4LogicalBorderSurface* m_SurfLGtoWorld;
-    G4LogicalBorderSurface* m_SurfLGtoInner;
+    std::vector< G4LogicalBorderSurface* > m_Surfvec;
 
-    G4double                m_WorldSizeX;
-    G4double                m_WorldSizeY;
-    G4double                m_WorldSizeZ;
+    Materials*                             materials;
+    G4Material*                            m_filler;
+    G4MaterialPropertiesTable*             m_GasMPT;
 
-    G4ThreeVector           m_translation;
-    G4RotationMatrix*       m_rotation;
-
-    Materials*              materials;
-    G4Material*             m_filler;
-    G4MaterialPropertiesTable* m_GasMPT;
-
-    G4GDMLParser            m_Parser;
-    G4RunManager*           m_runMan;
-    DetectorMessenger*      m_DetectorMessenger;
+    G4GDMLParser                           m_Parser;
+    G4RunManager*                          m_runMan;
+    DetectorMessenger*                     m_DetectorMessenger;
 };
 
 #endif /*DetectorConstruction_h*/

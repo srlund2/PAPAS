@@ -63,13 +63,30 @@
  *
  */
 DetectorConstruction::DetectorConstruction()
- : G4VUserDetectorConstruction(),m_DetectorMessenger(nullptr){
+ : G4VUserDetectorConstruction(),
+   m_worldDim( new G4ThreeVector(0.25*m,0.5*m,0.25*m) ),
+   m_LGenvelope( new G4ThreeVector(89.75*mm,113.*mm,165.*mm) ),
+   m_LGpos( new G4ThreeVector() ),
+   m_pmtPos( new G4ThreeVector() ),
+   m_rotation( new G4RotationMatrix() ),
+   m_pmtDia(65.*mm),
+   m_PMTthickness(0.25*mm),
+   m_thickness(1.0*mm),
+   m_nSegmentsX(1),
+   m_nSegmentsZ(1),
+   m_ConstructionHasBeenDone(false),
+   m_UsingCADmodel(false),
+   m_logicWorld(0),
+   m_DetectorMessenger(nullptr)
+{
    materials = Materials::getInstance();
+   materials->UseOpticalMaterials(true);
+   materials->DefineOpticalProperties();
+
    m_DetectorMessenger = new DetectorMessenger(this);
    m_runMan = G4RunManager::GetRunManager();
 
-   m_WorldSizeX = m_WorldSizeZ = 0.25*m;
-   m_WorldSizeY = 0.5*m;
+   //Set default values
 
    m_filler = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
    m_GasMPT = new G4MaterialPropertiesTable();
@@ -88,33 +105,49 @@ DetectorConstruction::~DetectorConstruction(){
   delete m_DetectorMessenger;
 }
 
-/* Default geometry (2018 testbeam) is created here
- * The user is able to modify geometry via messenger commands
+/*
+ * Execute geometry.mac here and construct the world according
+ * to what it contains
  */
 G4VPhysicalVolume* DetectorConstruction::Construct(){
-  //Set up the materials
-  materials->UseOpticalMaterials(true);
-  materials->DefineOpticalProperties();
-  G4Material* Air = materials->Air;
-  G4Material* Al = materials->Al;
+  if ( m_ConstructionHasBeenDone ) {
+    G4GeometryManager::GetInstance()->OpenGeometry();
+    G4PhysicalVolumeStore::GetInstance()->Clean();
+    G4LogicalVolumeStore::GetInstance()->Clean();
+    G4SolidStore::GetInstance()->Clean();
+    G4LogicalSkinSurface::CleanSurfaceTable();
+    G4LogicalBorderSurface::CleanSurfaceTable();
+  } else {
+    G4UImanager* UImanager = G4UImanager::GetUIpointer();
+    UImanager->ApplyCommand("/control/execute geometry.mac");
+  }
 
+  if(!m_logicWorld) BuildWorld();
+  if(!m_logicLightGuide) BuildTrapezoidLG();
+  PlaceGeometry();
 
-  //Set the lightguide height. Hardcoded for now,
-  //should be determined by the model dimensions
-  G4double lgHeight = 339.*mm/2;
+  m_ConstructionHasBeenDone = true;
 
+  return m_physWorld;
+
+}
+
+/*
+ *
+ */
+void DetectorConstruction::BuildWorld(){
   bool checkOverlaps = false;
 
   //----------------- Define the world volume -----------------//
   m_solidWorld =
     new G4Box("World",       //name
-              m_WorldSizeX,  //sizeX
-              m_WorldSizeY,  //sizeY
-              m_WorldSizeZ); //sizeZ
+              m_worldDim->x(),  //sizeX
+              m_worldDim->y(),  //sizeY
+              m_worldDim->z()); //sizeZ
 
   m_logicWorld =
     new G4LogicalVolume(m_solidWorld, //solid
-                        Air,          //material
+                        materials->Air,          //material
                         "World");     //name
 
   m_physWorld =
@@ -137,10 +170,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   // and PMT
 
   m_solidHalfWorld =
-    new G4Box("HalfWorld",    //name
-              m_WorldSizeX,   //sizeX
-              m_WorldSizeY/2, //sizeY
-              m_WorldSizeZ);  //sizeZ
+    new G4Box("HalfWorld",       //name
+              m_worldDim->x(),   //sizeX
+              m_worldDim->y()/2, //sizeY
+              m_worldDim->z());  //sizeZ
 
   m_logicHalfWorld =
     new G4LogicalVolume(m_solidHalfWorld, //solid
@@ -148,86 +181,88 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                         "HalfWorld");     //name
 
   m_physHalfWorld =
-    new G4PVPlacement(0,                                 //no rotation
-                      G4ThreeVector(0,m_WorldSizeY/2,0), //at (0,0,0)
-                      m_logicHalfWorld,                  //logical volume
-                      "HalfWorld",                       //name
-                      m_logicWorld,                      //mother  volume
-                      false,                             //no boolean operation
-                      0,                                 //copy number
-                      checkOverlaps);                    //overlaps checking
+    new G4PVPlacement(0,                                    //no rotation
+                      G4ThreeVector(0,m_worldDim->y()/2,0), //at (0,0,0)
+                      m_logicHalfWorld,                     //logical volume
+                      "HalfWorld",                          //name
+                      m_logicWorld,                         //mother  volume
+                      false,                                //no boolean operation
+                      0,                                    //copy number
+                      checkOverlaps);                       //overlaps checking
 
   G4VisAttributes* boxVisAtt_half_world = new G4VisAttributes(G4Colour(0.0,0.0,1.0,0.1)); // or G4Colour(0.0,0.0,1.0,0.1)
 	m_logicHalfWorld ->SetVisAttributes(boxVisAtt_half_world);
 
+}
 
-  //----------------- Make the light guide -----------------//
-  //Make this one by default and allow the user to replace it later
-  //Create a trapezoidal air light guide made of aluminum sheet
-  G4double thickness = 1.0*mm;
-  G4double LengthX   = 89.75*mm/2;
-  G4double LengthY   = 164.*mm/2;
-  G4double PMTwindow = 45.969*mm/2;
-  G4double HeightZ   = lgHeight;
-  G4RotationMatrix* rot = new G4RotationMatrix();
-  rot->rotateX(90*deg);
+/*
+ * Make the trapezoidal light guide logical volume
+ */
+void DetectorConstruction::BuildTrapezoidLG( ){
+  if(m_inner) delete m_inner;
+  if(m_outter) delete m_outter;
+  if(m_LightGuide) delete m_LightGuide;
+  if(m_logicLightGuide) delete m_logicLightGuide;
+
+  //Divide the light guide envelope (cumulative) by the number
+  //of light guides that will occupy it
+  G4double xSize = (m_LGenvelope->x()/2.)/m_nSegmentsX;
+  G4double zSize = (m_LGenvelope->z()/2.)/m_nSegmentsZ;
+
+  std::cout << "envelope z = " << m_LGenvelope->x() << std::endl;
+  std::cout << "xSize = " << xSize << std::endl;
+  std::cout << "x segments = " << m_nSegmentsX << std::endl;
+
+  std::cout << "envelope z = " << m_LGenvelope->z() << std::endl;
+  std::cout << "zSize = " << zSize << std::endl;
+  std::cout << "z segments = " << m_nSegmentsZ << std::endl;
+
+  //Determine the size of the top of the trapezoid so the
+  //square opening will be inscribed in the window of the PMT
+  G4double PMTwindow = .707*m_pmtDia/2.;
+  m_rotation->rotateX(90*deg);
 
   //Aluminum outter
-  G4Trd* outter =
+  m_outter =
     new G4Trd("BasicLightGuide",
-              LengthX+thickness,
-              PMTwindow+thickness,
-              LengthY+thickness,
-              PMTwindow+thickness,
-              HeightZ);
+              xSize,
+              PMTwindow + m_thickness,
+              zSize,
+              PMTwindow + m_thickness,
+              m_LGenvelope->y()/2.);
   //Air inner
-  G4Trd* inner =
+  m_inner =
     new G4Trd("AirVolume",
-              LengthX,
+              xSize - m_thickness,
               PMTwindow,
-              LengthY,
+              zSize - m_thickness,
               PMTwindow,
-              HeightZ+2.0*mm);
+              m_LGenvelope->y()/2. + 0.1*mm);
 
   //Subtract material to hollow out the light guide
-  G4SubtractionSolid* LightGuide =
+  m_LightGuide =
     new G4SubtractionSolid("BasicLightGuide",
-                           outter,
-                           inner);
+                           m_outter,
+                           m_inner);
 
   m_logicLightGuide =
-    new G4LogicalVolume(LightGuide,
-                        Al,
+    new G4LogicalVolume(m_LightGuide,
+                        materials->Al,
                         "BasicLightGuide");
 
-  m_physLightGuide =
-    new G4PVPlacement(rot,
-                      G4ThreeVector(0, HeightZ - m_WorldSizeY/2, 0),
-                      m_logicLightGuide,
-                      "BasicLightGuide",
-                      m_logicHalfWorld,
-                      false,
-                      0);
 
-  //----------------- Define Optical Borders -----------------//
+  //Build the PMT to go along with this light guide
+  BuildPMT();
 
-  m_SurfLGtoWorld =
-    new G4LogicalBorderSurface("AlSurface",
-                               m_physLightGuide,
-                               m_physHalfWorld,
-                               materials->AlSurface );
-  m_SurfLGtoInner =
-    new G4LogicalBorderSurface("AlSurface",
-                               m_physHalfWorld,
-                               m_physLightGuide,
-                               materials->AlSurface );
+}
 
 
-  //----------------- Define PMT window -----------------//
-  double PMTradius = 65.0/2*mm;
-  double PMTthickness = 0.5/2*mm;
-  G4RotationMatrix * PMTrot = new G4RotationMatrix();
-  PMTrot->rotateX(90*deg);
+/*
+ * Make the PMT logical volume and Sensitvie Detector
+ */
+void DetectorConstruction::BuildPMT(){
+  if(m_solidPMT) delete m_solidPMT;
+  if(m_logicPMT) delete m_logicPMT;
 
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
   PMTSD* PMT = new PMTSD("MyPMT");
@@ -236,8 +271,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   m_solidPMT =
     new G4Tubs("PMT",       //name
               0.0*mm,       //Inner radius
-              PMTradius,    //Outter radius
-              PMTthickness, //Height
+              m_pmtDia/2.0, //Outter radius
+              m_PMTthickness, //Height
               0.0*deg,      //Rotation start
               360.0*deg);   //Sweep
 
@@ -246,41 +281,231 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
                         m_filler,   //material
                         "PMT");     //name
 
-  m_physPMT =
-    new G4PVPlacement(PMTrot,
-                      G4ThreeVector(0, 2*lgHeight + PMTthickness - m_WorldSizeY/2, 0),
-                      m_logicPMT,
-                      "PMT",
-                      m_logicHalfWorld,
-                      false,
-                      0);
-
   G4VisAttributes* VisAtt_PMT = new G4VisAttributes(G4Colour(1.0,1.0,0.6,0.7));
   m_logicPMT->SetVisAttributes(VisAtt_PMT);
   m_logicPMT->SetSensitiveDetector( PMT );
 
-  return m_physWorld;
 }
 
 /*
- *
+*
+*/
+void DetectorConstruction::PlaceGeometry(){
+  G4double xPos = 0.;
+  G4double yPos = m_LGenvelope->y()/2. + m_LGpos->y() - m_worldDim->y()/2.;
+  G4double zPos = 0.;
+
+  std::cout << "envelope y = " << m_LGenvelope->y() << std::endl;
+  std::cout << "yPos = " << yPos << std::endl;
+  std::cout << "world y = " << m_worldDim->y() << std::endl;
+
+  G4double PMTx = 0.;
+  G4double PMTy = m_LGenvelope->y() + m_pmtPos->y() + m_PMTthickness - m_worldDim->y()/2.;
+  G4double PMTz = 0.;
+
+  G4RotationMatrix * PMTrot = new G4RotationMatrix();
+  PMTrot->rotateX(90*deg);
+
+  char name[40];
+
+
+  for(G4int xIndex = 0; xIndex < m_nSegmentsX; xIndex++ ){
+    //Start from -x, add user specified offset, add 1/2 the width of one LG, then a full width for each
+    xPos = - m_LGenvelope->x()/2. + m_LGpos->x() + (0.5 + xIndex)*m_LGenvelope->x()/m_nSegmentsX;
+
+    //Centered on the light guide plus any user specified offset
+    PMTx = xPos + m_pmtPos->x();
+
+    for(G4int zIndex = 0; zIndex < m_nSegmentsZ; zIndex++ ){
+      //Start from -z, add user specified offset, add 1/2 the length of one LG, then a full length for each
+      zPos = - m_LGenvelope->z()/2. + m_LGpos->z() + (0.5 + zIndex)*m_LGenvelope->z()/m_nSegmentsZ;
+
+      //Centered on the light guide plus any user specified offset
+      PMTz = zPos + m_pmtPos->z();
+      //----------------- Place the LightGuide -----------------//
+
+      sprintf(name,"LightGuide%d_%d",xIndex,zIndex);
+      m_physLightGuide.push_back(
+        new G4PVPlacement(m_rotation,
+                          G4ThreeVector(xPos, yPos, zPos),
+                          m_logicLightGuide,
+                          name,
+                          m_logicHalfWorld,
+                          false,
+                          0) );
+
+      //----------------- Place the PMT -----------------//
+
+      sprintf(name,"PMT%d_%d",xIndex,zIndex);
+      m_physPMT.push_back(
+        new G4PVPlacement(PMTrot,
+                          G4ThreeVector(PMTx, PMTy, PMTz),
+                          m_logicPMT,
+                          name,
+                          m_logicHalfWorld,
+                          false,
+                          0) );
+
+      //----------------- Define Optical Borders -----------------//
+
+      sprintf(name,"AlSurface%d_%d",xIndex,zIndex);
+      m_Surfvec.push_back(
+        new G4LogicalBorderSurface(name,
+                                   m_physLightGuide.back(),
+                                   m_physHalfWorld,
+                                   materials->AlSurface ) );
+      m_Surfvec.push_back(
+        new G4LogicalBorderSurface(name,
+                                   m_physHalfWorld,
+                                   m_physLightGuide.back(),
+                                   materials->AlSurface ) );
+    }//end y loop
+  }//end x loop
+}
+
+/*
+ * Set the dimensions of the world volume.
+ * If the volume exists modify it, otherwise build it.
  */
-void DetectorConstruction::SetSurfaceSigmaAlpha(G4double v){
-  materials->AlSurface->SetSigmaAlpha(v);
-  G4RunManager::GetRunManager()->GeometryHasBeenModified();
-
-  G4cout << "Surface sigma alpha set to: " << materials->AlSurface->GetSigmaAlpha() << G4endl;
+void DetectorConstruction::SetWorldVolume(G4ThreeVector arg){
+  if(m_ConstructionHasBeenDone){
+    m_solidWorld->SetXHalfLength( arg.x() );
+    m_solidWorld->SetYHalfLength( arg.y() );
+    m_solidWorld->SetZHalfLength( arg.z() );
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  } else {
+    delete m_worldDim;
+    m_worldDim = new G4ThreeVector(arg);
+    BuildWorld();
+  }
 }
 
 /*
- *
+ * Sets the envelope the light guide is constructed in
+ * If the geometry has already been constructed, reconstruct
+ * it with the new envelope
+ */
+void DetectorConstruction::SetEnvelope(G4ThreeVector arg){
+  if(m_LGenvelope) delete m_LGenvelope;
+  m_LGenvelope = new G4ThreeVector(arg);
+
+  if(m_ConstructionHasBeenDone){
+    Construct();
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  }
+}
+
+/*
+ * If the world already exists, rotate the light guide
+ * otherwise set the rotation for the light guide that will be built
+ */
+void DetectorConstruction::SetRotation(G4ThreeVector arg){
+  if(m_rotation) delete m_rotation;
+  m_rotation = new G4RotationMatrix();
+
+  m_rotation->rotateX(arg.x());
+  m_rotation->rotateY(arg.y());
+  m_rotation->rotateZ(arg.z());
+
+  if(m_ConstructionHasBeenDone){
+    for(uint i = 0; i < m_physLightGuide.size(); i++){
+      m_physLightGuide[i]->SetRotation(m_rotation);
+    }
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  }
+}
+
+/*
+ * If the world already exists, move the light guide. If there is more
+ * than one light guide, set the position and rebuild.
+ * otherwise set the location for the light guide that will be built
+ */
+void DetectorConstruction::SetTranslation(G4ThreeVector arg){
+  if(m_ConstructionHasBeenDone){
+    if(m_physLightGuide.size() == 1){
+      m_physLightGuide.back()->SetTranslation(arg);
+    } else {
+      m_LGpos = new G4ThreeVector(arg);
+      Construct();
+    }
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  } else {
+    m_LGpos = new G4ThreeVector(arg);
+  }
+}
+
+
+/*
+ * If the world already exists, move the PMT. If there is more
+ * than one PMT, set the position and rebuild.
+ * otherwise set the location for the PMT that will be built
+ */
+void DetectorConstruction::SetPMTTranslation(G4ThreeVector arg){
+  if(m_ConstructionHasBeenDone){
+    if(m_physLightGuide.size() == 1){
+      m_physLightGuide.back()->SetTranslation(arg);
+    } else {
+      m_LGpos = new G4ThreeVector(arg);
+      Construct();
+    }
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  } else {
+    m_pmtPos = new G4ThreeVector(arg);
+  }
+}
+
+/*
+ * If the world already exists, modify the PMT
+ * otherwise set the diameter for PMT that will be built
+ */
+void DetectorConstruction::SetPMTDiameter(G4double arg){
+  if(m_ConstructionHasBeenDone){
+    m_solidPMT->SetOuterRadius(arg/2.0);
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  } else {
+    m_pmtDia = arg;
+  }
+}
+
+/*
+ * Set the thickness of the trapezoidal light guide shell
+ * If the geometry has already been constructed, reconstruct
+ * it with the new thickness
+ */
+void DetectorConstruction::SetLGthickness(G4double arg){
+  m_thickness = arg;
+
+  if(m_ConstructionHasBeenDone){
+    Construct();
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  }
+}
+
+
+/*
+ * Builds a light guide logical volume from CAD model file
  */
 void DetectorConstruction::UseCADModel(G4String fileName){
   //Delete anything we are going to redefine
-  if(m_SurfLGtoWorld)   delete m_SurfLGtoWorld;
-  if(m_SurfLGtoInner)   delete m_SurfLGtoInner;
   if(m_logicLightGuide) delete m_logicLightGuide;
-  if(m_physLightGuide)  delete m_physLightGuide;
+
+  for(uint i = 0; i < m_physLightGuide.size(); i++){
+    delete m_physLightGuide[i];
+    delete m_physPMT[i];
+    delete m_Surfvec[2*i];
+    delete m_Surfvec[2*i+1];
+  }
+  m_physLightGuide.clear();
+  m_physPMT.clear();
+  m_Surfvec.clear();
+
 
   G4String fileType = fileName.substr( fileName.last('.') + 1, fileName.size() - fileName.last('.'));
 
@@ -319,43 +544,29 @@ void DetectorConstruction::UseCADModel(G4String fileName){
     sprintf(message,"Zmin = %04.2f, Zmax = %04.2f: Depth  = %04.2f", extent.GetZmin(), extent.GetZmax(), extent.GetZmax() - extent.GetZmin() );
     G4cout << message << G4endl;
 
-    m_physLightGuide =
-      new G4PVPlacement(0,
-                        G4ThreeVector(0,0,0),
-                        m_logicLightGuide,
-                        "physLightGuide",
-                        m_logicHalfWorld,
-                        false,
-                        0);
-
   }
 
-  //----------------- Define Optical Borders -----------------//
-  m_SurfLGtoWorld =
-    new G4LogicalBorderSurface("AlSurface",
-                               m_physLightGuide,
-                               m_physHalfWorld,
-                               materials->AlSurface );
-  m_SurfLGtoInner =
-    new G4LogicalBorderSurface("AlSurface",
-                               m_physHalfWorld,
-                               m_physLightGuide,
-                               materials->AlSurface );
+  //----------------- Build one PMT -----------------//
+  BuildPMT();
+  if(m_pmtPos == 0) m_pmtPos = new G4ThreeVector();
 
-
-  m_runMan->GeometryHasBeenModified();
-  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
-  G4cout << "Replaced default light guide with CAD model" << G4endl;
+  if(m_ConstructionHasBeenDone){
+    PlaceGeometry();
+    m_runMan->GeometryHasBeenModified();
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
+  }
+  G4cout << "Using " << fileName << " for CAD model" << G4endl;
 }
 
+
 /*
- *
+ * Output the model of the light guide to GDML
  */
 void DetectorConstruction::OutputToGDML(G4String fileName){
-  if(m_physLightGuide != 0){
+  if(m_physLightGuide[0] != 0){
     //For some reason this only works as a pointer
     G4GDMLParser* gdml = new G4GDMLParser();
-    gdml->Write(fileName.c_str(),m_physLightGuide);
+    gdml->Write(fileName.c_str(),m_physLightGuide.back());
     delete gdml;
   }else{
     G4cout << "No physical light guide defined..." << G4endl;
@@ -364,11 +575,46 @@ void DetectorConstruction::OutputToGDML(G4String fileName){
 }
 
 /*
+ * Set the segmentation of the light guide envelope in x
+ * Reconstruct the geometry if necessary
+ */
+void DetectorConstruction::SetNSegmentsX(G4int arg){
+  m_nSegmentsX = arg;
+  if(m_ConstructionHasBeenDone){
+    Construct();
+  }
+}
+
+/*
+ * Set the segmentation of the light guide envelope in Z
+ * Reconstruct the geometry if necessary
+ */
+void DetectorConstruction::SetNSegmentsZ(G4int arg){
+  m_nSegmentsZ = arg;
+  if(m_ConstructionHasBeenDone){
+    Construct();
+  }
+}
+
+
+/*
+ * Set the surface model for the light guide
+ */
+void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
+  materials->AlSurface->SetModel(model);
+  if(m_ConstructionHasBeenDone){
+    m_runMan->GeometryHasBeenModified();
+  }
+}
+
+/*
  *
  */
 void DetectorConstruction::SetSurfaceFinish(const G4OpticalSurfaceFinish finish){
   materials->AlSurface->SetFinish(finish);
-  m_runMan->GeometryHasBeenModified();
+  if(m_ConstructionHasBeenDone){
+    m_runMan->GeometryHasBeenModified();
+  }
 }
 
 /*
@@ -376,11 +622,27 @@ void DetectorConstruction::SetSurfaceFinish(const G4OpticalSurfaceFinish finish)
  */
 void DetectorConstruction::SetSurfaceType(const G4SurfaceType type){
   materials->AlSurface->SetType(type);
-  m_runMan->GeometryHasBeenModified();
+  if(m_ConstructionHasBeenDone){
+    m_runMan->GeometryHasBeenModified();
+  }
 }
 
 /*
  *
+ */
+void DetectorConstruction::SetSurfaceSigmaAlpha(G4double v){
+  materials->AlSurface->SetSigmaAlpha(v);
+
+  if(m_ConstructionHasBeenDone){
+    G4RunManager::GetRunManager()->GeometryHasBeenModified();
+  }
+
+  G4cout << "Surface sigma alpha set to: " << materials->AlSurface->GetSigmaAlpha() << G4endl;
+}
+
+/*
+ * Set the material property table of the surface
+ * of the light guide
  */
 void DetectorConstruction::AddSurfaceMPV(const char* c, G4MaterialPropertyVector* mpv){
   mpv->SetSpline(true);
@@ -392,7 +654,8 @@ void DetectorConstruction::AddSurfaceMPV(const char* c, G4MaterialPropertyVector
 }
 
 /*
- *
+ * Set the material property table of the volume
+ * which contains the light guide
  */
 void DetectorConstruction::AddGasMPV(const char* c, G4MaterialPropertyVector* mpv){
   mpv->SetSpline(true);
@@ -400,58 +663,4 @@ void DetectorConstruction::AddGasMPV(const char* c, G4MaterialPropertyVector* mp
   G4cout << "The MPT for the gas is now: " << G4endl;
   m_GasMPT->DumpTable();
   G4cout << "............." << G4endl;
-}
-
-/*
- *
- */
-void DetectorConstruction::SetSurfaceModel(const G4OpticalSurfaceModel model){
-  materials->AlSurface->SetModel(model);
-  m_runMan->GeometryHasBeenModified();
-}
-
-/*
- *
- */
-void DetectorConstruction::SetRotation(G4ThreeVector arg){
-  if(m_rotation) delete m_rotation;
-  m_rotation = new G4RotationMatrix();
-
-  m_rotation->rotateX(arg.x());
-  m_rotation->rotateY(arg.y());
-  m_rotation->rotateZ(arg.z());
-  m_physLightGuide->SetRotation(m_rotation);
-
-  m_runMan->GeometryHasBeenModified();
-  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
-}
-
-/*
- *
- */
-void DetectorConstruction::SetTranslation(G4ThreeVector arg){
-  m_physLightGuide->SetTranslation(arg);
-
-  m_runMan->GeometryHasBeenModified();
-  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
-}
-
-/*
- *
- */
-void DetectorConstruction::SetPMTTranslation(G4ThreeVector arg){
-  m_physPMT->SetTranslation(arg);
-
-  m_runMan->GeometryHasBeenModified();
-  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
-}
-
-/*
- *
- */
-void DetectorConstruction::SetPMTDiameter(G4double arg){
-  m_solidPMT->SetOuterRadius(arg/2.0);
-
-  m_runMan->GeometryHasBeenModified();
-  G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/rebuild");
 }
