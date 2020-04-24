@@ -41,50 +41,19 @@
 SteppingAction::SteppingAction()
 : G4UserSteppingAction()
 {
-  fScintillationCounter = 0;
-  fCerenkovCounter      = 0;
-  fEventNumber = -1;
+
 }
 
 /*
 */
 SteppingAction::~SteppingAction()
-{ ; }
+{
+
+}
 
 /*
 */
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
-  G4int eventNumber = G4RunManager::GetRunManager()->
-                                              GetCurrentEvent()->GetEventID();
 
-  if (eventNumber != fEventNumber) {
-     fEventNumber = eventNumber;
-     fScintillationCounter = 0;
-     fCerenkovCounter = 0;
-  }
-
-  G4Track* track = step->GetTrack();
-
-  G4String ParticleName = track->GetDynamicParticle()->
-                                 GetParticleDefinition()->GetParticleName();
-
-  if (ParticleName == "opticalphoton") return;
-
-  const std::vector<const G4Track*>* secondaries =
-                                            step->GetSecondaryInCurrentStep();
-
-  if (secondaries->size()>0) {
-     for(unsigned int i=0; i<secondaries->size(); ++i) {
-        if (secondaries->at(i)->GetParentID()>0) {
-           if(secondaries->at(i)->GetDynamicParticle()->GetParticleDefinition()
-               == G4OpticalPhoton::OpticalPhotonDefinition()){
-              if (secondaries->at(i)->GetCreatorProcess()->GetProcessName()
-               == "Scintillation")fScintillationCounter++;
-              if (secondaries->at(i)->GetCreatorProcess()->GetProcessName()
-               == "Cerenkov")fCerenkovCounter++;
-           }
-        }
-     }
-  }
 }

@@ -58,7 +58,7 @@ set(lightGuide_SCRIPTS
     vis.mac
     run1.mac
     beam.mac
-    geom.mac
+    geometry.mac
   )
 
 foreach(_script ${lightGuide_SCRIPTS})
@@ -75,7 +75,7 @@ endforeach()
 install(TARGETS lightGuide DESTINATION bin )
 install(TARGETS plotHisto DESTINATION bin )
 install(FILES run1.mac DESTINATION bin )
-install(FILES geom.mac DESTINATION bin )
+install(FILES geometry.mac DESTINATION bin )
 install(FILES beam.mac DESTINATION bin )
 install(FILES vis.mac DESTINATION bin)
 install(FILES hist.mac DESTINATION bin)

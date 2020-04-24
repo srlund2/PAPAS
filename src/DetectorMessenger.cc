@@ -50,6 +50,7 @@
 DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
 :G4UImessenger(),fDetector(Det)
 {
+  //Directories
   flightGuideDir = new G4UIdirectory("/lightGuide/");
   flightGuideDir->SetGuidance("Parameters for optical simulation.");
 
@@ -59,52 +60,35 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fModelDir = new G4UIdirectory("/lightGuide/model/");
   fModelDir->SetGuidance("Model source, translation and rotation");
 
-  fSurfaceTypeCmd = new G4UIcmdWithAString("/lightGuide/surface/Type", this);
-  fSurfaceTypeCmd->SetGuidance("Surface type.");
-  fSurfaceTypeCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fSurfaceTypeCmd->SetToBeBroadcasted(false);
+  fWorldVolumeCmd =
+  new G4UIcmdWith3VectorAndUnit("/lightGuide/worldVolume", this);
+  fWorldVolumeCmd->SetGuidance("Set the size of the world volume");
+  fWorldVolumeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fWorldVolumeCmd->SetToBeBroadcasted(false);
+  fWorldVolumeCmd->SetParameterName("X","Y","Z",true);
+  fWorldVolumeCmd->SetDefaultValue(G4ThreeVector(0.25,0.25,0.5));
+  fWorldVolumeCmd->SetDefaultUnit("m");
 
-  fSurfaceFinishCmd = new G4UIcmdWithAString("/lightGuide/surface/Finish", this);
-  fSurfaceFinishCmd->SetGuidance("Surface finish.");
-  fSurfaceFinishCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fSurfaceFinishCmd->SetToBeBroadcasted(false);
+  fEnvelopeCmd =
+  new G4UIcmdWith3VectorAndUnit("/lightGuide/envelope", this);
+  fEnvelopeCmd->SetGuidance("Set the size light guide envelope");
+  fEnvelopeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fEnvelopeCmd->SetToBeBroadcasted(false);
+  fEnvelopeCmd->SetParameterName("X","Y","Z",true);
+  fEnvelopeCmd->SetDefaultValue(G4ThreeVector(89.75*mm,113.*mm,339.*mm));
+  fEnvelopeCmd->SetDefaultUnit("m");
 
-  fSurfaceModelCmd =
-    new G4UIcmdWithAString("/lightGuide/surface/Model", this);
-  fSurfaceModelCmd->SetGuidance("surface model.");
-  fSurfaceModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fSurfaceModelCmd->SetToBeBroadcasted(false);
-
-  fSurfaceSigmaAlphaCmd =
-    new G4UIcmdWithADouble("/lightGuide/surface/SigmaAlpha", this);
-  fSurfaceSigmaAlphaCmd->SetGuidance("surface sigma alpha");
-  fSurfaceSigmaAlphaCmd->SetGuidance(" parameter.");
-  fSurfaceSigmaAlphaCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fSurfaceSigmaAlphaCmd->SetToBeBroadcasted(false);
-
-  fSurfaceMatPropVectorCmd =
-    new G4UIcmdWithAString("/lightGuide/surface/Property", this);
-  fSurfaceMatPropVectorCmd->SetGuidance("Set material property vector");
-  fSurfaceMatPropVectorCmd->SetGuidance(" for the surface.");
-  fSurfaceMatPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fSurfaceMatPropVectorCmd->SetToBeBroadcasted(false);
-
-  fGasPropVectorCmd =
-    new G4UIcmdWithAString("/lightGuide/gasProperty", this);
-  fGasPropVectorCmd->SetGuidance("Set fill gas property vector");
-  fGasPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
-  fGasPropVectorCmd->SetToBeBroadcasted(false);
-
+  //Model commands
   fModelCmd = new G4UIcmdWithAString("/lightGuide/model/CADmodel", this);
   fModelCmd->SetGuidance("CAD model to be used");
-  fModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fModelCmd->SetToBeBroadcasted(false);
   fModelCmd->SetDefaultValue("models/Winston_cone.stl");
 
   fModelRotationCmd =
     new G4UIcmdWith3VectorAndUnit("/lightGuide/model/rotate", this);
   fModelRotationCmd->SetGuidance("Set light guide first rotation");
-  fModelRotationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelRotationCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fModelRotationCmd->SetToBeBroadcasted(false);
   fModelRotationCmd->SetParameterName("rotationX","rotationY","rotationZ",true);
   fModelRotationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
@@ -113,7 +97,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fModelTranslationCmd =
     new G4UIcmdWith3VectorAndUnit("/lightGuide/model/translate", this);
   fModelTranslationCmd->SetGuidance("Set light guide translation");
-  fModelTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fModelTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fModelTranslationCmd->SetToBeBroadcasted(false);
   fModelTranslationCmd->SetParameterName("X","Y","Z",true);
   fModelTranslationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
@@ -122,7 +106,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fPMTTranslationCmd =
     new G4UIcmdWith3VectorAndUnit("/lightGuide/model/translatePMT", this);
   fPMTTranslationCmd->SetGuidance("Set PMT translation");
-  fPMTTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fPMTTranslationCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fPMTTranslationCmd->SetToBeBroadcasted(false);
   fPMTTranslationCmd->SetParameterName("X","Y","Z",true);
   fPMTTranslationCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
@@ -131,16 +115,79 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fPMTDiameterCmd =
     new G4UIcmdWithADoubleAndUnit("/lightGuide/model/PMTDiameter",this);
   fPMTDiameterCmd->SetGuidance("Set PMT diameter");
-  fPMTDiameterCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fPMTDiameterCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fPMTDiameterCmd->SetToBeBroadcasted(false);
   fPMTDiameterCmd->SetParameterName("dia",true);
   fPMTDiameterCmd->SetDefaultValue( 65.0*mm );
   fPMTDiameterCmd->SetDefaultUnit("mm");
 
+  fLGThicknessCmd =
+    new G4UIcmdWithADoubleAndUnit("/lightGuide/model/SkinThickness",this);
+  fLGThicknessCmd->SetGuidance("Set thickness of the light guide skin");
+  fLGThicknessCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fLGThicknessCmd->SetToBeBroadcasted(false);
+  fLGThicknessCmd->SetParameterName("thickness",true);
+  fLGThicknessCmd->SetDefaultValue( 1.0*mm );
+  fLGThicknessCmd->SetDefaultUnit("mm");
+
   fOutputModelCmd = new G4UIcmdWithAString("/lightGuide/model/OutputModel",this);
   fOutputModelCmd->SetGuidance("Creates a .gdml file of the light guide with the given name");
-  fOutputModelCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fOutputModelCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fOutputModelCmd->SetToBeBroadcasted(false);
+
+  fNsegmentsXCmd =
+    new G4UIcmdWithAnInteger("/lightGuide/model/nSegmentsX",this);
+  fNsegmentsXCmd->SetGuidance("Set segmentation of the light guide envelope in x");
+  fNsegmentsXCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fNsegmentsXCmd->SetToBeBroadcasted(false);
+  fNsegmentsXCmd->SetParameterName("nSegmentsX",true);
+  fNsegmentsXCmd->SetDefaultValue( 1 );
+
+  fNsegmentsZCmd =
+    new G4UIcmdWithAnInteger("/lightGuide/model/nSegmentsZ",this);
+  fNsegmentsZCmd->SetGuidance("Set segmentation of the light guide envelope in z");
+  fNsegmentsZCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fNsegmentsZCmd->SetToBeBroadcasted(false);
+  fNsegmentsZCmd->SetParameterName("nSegmentsZ",true);
+  fNsegmentsZCmd->SetDefaultValue( 1 );
+
+  //Surface commands
+  fSurfaceTypeCmd = new G4UIcmdWithAString("/lightGuide/surface/Type", this);
+  fSurfaceTypeCmd->SetGuidance("Surface type.");
+  fSurfaceTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fSurfaceTypeCmd->SetToBeBroadcasted(false);
+
+  fSurfaceFinishCmd = new G4UIcmdWithAString("/lightGuide/surface/Finish", this);
+  fSurfaceFinishCmd->SetGuidance("Surface finish.");
+  fSurfaceFinishCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fSurfaceFinishCmd->SetToBeBroadcasted(false);
+
+  fSurfaceModelCmd =
+    new G4UIcmdWithAString("/lightGuide/surface/Model", this);
+  fSurfaceModelCmd->SetGuidance("surface model.");
+  fSurfaceModelCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fSurfaceModelCmd->SetToBeBroadcasted(false);
+
+  fSurfaceSigmaAlphaCmd =
+    new G4UIcmdWithADouble("/lightGuide/surface/SigmaAlpha", this);
+  fSurfaceSigmaAlphaCmd->SetGuidance("surface sigma alpha");
+  fSurfaceSigmaAlphaCmd->SetGuidance(" parameter.");
+  fSurfaceSigmaAlphaCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fSurfaceSigmaAlphaCmd->SetToBeBroadcasted(false);
+
+  fSurfaceMatPropVectorCmd =
+    new G4UIcmdWithAString("/lightGuide/surface/Property", this);
+  fSurfaceMatPropVectorCmd->SetGuidance("Set material property vector");
+  fSurfaceMatPropVectorCmd->SetGuidance(" for the surface.");
+  fSurfaceMatPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fSurfaceMatPropVectorCmd->SetToBeBroadcasted(false);
+
+  //Gas commands
+  fGasPropVectorCmd =
+    new G4UIcmdWithAString("/lightGuide/gasProperty", this);
+  fGasPropVectorCmd->SetGuidance("Set fill gas property vector");
+  fGasPropVectorCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fGasPropVectorCmd->SetToBeBroadcasted(false);
 
 }
 
@@ -148,18 +195,23 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
  *
  */
 DetectorMessenger::~DetectorMessenger(){
-  delete fSurfaceFinishCmd;
-  delete fSurfaceTypeCmd;
-  delete fSurfaceModelCmd;
-  delete fSurfaceSigmaAlphaCmd;
-  delete fSurfaceMatPropVectorCmd;
-  delete fGasPropVectorCmd;
   delete fModelCmd;
+  delete fWorldVolumeCmd;
+  delete fEnvelopeCmd;
   delete fModelRotationCmd;
   delete fModelTranslationCmd;
   delete fPMTTranslationCmd;
   delete fPMTDiameterCmd;
+  delete fLGThicknessCmd;
   delete fOutputModelCmd;
+  delete fNsegmentsXCmd;
+  delete fNsegmentsZCmd;
+  delete fSurfaceModelCmd;
+  delete fSurfaceFinishCmd;
+  delete fSurfaceTypeCmd;
+  delete fSurfaceSigmaAlphaCmd;
+  delete fSurfaceMatPropVectorCmd;
+  delete fGasPropVectorCmd;
 }
 
 /*
@@ -167,8 +219,52 @@ DetectorMessenger::~DetectorMessenger(){
  */
 void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 {
+  // MODEL FILE
+  if(command == fModelCmd){
+    fDetector->UseCADModel(newValue);
+  }
+  // WORLD VOLUME
+  else if(command == fWorldVolumeCmd){
+    fDetector->SetWorldVolume(fWorldVolumeCmd->GetNew3VectorValue(newValue));
+  }
+  // LIGHT GUIDE ENVELOPE
+  else if(command == fEnvelopeCmd){
+    fDetector->SetEnvelope(fEnvelopeCmd->GetNew3VectorValue(newValue));
+  }
+  // MODEL ROTATION
+  else if(command == fModelRotationCmd){
+    fDetector->SetRotation(fModelRotationCmd->GetNew3VectorValue(newValue));
+  }
+  // MODEL TRANSLATION
+  else if(command == fModelTranslationCmd){
+    fDetector->SetTranslation(fModelTranslationCmd->GetNew3VectorValue(newValue));
+  }
+  // PMT TRANSLATION
+  else if(command == fPMTTranslationCmd){
+    fDetector->SetPMTTranslation(fPMTTranslationCmd->GetNew3VectorValue(newValue));
+  }
+  // PMT DIAMETER
+  else if(command == fPMTDiameterCmd){
+    fDetector->SetPMTDiameter(fPMTDiameterCmd->GetNewDoubleValue(newValue));
+  }
+  // PMT DIAMETER
+  else if(command == fLGThicknessCmd){
+    fDetector->SetLGthickness(fLGThicknessCmd->GetNewDoubleValue(newValue));
+  }
+  // OUTPUT GEOMETRY TO GDML
+  else if(command == fOutputModelCmd){
+    fDetector->OutputToGDML(newValue);
+  }
+  // X SEGMENTATION
+  else if(command == fNsegmentsXCmd){
+    fDetector->SetNSegmentsX(fNsegmentsXCmd->GetNewIntValue(newValue));
+  }
+  // Z SEGMENTATION
+  else if(command == fNsegmentsZCmd){
+    fDetector->SetNSegmentsZ(fNsegmentsZCmd->GetNewIntValue(newValue));
+  }
   //    FINISH
-  if (command == fSurfaceFinishCmd) {
+  else if (command == fSurfaceFinishCmd) {
     if (newValue == "polished") {
       fDetector->SetSurfaceFinish(polished);
     }
@@ -365,7 +461,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     fDetector->SetSurfaceSigmaAlpha(
       G4UIcmdWithADouble::GetNewDoubleValue(newValue));
   }
-  // SURFACE PROPERTY
+  // Gas property
   else if (command == fGasPropVectorCmd) {
     // Convert string to physics vector
     // string format is property name, then pairs of energy, value
@@ -387,29 +483,5 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     }
     const char* c = prop.c_str();
     fDetector->AddGasMPV(c, mpv);
-  }
-  // MODEL LOCATION
-  else if(command == fModelCmd){
-    fDetector->UseCADModel(newValue);
-  }
-  // MODEL ROTATION
-  else if(command == fModelRotationCmd){
-    fDetector->SetRotation(fModelRotationCmd->GetNew3VectorValue(newValue));
-  }
-  // MODEL TRANSLATION
-  else if(command == fModelTranslationCmd){
-    fDetector->SetTranslation(fModelTranslationCmd->GetNew3VectorValue(newValue));
-  }
-  // PMT TRANSLATION
-  else if(command == fPMTTranslationCmd){
-    fDetector->SetPMTTranslation(fPMTTranslationCmd->GetNew3VectorValue(newValue));
-  }
-  // PMT Diameter
-  else if(command == fPMTDiameterCmd){
-    fDetector->SetPMTDiameter(fPMTDiameterCmd->GetNewDoubleValue(newValue));
-  }
-  // PMT Diameter
-  else if(command == fOutputModelCmd){
-    fDetector->OutputToGDML(newValue);
   }
 }
