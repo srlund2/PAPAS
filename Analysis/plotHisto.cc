@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
   if(name.find(".") != string::npos) name.erase( name.find_last_of(".") );
 
   TTree *t = (TTree*)f->Get("lightGuide");
-  double x,z;
+  vector<double> *x=0,*z=0;
   t->SetBranchAddress("X",&x);
   t->SetBranchAddress("Z",&z);
 
@@ -31,7 +31,10 @@ int main(int argc, char *argv[]){
   int nEvents = t->GetEntries();
   for(int ev = 0; ev < nEvents; ev++){
     t->GetEntry(ev);
-    h->Fill(z,x);
+    int nPoints = x->size();
+    for(int i = 0; i < nPoints; i++){
+      h->Fill(z->at(i),x->at(i));
+    }
   }
 
   gStyle->SetOptStat(0);
