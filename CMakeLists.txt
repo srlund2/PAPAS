@@ -50,6 +50,11 @@ add_executable(plotHisto ${DEPENDENCIES} Analysis/plotHisto.cc)
 TARGET_LINK_LIBRARIES(plotHisto ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
+#Add Compiler flags
+#
+add_definitions(-Wno-shadow)
+
+#----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build lightGuide. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
