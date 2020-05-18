@@ -55,5 +55,5 @@ SteppingAction::~SteppingAction()
 */
 void SteppingAction::UserSteppingAction(const G4Step* step)
 {
-
+  (void) step;
 }
