@@ -1,8 +1,11 @@
 #----- Set the beam energy profile -----
 /gps/particle opticalphoton
 /gps/ene/type Gauss
-/gps/ene/mono 3.4 eV
-/gps/ene/sigma 1 eV
+/gps/ene/mono 4.75 eV
+/gps/ene/sigma 10 eV
+/gps/ene/min 1.9 eV
+/gps/ene/max 7.6 eV
+/gps/ene/gradient -200 MeV
 /gps/polarization 0 0 0
 
 
@@ -12,7 +15,7 @@
 #/gps/pos/type Beam
 #/gps/pos/shape Circle
 #/gps/pos/radius 0.75 mm
-#/gps/pos/radius 102 mm
+#/gps/pos/radius 1.5 mm
 #/gps/pos/sigma_r 0.002 mm
 
 # Rectangular plane for infinite resolution
