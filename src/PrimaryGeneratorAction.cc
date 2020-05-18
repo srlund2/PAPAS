@@ -32,6 +32,8 @@
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
+#include "G4SystemOfUnits.hh"
+
 
 
 /*
@@ -43,6 +45,10 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun      = new G4GeneralParticleSource();
   fASCIIParticleGun = new ASCIIPrimaryGenerator();
   fMessenger        = new PrimaryGeneratorMessenger( this );
+
+  fUseRootInput = fUseASCIIInput = false;
+  x = z = px = py = pz = Energy = time = 0;
+  evNo = 0;
 }
 
 /*
@@ -60,14 +66,76 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
  */
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  if(fUseInput){
+  if(fUseASCIIInput){
     fASCIIParticleGun->GeneratePrimaryVertex(anEvent);
+  }else if(fUseRootInput){
+    GeneratePrimariesFromRootFile(anEvent);
   }else{
     fParticleGun->GeneratePrimaryVertex(anEvent);
   }
 }
 
+/*
+ *
+ */
+void PrimaryGeneratorAction::GeneratePrimariesFromRootFile(G4Event* anEvent){
+  G4ParticleDefinition* particleDefinition=
+      G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
+
+  fInputTree->GetEntry(evNo);
+
+  //Pass the original event number to the output in case they aren't sequential
+  auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->FillNtupleIColumn(7, anEvent->GetEventID() );
+
+  G4int nPhotons = x->size();
+  for(G4int i = 0; i < nPhotons; i++){
+     G4PrimaryParticle* particle = new G4PrimaryParticle(particleDefinition);
+     particle->SetMomentum( px->at(i)*MeV, py->at(i)*MeV, pz->at(i)*MeV );
+
+     G4PrimaryVertex* vert = new G4PrimaryVertex( x->at(i)*mm, -0.1*mm, z->at(i)*mm , time->at(i)*s );
+     vert->SetPrimary( particle );
+     anEvent->AddPrimaryVertex( vert );
+  }
+  evNo++;
+}
+
 void PrimaryGeneratorAction::SetInputFile(G4String _name){
-  fASCIIParticleGun->SetInputFile(_name);
-  fUseInput = true;
+  if(fUseRootInput || fUseASCIIInput){
+    G4cerr << "WARNING: Input file defined twice. Using first definition." << G4endl;
+    return;
+  }
+  G4String check = _name;
+  check.toLower();
+  if(check.contains(".root")){
+    fInputFile = new TFile( _name.c_str(), "READ");
+
+    if(!fInputFile->IsOpen()){
+      G4cerr << _name << " could not be opened" << G4endl;
+      delete fInputFile;
+      return;
+    }
+
+    G4cout << "Using " << _name << " as source" << G4endl;
+
+    fUseRootInput = true;
+
+    fInputTree = (TTree*)fInputFile->Get("ZDCtree");
+    fnEvents = fInputTree->GetEntries();
+
+    fInputTree->SetBranchAddress("X",&x);
+    fInputTree->SetBranchAddress("Z",&z);
+    fInputTree->SetBranchAddress("Px",&px);
+    fInputTree->SetBranchAddress("Py",&py);
+    fInputTree->SetBranchAddress("Pz",&pz);
+    fInputTree->SetBranchAddress("Energy",&Energy);
+    fInputTree->SetBranchAddress("Time",&time);
+
+  }else if(check.contains(".txt")){
+    fUseASCIIInput = true;
+
+    G4cout << "Using " << _name << " as source" << G4endl;
+    fASCIIParticleGun->SetInputFile(_name);
+    fnEvents = fASCIIParticleGun->GetnEvents();
+  }
 }

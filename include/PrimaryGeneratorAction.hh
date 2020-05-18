@@ -28,12 +28,16 @@
 #ifndef PrimaryGeneratorAction_h
 #define PrimaryGeneratorAction_h 1
 
+#include "TFile.h"
+#include "TTree.h"
+
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "PrimaryGeneratorMessenger.hh"
 #include "ASCIIPrimaryGenerator.hh"
 
-#include "globals.hh"
 #include "G4GeneralParticleSource.hh"
+
+#include <vector>
 
 class G4GeneralParticleSource;
 class G4Event;
@@ -47,14 +51,21 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
   public:
     virtual void  GeneratePrimaries(G4Event*);
+    virtual void  GeneratePrimariesFromRootFile(G4Event*);
     virtual void  SetInputFile(G4String _name);
-    inline  G4int GetnEvents(){return fASCIIParticleGun->GetnEvents();}
+    inline  G4int GetnEvents(){return fnEvents;}
 
   private:
     G4GeneralParticleSource*        fParticleGun;
     ASCIIPrimaryGenerator*          fASCIIParticleGun;
     PrimaryGeneratorMessenger*      fMessenger;
-    G4bool                          fUseInput;
+    G4int                           fnEvents;
+    G4bool                          fUseASCIIInput;
+    G4bool                          fUseRootInput;
+    TFile*                          fInputFile;
+    TTree*                          fInputTree;
+    std::vector<G4double>           *x, *z, *px, *py, *pz, *Energy, *time;
+    G4int                           evNo;
 
 };
 
