@@ -76,7 +76,7 @@ int main(int argc,char** argv)
 
   G4String macro;
   G4String session;
-  G4String output = "";
+  G4String output = "", input = "";
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -86,6 +86,7 @@ int main(int argc,char** argv)
      if      ( G4String(argv[i]) == "-m"  ) macro      = argv[i+1];
      else if ( G4String(argv[i]) == "-u"  ) session    = argv[i+1];
      else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
+     else if ( G4String(argv[i]) == "-i"  ) input      = argv[i+1];
      else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
 #ifdef G4MULTITHREADED
      else if ( G4String(argv[i]) == "-t" ) {
@@ -144,11 +145,14 @@ int main(int argc,char** argv)
   // Get the pointer to the User Interface manager
   //
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
+  if(input != ""){
+    G4String command = "/Input/FileName ";
+    UImanager->ApplyCommand(command+input);
+  }
 
   if ( macro.size() ) {
      // Batch mode
-     G4String command = "/control/execute ";
-     UImanager->ApplyCommand(command+macro);
+     UImanager->ExecuteMacroFile(macro);
      PrimaryGeneratorAction* pga = (PrimaryGeneratorAction*)runManager->GetUserPrimaryGeneratorAction();
      G4int nEvents = pga->GetnEvents();
      if( nEvents > 0){
