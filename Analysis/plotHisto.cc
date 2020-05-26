@@ -9,6 +9,7 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
+  float xRange, zRange;
   if(argc == 0) return 0;
   TFile *f = new TFile( argv[1] );
   if(f->IsZombie()){
@@ -25,8 +26,12 @@ int main(int argc, char *argv[]){
   t->SetBranchAddress("X",&x);
   t->SetBranchAddress("Z",&z);
 
+  xRange = (argc > 2) ? atof( argv[2] ) : 40.;
+  zRange = (argc > 3) ? atof( argv[3] ) : 80.;
+
   TCanvas *c = new TCanvas("Data","Data",1280,720);
-  TH2D *h = new TH2D("eff","Relative Efficiency",44,-82,82,21,-42.875,42.875);
+  TH2D *h = new TH2D("eff","Relative Efficiency",44,-1*zRange/2.,zRange/2.,21,-1*xRange/2.,xRange/2.);
+  //h->SetCanExtend(0);
 
   int nEvents = t->GetEntries();
   for(int ev = 0; ev < nEvents; ev++){
