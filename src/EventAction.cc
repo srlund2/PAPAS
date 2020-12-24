@@ -41,62 +41,32 @@
  *
  */
 EventAction::EventAction()
-  : G4UserEventAction(),
-    hitsCollID(0){
-  fPtrVec.push_back(&x);
-  fPtrVec.push_back(&z);
-  fPtrVec.push_back(&xHit);
-  fPtrVec.push_back(&zHit);
-  fPtrVec.push_back(&time);
-  fPtrVec.push_back(&theta);
-  fPtrVec.push_back(&energy);
-
+  : G4UserEventAction()
+{
 }
 
 /*
  *
  */
-EventAction::~EventAction(){
-
+EventAction::~EventAction()
+{
 }
 
 /*
  *
  */
 void EventAction::BeginOfEventAction(const G4Event* event){
-  fEventNo = event->GetEventID();
-  if(fEventNo%100000 == 0) G4cout << "Begin Event " << fEventNo << G4endl;
-  hitsCollID = 0;
 
-  for(uint i = 0; i < fPtrVec.size(); i++){
-    fPtrVec.at(i)->clear();
-  }
+  if(event->GetEventID()%100000 == 0) G4cout << "Begin Event " << event->GetEventID() << G4endl;
+
 }
 
 /*
  *
  */
 void EventAction::EndOfEventAction(const G4Event* event){
-  hitsCollID = G4SDManager::GetSDMpointer()->GetCollectionID("MyPMT");
-  G4HCofThisEvent* HCE = event->GetHCofThisEvent();
-  if(HCE){
-    HitsCollection* HC = (HitsCollection*)(HCE->GetHC(hitsCollID));
-    if( HC->entries() ){
-      for(size_t i = 0; i < HC->entries(); i++ ){
-        PMTHit* aHit = (*HC)[i];
-        // fill vectors //
-        x.push_back     ( aHit->getPos().x() );
-        z.push_back     ( aHit->getPos().z() );
-        xHit.push_back  ( aHit->getHit().x() );
-        zHit.push_back  ( aHit->getHit().z() );
-        time.push_back  ( aHit->getTime()    );
-        energy.push_back( aHit->getEnergy()  );
-        G4double pTheta = atan(sqrt(pow(aHit->getMomentum().x(),2) + pow(aHit->getMomentum().z(),2) )/fabs(aHit->getMomentum().y() ));
-        theta.push_back( pTheta );
-      }
-      // fill ntuple  //
-      G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-      analysisManager->AddNtupleRow();
-    }
-  }
+  // fill ntuple  //
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  analysisManager->FillNtupleIColumn( 0, event->GetEventID());
+  analysisManager->AddNtupleRow();
 }

@@ -48,6 +48,9 @@ public:
 private:
   int HCID;
   HitsCollection* hitCollection;
+
+  std::vector< std::vector<double>* > fPtrVec;
+  bool VISUALIZE;
 };
 
 #endif

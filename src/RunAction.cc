@@ -52,37 +52,6 @@ RunAction::RunAction(G4String fileName)
 
   G4RunManager::GetRunManager()->SetPrintProgress(1);
 
-  // Create analysis manager. The choice of analysis
-  // technology is done via selection of a namespace
-  // in B4Analysis.hh
-  auto analysisManager = G4AnalysisManager::Instance();
-  G4cout << "Using " << analysisManager->GetType() << G4endl;
-
-  // Get event action
-  const EventAction* constEventAction
-    = static_cast<const EventAction*>(G4RunManager::GetRunManager()
-      ->GetUserEventAction());
-  EventAction* eventAction
-    = const_cast<EventAction*>(constEventAction);
-
-    std::vector< std::vector<double>* >  pVec = eventAction->GetVectors( );
-
-  // Create directories
-  analysisManager->SetVerboseLevel(1);
-  analysisManager->SetNtupleMerging(true);
-
-  // Creating ntuple
-  analysisManager->CreateNtuple("lightGuide", "pos and momentum");
-  analysisManager->CreateNtupleDColumn( "X",       *pVec[0] );
-  analysisManager->CreateNtupleDColumn( "Z",       *pVec[1] );
-  analysisManager->CreateNtupleDColumn( "hitX",    *pVec[2] );
-  analysisManager->CreateNtupleDColumn( "hitZ",    *pVec[3] );
-  analysisManager->CreateNtupleDColumn( "time",    *pVec[4] );
-  analysisManager->CreateNtupleDColumn( "theta",   *pVec[5] );
-  analysisManager->CreateNtupleDColumn( "energy",  *pVec[6] );
-  analysisManager->CreateNtupleIColumn( "EventNo" );
-  analysisManager->FinishNtuple();
-
 }
 
 /*
@@ -91,6 +60,7 @@ RunAction::RunAction(G4String fileName)
 RunAction::~RunAction(){
   delete fTimer;
   delete G4AnalysisManager::Instance();
+  for(auto vec : fPtrVec ) delete vec;
 }
 
 /*
@@ -100,12 +70,35 @@ void RunAction::BeginOfRunAction(const G4Run* aRun){
   G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
   fTimer->Start();
 
-  // Get analysis manager
+  // Create analysis manager. The choice of analysis
+  // technology is done via selection of a namespace
+  // in B4Analysis.hh
   auto analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
 
   // Open an output file
   if(m_fileName == "") m_fileName = "output";
   analysisManager->OpenFile(m_fileName);
+
+
+  // Create directories
+  analysisManager->SetVerboseLevel(1);
+  analysisManager->SetNtupleMerging(true);
+
+  // Creating ntuple
+  // Populate the vector with valid pointers and assign them to branches
+  // These vectors are filled in PMTSD
+  for(int i = 0; i < 7; i ++ ) fPtrVec.push_back( new std::vector< double > );
+  analysisManager->CreateNtuple("lightGuide", "pos and momentum");
+  analysisManager->CreateNtupleIColumn( "EventNo" );
+  analysisManager->CreateNtupleDColumn( "X",       *fPtrVec[0] );
+  analysisManager->CreateNtupleDColumn( "Z",       *fPtrVec[1] );
+  analysisManager->CreateNtupleDColumn( "hitX",    *fPtrVec[2] );
+  analysisManager->CreateNtupleDColumn( "hitZ",    *fPtrVec[3] );
+  analysisManager->CreateNtupleDColumn( "time",    *fPtrVec[4] );
+  analysisManager->CreateNtupleDColumn( "theta",   *fPtrVec[5] );
+  analysisManager->CreateNtupleDColumn( "energy",  *fPtrVec[6] );
+  analysisManager->FinishNtuple();
 }
 
 /*

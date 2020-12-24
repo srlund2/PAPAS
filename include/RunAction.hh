@@ -37,6 +37,8 @@
 #include "globals.hh"
 #include "G4UserRunAction.hh"
 
+#include <vector>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4Timer;
@@ -52,9 +54,13 @@ class RunAction : public G4UserRunAction
     virtual void BeginOfRunAction(const G4Run* aRun);
     virtual void EndOfRunAction(const G4Run* aRun);
 
+    std::vector< std::vector<double>* > GetVectors(){ return fPtrVec; }
+
   private:
     G4Timer* fTimer;
     G4String m_fileName;
+
+    std::vector< std::vector<double>* > fPtrVec;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
