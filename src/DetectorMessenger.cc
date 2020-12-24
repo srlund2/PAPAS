@@ -75,7 +75,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fEnvelopeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fEnvelopeCmd->SetToBeBroadcasted(false);
   fEnvelopeCmd->SetParameterName("X","Y","Z",true);
-  fEnvelopeCmd->SetDefaultValue(G4ThreeVector(89.75*mm,113.*mm,339.*mm));
+  fEnvelopeCmd->SetDefaultValue(G4ThreeVector(89.75*CLHEP::mm,113.*CLHEP::mm,339.*CLHEP::mm));
   fEnvelopeCmd->SetDefaultUnit("m");
 
   //Model commands
@@ -118,7 +118,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fPMTDiameterCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fPMTDiameterCmd->SetToBeBroadcasted(false);
   fPMTDiameterCmd->SetParameterName("dia",true);
-  fPMTDiameterCmd->SetDefaultValue( 65.0*mm );
+  fPMTDiameterCmd->SetDefaultValue( 65.0*CLHEP::mm );
   fPMTDiameterCmd->SetDefaultUnit("mm");
 
   fLGThicknessCmd =
@@ -127,7 +127,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fLGThicknessCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fLGThicknessCmd->SetToBeBroadcasted(false);
   fLGThicknessCmd->SetParameterName("thickness",true);
-  fLGThicknessCmd->SetDefaultValue( 1.0*mm );
+  fLGThicknessCmd->SetDefaultValue( 1.0*CLHEP::mm );
   fLGThicknessCmd->SetDefaultUnit("mm");
 
   fOutputModelCmd = new G4UIcmdWithAString("/lightGuide/model/OutputModel",this);

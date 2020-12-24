@@ -33,6 +33,8 @@
 #include "Materials.hh"
 #include "PMTSD.hh"
 
+#include "CADMesh.hh"
+
 #include <math.h>
 
 // GEANT4 //
@@ -95,9 +97,6 @@ DetectorConstruction::DetectorConstruction()
    m_GasMPT->AddProperty("RINDEX", PhotonEnergy, RefractiveIndexAir, 2);
    m_filler->SetMaterialPropertiesTable(m_GasMPT);
 
-   #ifdef CADMESH
-   m_mesh = 0;
-   #endif
 }
 
 
@@ -427,8 +426,8 @@ void DetectorConstruction::SetTranslation(G4ThreeVector arg){
  */
 void DetectorConstruction::SetPMTTranslation(G4ThreeVector arg){
   if(m_ConstructionHasBeenDone){
-    if(m_physLightGuide.size() == 1){
-      m_physLightGuide.back()->SetTranslation(arg);
+    if(m_physPMT.size() == 1){
+      m_physPMT.back()->SetTranslation(arg);
     } else {
       m_LGpos = new G4ThreeVector(arg);
       Construct();
@@ -476,6 +475,7 @@ void DetectorConstruction::SetLGthickness(G4double arg){
 void DetectorConstruction::UseCADModel(G4String fileName){
   //Delete anything we are going to redefine
   if(m_logicLightGuide) delete m_logicLightGuide;
+  float xSize=0.0, ySize=0.0, zSize=0.0;
 
   for(uint i = 0; i < m_physLightGuide.size(); i++){
     delete m_physLightGuide[i];
@@ -490,20 +490,18 @@ void DetectorConstruction::UseCADModel(G4String fileName){
 
   G4String fileType = fileName.substr( fileName.last('.') + 1, fileName.size() - fileName.last('.'));
 
-  #ifdef CADMESH
   if(fileType == "stl"){
-    if(m_mesh != 0) delete m_mesh;
-    m_mesh = new CADMesh((char*) fileName.c_str());
-    m_mesh->SetScale(mm);
-    m_mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
-    m_mesh->SetReverse(false);
+    auto mesh = CADMesh::TessellatedMesh::FromSTL((char*) fileName.c_str());
+    // auto mesh = CADMesh::TessellatedMesh::From((char*) fileName.c_str());
+    mesh->SetScale(mm);
+    mesh->SetOffset( G4ThreeVector(-20*cm, 0, 0) );
+    mesh->SetReverse(false);
 
     m_logicLightGuide =
-      new G4LogicalVolume(m_mesh->TessellatedMesh(), //solid
+      new G4LogicalVolume(mesh->GetSolid(), //solid
                           materials->Al,           //material
                           "LightGuide");           //name
   }
-  #endif
 
   if(fileType == "gdml"){
     m_Parser.Read(fileName);
@@ -517,17 +515,21 @@ void DetectorConstruction::UseCADModel(G4String fileName){
     //Print the extent to the console to help the user position the light guide
     char message[64];
     G4VisExtent extent = m_logicLightGuide->GetSolid()->GetExtent();
+    xSize = extent.GetXmax() - extent.GetXmin();
+    ySize = extent.GetYmax() - extent.GetYmin();
+    zSize = extent.GetZmax() - extent.GetZmin();
     G4cout << "===== Light guide extent =====" << G4endl;
-    sprintf(message,"Xmin = %04.2f, Xmax = %04.2f: Width  = %04.2f", extent.GetXmin(), extent.GetXmax(), extent.GetXmax() - extent.GetXmin() );
+    sprintf(message,"Xmin = %04.2f, Xmax = %04.2f: Width  = %04.2f", extent.GetXmin(), extent.GetXmax(), xSize );
     G4cout << message << G4endl;
-    sprintf(message,"Ymin = %04.2f, Ymax = %04.2f: Height = %04.2f", extent.GetYmin(), extent.GetYmax(), extent.GetYmax() - extent.GetYmin() );
+    sprintf(message,"Ymin = %04.2f, Ymax = %04.2f: Height = %04.2f", extent.GetYmin(), extent.GetYmax(), ySize );
     G4cout << message << G4endl;
-    sprintf(message,"Zmin = %04.2f, Zmax = %04.2f: Depth  = %04.2f", extent.GetZmin(), extent.GetZmax(), extent.GetZmax() - extent.GetZmin() );
+    sprintf(message,"Zmin = %04.2f, Zmax = %04.2f: Depth  = %04.2f", extent.GetZmin(), extent.GetZmax(), zSize );
     G4cout << message << G4endl;
 
   }
 
-  if(m_pmtPos == 0) m_pmtPos = new G4ThreeVector();
+  if(m_pmtPos == 0) m_pmtPos = new G4ThreeVector( );
+  SetEnvelope( G4ThreeVector( m_nSegmentsX*xSize, ySize, m_nSegmentsZ*zSize ) );
 
   if(m_ConstructionHasBeenDone){
     PlaceGeometry();

@@ -3,8 +3,8 @@
 /lightGuide/envelope 89.75 113. 165. mm
 
 /lightGuide/model/PMTDiameter 53 mm
-/lightGuide/model/nSegmentsX 2
-/lightGuide/model/nSegmentsZ 2
+/lightGuide/model/nSegmentsX 1
+/lightGuide/model/nSegmentsZ 1
 
 
 
@@ -12,46 +12,14 @@
 #If no model is selected, the program will default to a
 #simplified version of the 2018 testbeam light guide
 
-#/lightGuide/model/CADmodel ../models/LightGuide2018TB.stl
-#/lightGuide/model/rotate 0 90 0
-#/lightGuide/model/translate 0 -250 200 mm
-#/lightGuide/model/translatePMT 0 339 0 mm
+/lightGuide/model/CADmodel ../models/run2.stl
+/lightGuide/model/translate 200 -125 0 mm
+/lightGuide/model/translatePMT 0 -74.5 0 mm
 
-#/lightGuide/model/CADmodel ../models/Winston_cone.stl
-#/lightGuide/model/rotate 0 0 90
-#/lightGuide/model/translate 0 -111 0 mm
-#/lightGuide/model/translatePMT 0 339 0 mm
-
-#/lightGuide/model/CADmodel ../models/LightGuide2007BigPMT.stl
-#/lightGuide/model/rotate 0 -90 0
-#/lightGuide/model/translate 0 -250 -200 mm
-#/lightGuide/model/translatePMT 0 131 0 mm
-
-#/lightGuide/model/CADmodel ../models/LightGuide2007SmallPMT.stl
-#/lightGuide/model/rotate 0 -90 0
-#/lightGuide/model/translate 0 -250 -200 mm
-#/lightGuide/model/translatePMT 0 131 0 mm
-
-#/lightGuide/model/CADmodel ../models/run2.stl
-#/lightGuide/model/rotate 0 0 0
-#/lightGuide/model/translate 200 -250 0 mm
-#/lightGuide/model/translatePMT 0 -119 0 mm
-
-#/lightGuide/model/CADmodel ../models/run3wc.stl
+#/lightGuide/model/CADmodel ../models/2020WC.stl
 #/lightGuide/model/rotate 0 0 90
 #/lightGuide/model/translate 0 -319 0 mm
 #/lightGuide/model/translatePMT 0 -119 0 mm
-
-#/lightGuide/model/CADmodel ../models/YuvalCone.stl
-#/lightGuide/model/translate 200 -136.75 0 mm
-#/lightGuide/model/translatePMT 0 -136.5 0 mm
-#/lightGuide/model/PMTDiameter 170
-
-#/lightGuide/model/CADmodel ../models/YuvalHad.stl
-#/lightGuide/model/translate 0 -319 0 mm
-#/lightGuide/model/translatePMT 0 -136.5 0 mm
-#/lightGuide/model/PMTDiameter 170
-
 
 #----- Set surface properties of the light guide -----
 #/lightGuide/surface/Model unified

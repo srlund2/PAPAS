@@ -41,10 +41,6 @@
 #include "G4GDMLParser.hh"
 #include "G4RunManager.hh"
 
-#ifdef CADMESH
-#include "CADMesh.hh"
-#endif
-
 #include "Materials.hh"
 #include "DetectorMessenger.hh"
 
@@ -102,10 +98,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4Box*                  m_solidHalfWorld;
     G4LogicalVolume*        m_logicHalfWorld;
     G4VPhysicalVolume*      m_physHalfWorld;
-
-    #ifdef CADMESH
-    CADMesh*                m_mesh;
-    #endif
 
     G4Trd*                                 m_inner;
     G4Trd*                                 m_outter;

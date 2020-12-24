@@ -20,14 +20,6 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package (ROOT REQUIRED)
 include(${ROOT_USE_FILE})
 #----------------------------------------------------------------------------
-# Find CADMesh
-find_package(cadmesh)
-include_directories(${CADMESH_INCLUDE_DIRS})
-if(CADMESH_INCLUDE_DIRS)
-  add_definitions(-DCADMESH)
-endif()
-
-#----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 #
 include(${Geant4_USE_FILE} )
@@ -44,7 +36,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(lightGuide lightGuide.cc ${sources} ${headers})
-target_link_libraries(lightGuide ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} cadmesh )
+target_link_libraries(lightGuide ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 add_executable(plotHisto ${DEPENDENCIES} Analysis/plotHisto.cc)
 TARGET_LINK_LIBRARIES(plotHisto ${ROOT_LIBRARIES})

@@ -12,8 +12,6 @@ This simulation is based on OpNovice and OpNovice2
 
   - CERN ROOT
 
-  - CADMesh is required to read CAD models (i.e. stl, step), but is optional for compiling. Avaialble at https://github.com/christopherpoole/CADMesh
-
 #### main()
 
 define Random Number Engine, initial seed, CAD input and GDML output
@@ -57,6 +55,7 @@ CAD models can be imported and positioned via
     /lightGuide/model/translate
     /lightGuide/model/translatePMT
 ```
+The models must be in ASCII STL format in the current implementation.
 
 And the optical properties of a sub volume of G4Air which the light guide sits in can be configured via
 ```

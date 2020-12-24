@@ -82,7 +82,7 @@ void EventAction::EndOfEventAction(const G4Event* event){
   if(HCE){
     HitsCollection* HC = (HitsCollection*)(HCE->GetHC(hitsCollID));
     if( HC->entries() ){
-      for(int i = 0; i < HC->entries(); i++ ){
+      for(size_t i = 0; i < HC->entries(); i++ ){
         PMTHit* aHit = (*HC)[i];
         // fill vectors //
         x.push_back     ( aHit->getPos().x() );
