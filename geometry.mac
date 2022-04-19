@@ -16,9 +16,13 @@
 /lightGuide/model/translate 200 -125 0 mm
 /lightGuide/model/translatePMT 0 -74.5 0 mm
 
-#/lightGuide/model/CADmodel ../models/run2.stl
+#/lightGuide/model/CADmodel ../models/EMprototype.stl
 #/lightGuide/model/translate 0 0 0 mm
 #/lightGuide/model/translatePMT 0 -74.5 0 mm
+
+#/lightGuide/model/CADmodel ../models/EMprototypeSingle.stl
+#/lightGuide/model/translate 175.25 -27.75 -8 mm
+#/lightGuide/model/translatePMT 0 0 0 mm
 
 #/lightGuide/model/CADmodel ../models/2020WC.stl
 #/lightGuide/model/rotate 0 0 90
