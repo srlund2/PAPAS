@@ -30,12 +30,14 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
 #include "G4SDManager.hh"
+#include "G4RunManager.hh"
 #include "G4Event.hh"
 #include "G4Track.hh"
 #include "G4ios.hh"
 
 #include "PMTHit.hh"
 #include "lgAnalysis.hh"
+#include "RunAction.hh"
 
 /*
  *
@@ -69,4 +71,6 @@ void EventAction::EndOfEventAction(const G4Event* event){
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   analysisManager->FillNtupleIColumn( 0, event->GetEventID());
   analysisManager->AddNtupleRow();
+
+  ((RunAction*)G4RunManager::GetRunManager()->GetUserRunAction())->ClearVectors();
 }
