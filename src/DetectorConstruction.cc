@@ -59,7 +59,7 @@
 #include "G4VisExtent.hh"
 #include "G4Colour.hh"
 #include "G4UImanager.hh"
-#include "G4GDMLParser.hh"
+// #include "G4GDMLParser.hh"
 
 /*
  *
@@ -503,12 +503,12 @@ void DetectorConstruction::UseCADModel(G4String fileName){
                           "LightGuide");           //name
   }
 
-  if(fileType == "gdml"){
-    m_Parser.Read(fileName);
-  }
-  if(fileType == "step"){
-    m_logicLightGuide = m_Parser.ParseST(fileName,materials->Air,materials->Al);
-  }
+  // if(fileType == "gdml"){
+  //   m_Parser.Read(fileName);
+  // }
+  // if(fileType == "step"){
+  //   m_logicLightGuide = m_Parser.ParseST(fileName,materials->Air,materials->Al);
+  // }
 
   if(m_logicLightGuide !=0 ){
 
@@ -544,15 +544,17 @@ void DetectorConstruction::UseCADModel(G4String fileName){
  * Output the model of the light guide to GDML
  */
 void DetectorConstruction::OutputToGDML(G4String fileName){
-  if(m_physLightGuide[0] != 0){
+
+  G4cout << "Go home, you're drunk" << G4endl;
+  // if(m_physLightGuide[0] != 0){
     //For some reason this only works as a pointer
-    G4GDMLParser* gdml = new G4GDMLParser();
-    gdml->Write(fileName.c_str(),m_physLightGuide.back());
-    delete gdml;
-  }else{
-    G4cout << "No physical light guide defined..." << G4endl;
-    G4cout << "Can't write model to GDML" << G4endl;
-  }
+  //   G4GDMLParser* gdml = new G4GDMLParser();
+  //   gdml->Write(fileName.c_str(),m_physLightGuide.back());
+  //   delete gdml;
+  // }else{
+  //   G4cout << "No physical light guide defined..." << G4endl;
+  //   G4cout << "Can't write model to GDML" << G4endl;
+  // }
 }
 
 /*

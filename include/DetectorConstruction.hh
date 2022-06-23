@@ -38,7 +38,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "G4SubtractionSolid.hh"
-#include "G4GDMLParser.hh"
+// #include "G4GDMLParser.hh"
 #include "G4RunManager.hh"
 
 #include "Materials.hh"
@@ -115,7 +115,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     G4Material*                            m_filler;
     G4MaterialPropertiesTable*             m_GasMPT;
 
-    G4GDMLParser                           m_Parser;
+    // G4GDMLParser                           m_Parser;
     G4RunManager*                          m_runMan;
     DetectorMessenger*                     m_DetectorMessenger;
 };
