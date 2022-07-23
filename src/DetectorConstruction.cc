@@ -286,8 +286,47 @@ void DetectorConstruction::PlaceGeometry(){
   G4RotationMatrix * PMTrot = new G4RotationMatrix();
   PMTrot->rotateX(90*deg);
 
-  char name[40];
 
+  if(m_nSegmentsX == 1 && m_nSegmentsZ == 1){
+
+          m_physLightGuide.push_back(
+            new G4PVPlacement(m_rotation,
+                              G4ThreeVector(m_LGpos->x(), m_LGpos->y(), m_LGpos->z()),
+                              m_logicLightGuide,
+                              "LightGuide",
+                              m_logicHalfWorld,
+                              false,
+                              0) );
+
+          //----------------- Place the PMT -----------------//
+
+          m_physPMT.push_back(
+            new G4PVPlacement(PMTrot,
+                              G4ThreeVector(m_pmtPos->x(), m_pmtPos->y(), m_pmtPos->z()),
+                              m_logicPMT,
+                              "PMT",
+                              m_logicHalfWorld,
+                              false,
+                              0) );
+
+          //----------------- Define Optical Borders -----------------//
+
+          m_Surfvec.push_back(
+            new G4LogicalBorderSurface("AlSurface",
+                                       m_physLightGuide.back(),
+                                       m_physHalfWorld,
+                                       materials->AlSurface ) );
+          m_Surfvec.push_back(
+            new G4LogicalBorderSurface("AlSurface",
+                                       m_physHalfWorld,
+                                       m_physLightGuide.back(),
+                                       materials->AlSurface ) );
+
+
+          return;
+  }
+
+  char name[40];
 
   for(G4int xIndex = 0; xIndex < m_nSegmentsX; xIndex++ ){
     //Start from -x, add user specified offset, add 1/2 the width of one LG, then a full width for each
