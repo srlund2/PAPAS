@@ -79,6 +79,7 @@ DetectorConstruction::DetectorConstruction()
    m_ConstructionHasBeenDone(false),
    m_UsingCADmodel(false),
    m_logicWorld(0),
+   m_logicLightGuide(0),
    m_DetectorMessenger(nullptr)
 {
    materials = Materials::getInstance();
