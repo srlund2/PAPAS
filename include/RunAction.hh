@@ -55,7 +55,7 @@ class RunAction : public G4UserRunAction
     virtual void EndOfRunAction(const G4Run* aRun);
 
     std::vector< std::vector<double>* > GetVectors(){ return fPtrVec; }
-    inline  void ClearVectors(){ for(auto vec : fPtrVec) vec->clear(); }
+    inline void ClearVectors(){ for(auto vec : fPtrVec) vec->clear(); }
 
   private:
     G4Timer* fTimer;

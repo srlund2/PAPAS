@@ -38,7 +38,6 @@
 #include <math.h>
 
 // GEANT4 //
-#include "G4Element.hh"
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
 #include "G4GeometryManager.hh"
@@ -164,7 +163,8 @@ void DetectorConstruction::BuildWorld(){
                       0,                  //copy number
                       checkOverlaps);     //overlaps checking
 
-  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4VisAttributes::Invisible);
+  G4VisAttributes* boxVisAtt_world= new G4VisAttributes();
+  boxVisAtt_world ->SetVisibility(false);
 
 	m_logicWorld ->SetVisAttributes(boxVisAtt_world);
 
@@ -249,10 +249,6 @@ void DetectorConstruction::BuildTrapezoidLG( ){
  */
 void DetectorConstruction::BuildPMT(){
 
-  G4SDManager* SDman = G4SDManager::GetSDMpointer();
-  PMTSD* PMT = new PMTSD("MyPMT");
-  SDman->AddNewDetector( PMT );
-
   m_solidPMT =
     new G4Tubs("PMT",       //name
               0.0*mm,       //Inner radius
@@ -268,8 +264,15 @@ void DetectorConstruction::BuildPMT(){
 
   G4VisAttributes* VisAtt_PMT = new G4VisAttributes(G4Colour(1.0,1.0,0.6,0.7));
   m_logicPMT->SetVisAttributes(VisAtt_PMT);
-  m_logicPMT->SetSensitiveDetector( PMT );
+  
 
+}
+
+void DetectorConstruction::ConstructSDandField(){
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+  PMTSD* PMT = new PMTSD("MyPMT");
+  SDman->AddNewDetector( PMT );
+  m_logicPMT->SetSensitiveDetector( PMT );
 }
 
 /*
@@ -528,7 +531,7 @@ void DetectorConstruction::UseCADModel(G4String fileName){
   m_Surfvec.clear();
 
 
-  G4String fileType = fileName.substr( fileName.last('.') + 1, fileName.size() - fileName.last('.'));
+  G4String fileType = fileName.substr( fileName.find_last_of('.') + 1, fileName.size() - fileName.find_last_of('.'));
 
   if(fileType == "stl"){
     auto mesh = CADMesh::TessellatedMesh::FromSTL((char*) fileName.c_str());
@@ -668,7 +671,6 @@ void DetectorConstruction::SetSurfaceSigmaAlpha(G4double v){
  * of the light guide
  */
 void DetectorConstruction::AddSurfaceMPV(const char* c, G4MaterialPropertyVector* mpv){
-  mpv->SetSpline(true);
   materials->GetMPTArray().at(1)->AddProperty(c, mpv);
   materials->AlSurface->SetMaterialPropertiesTable(materials->GetMPTArray().at(1));
   G4cout << "The MPT for the surface is now: " << G4endl;
@@ -681,7 +683,6 @@ void DetectorConstruction::AddSurfaceMPV(const char* c, G4MaterialPropertyVector
  * which contains the light guide
  */
 void DetectorConstruction::AddGasMPV(const char* c, G4MaterialPropertyVector* mpv){
-  mpv->SetSpline(true);
   m_GasMPT->AddProperty(c, mpv);
   G4cout << "The MPT for the gas is now: " << G4endl;
   m_GasMPT->DumpTable();

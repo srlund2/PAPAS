@@ -35,7 +35,6 @@
 #define ASCIIPrimaryGenerator_h 1
 
 #include "G4VPrimaryGenerator.hh"
-#include "lgAnalysis.hh"
 
 #include <fstream>
 #include <vector>

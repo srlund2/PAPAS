@@ -25,14 +25,12 @@
 /// \file /src/PrimaryGeneratorAction.cc
 /// \brief Implementation of the PrimaryGeneratorAction class
 #include "PrimaryGeneratorAction.hh"
-#include "lgAnalysis.hh"
-
-#include "Randomize.hh"
 
 #include "G4Event.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
+#include <G4String.hh>
 
 
 
@@ -84,10 +82,6 @@ void PrimaryGeneratorAction::GeneratePrimariesFromRootFile(G4Event* anEvent){
 
   fInputTree->GetEntry(evNo);
 
-  //Pass the original event number to the output in case they aren't sequential
-  auto analysisManager = G4AnalysisManager::Instance();
-  analysisManager->FillNtupleIColumn(7, anEvent->GetEventID() );
-
   G4int nPhotons = x->size();
   for(G4int i = 0; i < nPhotons; i++){
      G4PrimaryParticle* particle = new G4PrimaryParticle(particleDefinition);
@@ -106,8 +100,8 @@ void PrimaryGeneratorAction::SetInputFile(G4String _name){
     return;
   }
   G4String check = _name;
-  check.toLower();
-  if(check.contains(".root")){
+  check = G4StrUtil::to_lower_copy(check);
+  if(G4StrUtil::contains(check,".root")){
     fInputFile = new TFile( _name.c_str(), "READ");
 
     if(!fInputFile->IsOpen()){
@@ -131,7 +125,7 @@ void PrimaryGeneratorAction::SetInputFile(G4String _name){
     fInputTree->SetBranchAddress("Energy",&Energy);
     fInputTree->SetBranchAddress("Time",&time);
 
-  }else if(check.contains(".txt")){
+  }else if(G4StrUtil::contains(check,".txt")){
     fUseASCIIInput = true;
 
     G4cout << "Using " << _name << " as source" << G4endl;

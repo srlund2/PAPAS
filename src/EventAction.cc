@@ -25,18 +25,11 @@
 // @Author Chad Lantz
 #include "EventAction.hh"
 
-#include "G4VProcess.hh"
-
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4SDManager.hh"
+#include "G4AnalysisManager.hh"
 #include "G4RunManager.hh"
 #include "G4Event.hh"
-#include "G4Track.hh"
 #include "G4ios.hh"
 
-#include "PMTHit.hh"
-#include "lgAnalysis.hh"
 #include "RunAction.hh"
 
 /*
@@ -68,9 +61,18 @@ void EventAction::BeginOfEventAction(const G4Event* event){
  */
 void EventAction::EndOfEventAction(const G4Event* event){
   // fill ntuple  //
+
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  RunAction *runAction = ((RunAction*)G4RunManager::GetRunManager()->GetUserRunAction());
+  std::vector< std::vector<double>* > ptrVec = runAction->GetVectors();
+
+  for(unsigned int i = 0; i < ptrVec[0]->size(); i++){
+    analysisManager->FillH2(0, ptrVec[0]->at(i), ptrVec[1]->at(i));
+  }
+
   analysisManager->FillNtupleIColumn( 0, event->GetEventID());
   analysisManager->AddNtupleRow();
-
-  ((RunAction*)G4RunManager::GetRunManager()->GetUserRunAction())->ClearVectors();
+  
+  runAction->ClearVectors();
 }

@@ -419,7 +419,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     // Convert string to physics vector
     // string format is property name, then pairs of energy, value
     // space delimited
-    G4MaterialPropertyVector* mpv = new G4MaterialPropertyVector();
+    G4MaterialPropertyVector* mpv = new G4MaterialPropertyVector(true);
     G4cout << newValue << G4endl;
     std::istringstream instring(newValue);
     G4String prop;
@@ -466,7 +466,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     // Convert string to physics vector
     // string format is property name, then pairs of energy, value
     // space delimited
-    G4MaterialPropertyVector* mpv = new G4MaterialPropertyVector();
+    G4MaterialPropertyVector* mpv = new G4MaterialPropertyVector(true);
     G4cout << newValue << G4endl;
     std::istringstream instring(newValue);
     G4String prop;

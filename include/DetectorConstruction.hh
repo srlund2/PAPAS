@@ -53,6 +53,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
   public:
     virtual G4VPhysicalVolume* Construct();
+    void ConstructSDandField();
 
     void BuildWorld           ();
     void BuildTrapezoidLG     ();
