@@ -149,15 +149,10 @@ int main(int argc,char** argv)
     G4String command = "/Input/FileName ";
     UImanager->ApplyCommand(command+input);
   }
-
+  
   if ( macro.size() ) {
      // Batch mode
      UImanager->ExecuteMacroFile(macro);
-     PrimaryGeneratorAction* pga = (PrimaryGeneratorAction*)runManager->GetUserPrimaryGeneratorAction();
-     G4int nEvents = pga->GetnEvents();
-     if( nEvents > 0){
-       runManager->BeamOn(nEvents);
-     }
   }
   else // Define UI session for interactive mode
   {
