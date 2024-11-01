@@ -1,3 +1,6 @@
+# This macro contains setting for the visualizer (GUI).
+# You probably won't have any reason to alter this one.
+
 # Use this open statement to create an OpenGL view:
 /vis/open OGL 600x600-0+0
 #

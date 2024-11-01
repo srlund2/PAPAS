@@ -1,11 +1,11 @@
-# Macro file for lightGuide
-#
-# To be run preferably in batch, without graphics:
+# This macro contains the run file for running the simulation in batch mode.
 
 # Initialize kernel
 /run/initialize
 
-
+# ----- Graphics -----
+# Default is 0, for running is batch mode without visualizer
+# To run in GUI with graphics, verbosity can be adjusted to 1.
 /control/verbose 0
 /run/verbose 0
 /run/printProgress 0
@@ -23,7 +23,7 @@
 
 #Uncomment to use gps style of setting the beam profile
 /control/execute beam.mac
-# number of events
+# number of events (aka number of photons simulated)
 /run/beamOn 100
 ##############################################################
 ##############################################################

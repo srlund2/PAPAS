@@ -1,3 +1,6 @@
+# This macro contains commands for photon emission and distribution.
+
+
 #----- Set the beam energy profile -----
 /gps/particle opticalphoton
 /gps/ene/type Gauss
@@ -9,36 +12,71 @@
 /gps/polarization 0 0 0
 
 
-
 #----- Set the beam geometry -----
-# Circular beam source. Simulates a single fiber optic
+# Circular beam source. Simulates a single fiber optic.
 #/gps/pos/type Beam
 #/gps/pos/shape Circle
 #/gps/pos/radius 0.75 mm
 #/gps/pos/radius 1.5 mm
 #/gps/pos/sigma_r 0.002 mm
 
-# Rectangular plane for infinite resolution
+# Rectangular plane source. Simulates infinite resolution.
 /gps/pos/type Plane
 /gps/pos/shape Rectangle
 /gps/pos/halfx 40 mm
 /gps/pos/halfy 68 mm
 
-# the incident surface is in the x-z plane just below the gas
+# Identify incident surface plane. Preset is in the x-z plane just below the origin.
 /gps/pos/rot1 1 0 0
 /gps/pos/rot2 0 0 1
 /gps/pos/centre 0. -0.1 0. mm
 
-# the photons are emitted around the y-axis
+# Identify photon emission axis. Preset to photons emitting around/in the positive y direction.
 /gps/ang/rot1 1 0 0
 /gps/ang/rot2 0 0 1
 /gps/ang/type beam1d
 
 #----- Set beam angular dispersion from histogram -----
+# Set to 'true' to use beam angular dispersion from hist.mac file, a cherenkov light distribution. 
 /gps/ang/surfnorm false
 /gps/ang/type user
 /control/execute hist.mac
 
-#----- Set beam angular dispersion for fiber optic -----
-# N.A. is 0.22 so acceptance cone is ~25.4 degrees
-#/gps/ang/sigma_r 25.40 deg
+#----- Set beam angular dispersion not from histogram -----
+# Defaults to straight light unless specified otherwise.
+# Sample commands are included below. More angular distribution commands
+# and instructions for use can be found in GPS manual section 2.7.3.4.
+#/gps/ang/sigma_r 15 deg
+#/gps/ang/maxtheta 5 deg
+
+#----- Set multiple light sources -----
+# Setting multiple light sources can be achieved as follows:
+# Comment out all of the above code
+# Fill in block below with desired parameters
+# Repeat the entire block for each additional source
+
+# #individual source
+# /gps/source/multiplevertex true
+# /gps/source/add 1
+# /gps/particle opticalphoton
+# /gps/ene/type Gauss
+# /gps/ene/mono 4.75 eV
+# /gps/ene/sigma 10 eV
+# /gps/ene/min 1.9 eV
+# /gps/ene/max 7.6 eV
+# /gps/ene/gradient -200 MeV
+# /gps/polarization 0 0 0
+# /gps/pos/rot1 1 0 0
+# /gps/pos/rot2 0 0 1
+# /gps/ang/rot1 1 0 0
+# /gps/ang/rot2 0 0 1
+# /gps/ang/type beam1d
+# /gps/ang/surfnorm false
+# /gps/ang/type user
+# /control/execute hist.mac
+# --- source placement and shape
+# /gps/pos/type Plane
+# /gps/pos/shape Circle
+# /gps/pos/radius 0.75 mm
+# /gps/pos/centre -22 -0.1 -3 mm #x, y, z coords of source center
+

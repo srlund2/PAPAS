@@ -1,3 +1,13 @@
+# Angular beam dispersion information for a cherenkov light dispersion. 
+# Based on JZCAPA simualtions of cherenkov light generated in the activer area of the ZDC,
+# and then transmitted through fused silica rods. This distribution accounts for total interal reflection
+# inside the fibers. Produced by Shir Shenkar.
+
+# This file can be altered to contain any simualted or manually set angular distribution information. 
+# Further information for user defined histograms can be found in section 2.7.2.5 of the GPS user manual,
+# found at https://www.fe.infn.it/u/paterno/Geant4_tutorial/slides_further/GPS/GPS_manual.pdf.
+
+
 /gps/hist/type theta
 #/gps/hist/point -0.007400 0.000000
 /gps/hist/point 0.000000 0.000059

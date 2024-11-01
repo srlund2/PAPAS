@@ -1,16 +1,23 @@
+# This macro is where you specifiy a CAD model, set material properties, 
+# and adjust palcement of CAD model (light guide) and photon sensor (PMT)
 
+
+# ----- Set world size. Must be large enough to contain CAD model. -----
 /lightGuide/worldVolume 0.25 0.25 0.25 m
 /lightGuide/envelope 89.75 113. 165. mm
 
-/lightGuide/model/PMTDiameter 53 mm
+# ----- Set PMT size -----
+# Default PMT window is circular
+/lightGuide/model/PMTDiameter 50 mm
 /lightGuide/model/nSegmentsX 1
 /lightGuide/model/nSegmentsZ 1
 
 
 
 #----- Set the light guide to be used and position it -----
-#If no model is selected, the program will default to a
-#simplified version of the 2018 testbeam light guide
+# If no model is selected, the program will default to a
+# simplified version of the 2018 testbeam light guide.
+# The four example models listed below are found in the 'models' folder
 
 /lightGuide/model/CADmodel ../models/run2.stl
 /lightGuide/model/translate 200 -125 0 mm
