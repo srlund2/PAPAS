@@ -9,11 +9,11 @@
  * And create a 2D histogram with the values contained. The histogram will be
  * saved to a root file with the name given by the second argument of the function.
  * 
- * The second function, compareHistos, which takes the names of two root files
+ * The second function, compareHistos, takes the names of two root files
  * as inputs, retrieves a histogram from within both, and can subtract or divide the two. 
  * REAL?? It then takes the subtracted histogram and fills another 1D
  * histogram with the subtracted values, returning this histogram's RMS as the
- * desired output
+ * desired output.
  * 
  * The third function, averageHistos, takes 4 histograms as inputs and averages them, 
  * returning a new histogram called haverage.
