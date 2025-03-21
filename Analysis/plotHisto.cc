@@ -1,3 +1,4 @@
+//This analysis script takes in the simulated data as a .root file and desired paramters for the x and y range of the resulting histogram.
 #include "TCanvas.h"
 #include "TH2.h"
 #include "TFile.h"
@@ -11,6 +12,7 @@ using namespace std;
 int main(int argc, char *argv[]){
   //loads in root file
   float xRange, zRange;
+  // xRange and zRange are the input args for x and y range
   if(argc == 0) return 0;
   TFile *f = new TFile( argv[1] );
   if(f->IsZombie()){
