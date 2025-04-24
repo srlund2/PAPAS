@@ -3,14 +3,14 @@
 
 
 # ----- Set world size. Must be large enough to contain CAD model. -----
-/lightGuide/worldVolume 0.25 0.25 0.25 m
-/lightGuide/envelope 89.75 113. 165. mm
+/papas/worldVolume 0.25 0.25 0.25 m
+/papas/envelope 89.75 113. 165. mm
 
 # ----- Set PMT size -----
 # Default PMT window is circular
-/lightGuide/model/PMTDiameter 50 mm
-/lightGuide/model/nSegmentsX 1
-/lightGuide/model/nSegmentsZ 1
+/papas/model/PMTDiameter 50 mm
+/papas/model/nSegmentsX 1
+/papas/model/nSegmentsZ 1
 
 
 
@@ -20,33 +20,33 @@
 # simplified version of the 2018 testbeam light guide.
 # The four example models listed below are found in the 'models' folder
 
-/lightGuide/model/CADmodel ../models/run2.stl
-/lightGuide/model/translate 200 -125 0 mm
-/lightGuide/model/translatePMT 0 -74.5 0 mm
+/papas/model/CADmodel ../models/run2.stl
+/papas/model/translate 200 -125 0 mm
+/papas/model/translatePMT 0 -74.5 0 mm
 
-#/lightGuide/model/CADmodel ../models/EMprototype.stl
-#/lightGuide/model/translate 0 0 0 mm
-#/lightGuide/model/translatePMT 0 -74.5 0 mm
+#/papas/model/CADmodel ../models/EMprototype.stl
+#/papas/model/translate 0 0 0 mm
+#/papas/model/translatePMT 0 -74.5 0 mm
 
-#/lightGuide/model/CADmodel ../models/EMprototypeSingle.stl
-#/lightGuide/model/translate 175.25 -27.75 -8 mm
-#/lightGuide/model/translatePMT 0 0 0 mm
+#/papas/model/CADmodel ../models/EMprototypeSingle.stl
+#/papas/model/translate 175.25 -27.75 -8 mm
+#/papas/model/translatePMT 0 0 0 mm
 
-#/lightGuide/model/CADmodel ../models/2020WC.stl
-#/lightGuide/model/rotate 0 0 90
-#/lightGuide/model/translate 0 -319 0 mm
-#/lightGuide/model/translatePMT 0 -119 0 mm
+#/papas/model/CADmodel ../models/2020WC.stl
+#/papas/model/rotate 0 0 90
+#/papas/model/translate 0 -319 0 mm
+#/papas/model/translatePMT 0 -119 0 mm
 
 #----- Set surface properties of the light guide -----
-#/lightGuide/surface/Model unified
-#/lightGuide/surface/Type dielectric_metal
-#/lightGuide/surface/Finish ground
-#/lightGuide/surface/SigmaAlpha .1
-#/lightGuide/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
-#/lightGuide/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
-#/lightGuide/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
-#/lightGuide/surface/Property REFLECTIVITY 0.000002 .89 0.000008 .89
+#/papas/surface/Model unified
+#/papas/surface/Type dielectric_metal
+#/papas/surface/Finish ground
+#/papas/surface/SigmaAlpha .1
+#/papas/surface/Property SPECULARLOBECONSTANT 0.000002 .4 0.000008 .4
+#/papas/surface/Property SPECULARSPIKECONSTANT 0.000002 .1 0.000008 .1
+#/papas/surface/Property BACKSCATTERCONSTANT 0.000002 .05 0.000008 .05
+#/papas/surface/Property REFLECTIVITY 0.000002 .89 0.000008 .89
 
 
 #----- Set the refractive index of the gas the light guide is inside of -----
-#/lightGuide/gasProperty RINDEX 0.000002 1.0 0.000008 1.0
+#/papas/gasProperty RINDEX 0.000002 1.0 0.000008 1.0

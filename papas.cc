@@ -22,7 +22,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file /lightGuide.cc
+/// \file /papas.cc
 /// \brief Main program of the  example
 //
 // Description: -- Transport of optical Photons through a light guide
@@ -56,7 +56,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " lightGuide [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName]"
+    G4cerr << " papas [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;

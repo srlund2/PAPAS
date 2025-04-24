@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
   if(name.find(".") != string::npos) name.erase( name.find_last_of(".") );
 
   //parse and define root file
-  TTree *t = (TTree*)f->Get("lightGuide");
+  TTree *t = (TTree*)f->Get("papas");
   vector<double> *x=0,*z=0;
   t->SetBranchAddress("X",&x);
   t->SetBranchAddress("Z",&z);

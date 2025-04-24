@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-project(lightGuide)
+project(papas)
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -35,8 +35,8 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(lightGuide lightGuide.cc ${sources} ${headers})
-target_link_libraries(lightGuide ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(papas papas.cc ${sources} ${headers})
+target_link_libraries(papas ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 add_executable(plotHisto ${DEPENDENCIES} Analysis/plotHisto.cc)
 TARGET_LINK_LIBRARIES(plotHisto ${ROOT_LIBRARIES})
@@ -48,17 +48,17 @@ add_definitions(-Wno-shadow)
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
-# build lightGuide. This is so that we can run the executable directly because it
+# build papas. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(lightGuide_SCRIPTS
+set(papas_SCRIPTS
     vis.mac
     run1.mac
     beam.mac
     geometry.mac
   )
 
-foreach(_script ${lightGuide_SCRIPTS})
+foreach(_script ${papas_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
@@ -69,7 +69,7 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS lightGuide DESTINATION bin )
+install(TARGETS papas DESTINATION bin )
 install(TARGETS plotHisto DESTINATION bin )
 install(FILES run1.mac DESTINATION bin )
 install(FILES geometry.mac DESTINATION bin )
