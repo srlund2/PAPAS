@@ -1,7 +1,7 @@
 **PAPAS: Package for Air-Light-Guide Photon Acceptance Simulation**
 
 ### Project Description
-PAPAS is a Geant4-based application that enables monte carlo optical simulation of CAD modeled light guides. This open-source simulation package that CAD model import (via CADMesh) into Geant4, Monte Carlo photon tracing, and performance analysis. PAPAS is designed to be maximally customizable, to provide optical simulation of CAD models to a variety of circumstances. 
+PAPAS is a Geant4-based application that enables monte carlo optical simulation of CAD modeled light guides. This open-source simulation package features CAD model import (via CADMesh) into Geant4, Monte Carlo photon tracing, and performance analysis. PAPAS is designed to be maximally customizable, to provide optical simulation of CAD models to a variety of circumstances. 
 
 The creation of PAPAS was motivated by a need for light guide simulaiton. Light guides are commonly used in particle and nuclear physics to redirect photons within a particle detector. The performance of a detector’s light guides is crucial to meaningful data collection. Thus, it is imperative to be able to evaluate the performance of a potential light guide model prior to implementation. Our group developed PAPAS to test new designs and geometries for our currently-in-development detector.  
 
